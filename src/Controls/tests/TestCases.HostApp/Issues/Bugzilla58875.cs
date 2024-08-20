@@ -4,11 +4,6 @@ using Microsoft.Maui.Controls.Internals;
 
 namespace Maui.Controls.Sample.Issues;
 
-[Category(UITestCategories.ListView)]
-[Category(UITestCategories.ContextActions)]
-[NUnit.Framework.Category(Compatibility.UITests.UITestCategories.Bugzilla)]
-
-
 [Preserve(AllMembers = true)]
 [Issue(IssueTracker.Bugzilla, 58875, "Back navigation disables Context Action in whole app, if Context Action left open", PlatformAffected.iOS)]
 public class Bugzilla58875 : TestNavigationPage

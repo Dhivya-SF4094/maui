@@ -79,7 +79,4 @@ public class Bugzilla58833 : TestContentPage
 	{
 		_resultLabel.Text = ItemSelectedSuccess;
 	}
-
-
-	protected override bool Isolate => true;
 }
