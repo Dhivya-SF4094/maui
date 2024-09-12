@@ -16,10 +16,11 @@ namespace Microsoft.Maui.Handlers
 	{
 		public static IPropertyMapper<IStepper, IStepperHandler> Mapper = new PropertyMapper<IStepper, StepperHandler>(ViewHandler.ViewMapper)
 		{
-			[nameof(IStepper.Interval)] = MapIncrement,
+			[nameof(IStepper.Increment)] = MapIncrement,
 			[nameof(IStepper.Maximum)] = MapMaximum,
 			[nameof(IStepper.Minimum)] = MapMinimum,
 			[nameof(IStepper.Value)] = MapValue,
+		//	[nameof(IView.AutomationId)] = MapAutomationId,
 #if ANDROID
 			[nameof(IStepper.IsEnabled)] = MapIsEnabled,
 #elif WINDOWS

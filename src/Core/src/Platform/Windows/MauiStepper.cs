@@ -6,6 +6,7 @@ using Microsoft.Maui.Graphics;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Automation;
 using WBrush = Microsoft.UI.Xaml.Media.Brush;
 using WVisualState = Microsoft.UI.Xaml.VisualState;
 using WVisualStateGroup = Microsoft.UI.Xaml.VisualStateGroup;
@@ -105,7 +106,8 @@ namespace Microsoft.Maui.Platform
 			_minus = GetTemplateChild("Minus") as Button;
 			if (_minus != null)
 				_minus.Click += OnMinusClicked;
-
+			AutomationProperties.SetAutomationId(_plus, "MyStepper_Plus");
+			AutomationProperties.SetAutomationId(_minus, "MyStepper_Minus");
 			UpdateEnabled(Value);
 			UpdateButtonBackground();
 		}

@@ -1,6 +1,6 @@
 ﻿#nullable disable
 using System;
-
+using Microsoft.UI.Xaml.Automation;
 namespace Microsoft.Maui.Handlers
 {
 	public partial class StepperHandler : ViewHandler<IStepper, MauiStepper>
@@ -10,8 +10,25 @@ namespace Microsoft.Maui.Handlers
 		protected override void ConnectHandler(MauiStepper platformView)
 		{
 			platformView.ValueChanged += OnValueChanged;
+			var automationId = VirtualView.AutomationId;
+			if (!string.IsNullOrEmpty(automationId))
+			{
+				//platformView.UpdateAutomationId();
+			//	AutomationProperties.SetAutomationId(platformView._plus, $"{automationId}_Plus");
+				//AutomationProperties.SetAutomationId(platformView._minus, $"{automationId}_Minus");
+
+				//AutomationProperties.SetName(platformView._plus, $"{automationId}_Plus");
+				//AutomationProperties.SetName(platformView._minus, $"{automationId}_Minus");
+			}
 
 			base.ConnectHandler(platformView);
+			//if (!string.IsNullOrEmpty(automationId))
+			//{
+			//	//platformView.UpdateAutomationId();
+			//	AutomationProperties.SetAutomationId(platformView._plus, $"{automationId}_Plus");
+			//	AutomationProperties.SetAutomationId(platformView._minus, $"{automationId}_Minus");
+
+			//}
 		}
 
 		protected override void DisconnectHandler(MauiStepper platformView)
@@ -33,7 +50,7 @@ namespace Microsoft.Maui.Handlers
 
 		public static void MapIncrement(IStepperHandler handler, IStepper stepper)
 		{
-			handler.PlatformView?.UpdateInterval(stepper);
+			handler.PlatformView?.UpdateIncrement(stepper);
 		}
 
 		public static void MapValue(IStepperHandler handler, IStepper stepper)

@@ -56,8 +56,11 @@ namespace Microsoft.Maui.Platform
 			// (which, unlike the minus, IS found on your keyboard).
 			upButton.Text = "＋";
 			upButton.ContentDescription = "+";
-
+			//upButton.Id = Resource.Id.+;
+			//	PlatformInterop.SetContentDescriptionForAutomationId(upButton, "MyStepper_Plus");
 			downButton.NextFocusForwardId = upButton.Id;
+			
+
 		}
 
 		public static void UpdateButtons<TButton>(IStepper stepper, TButton? downButton, TButton? upButton, PropertyChangedEventArgs? e = null)
@@ -83,7 +86,7 @@ namespace Microsoft.Maui.Platform
 				if (!(HandlerHolder.StepperHandler?.VirtualView is IStepper stepper))
 					return;
 
-				var increment = stepper.Interval;
+				var increment = stepper.Increment;
 
 				if (view == HandlerHolder.StepperHandler.DownButton)
 					increment = -increment;
