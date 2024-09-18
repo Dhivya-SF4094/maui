@@ -1,8 +1,4 @@
 #nullable enable
-Microsoft.Maui.IStepper.Increment.get -> double
-static Microsoft.Maui.Platform.StepperExtensions.UpdateIncrement(this Microsoft.Maui.Platform.MauiStepper! platformStepper, Microsoft.Maui.IStepper! stepper) -> void
-*REMOVED*static Microsoft.Maui.Platform.StepperExtensions.UpdateInterval(this Microsoft.Maui.Platform.MauiStepper! platformStepper, Microsoft.Maui.IStepper! stepper) -> void
-*REMOVED*Microsoft.Maui.IStepper.Interval.get -> double
 *REMOVED*static Microsoft.Maui.Platform.SearchBarExtensions.UpdateMaxLength(this Microsoft.UI.Xaml.Controls.AutoSuggestBox! platformControl, Microsoft.Maui.ISearchBar! searchBar) -> void
 static Microsoft.Maui.Platform.SearchBarExtensions.UpdateMaxLength(this Microsoft.UI.Xaml.Controls.AutoSuggestBox! platformControl, Microsoft.Maui.ISearchBar! searchBar, Microsoft.UI.Xaml.Controls.TextBox! textbox) -> void
 
