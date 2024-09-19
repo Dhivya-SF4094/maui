@@ -9,8 +9,7 @@
         <Label Text="MaxLength value is: "/>
         <Label Text="{Binding Source={x:Reference searchbar}, Path=MaxLength}"/>
       </HorizontalStackLayout>
-
-      <Button Text="Change Value" x:Name="button" Clicked="Button_Clicked"/>
+      <Button AutomationId="ChangeValue" Text="Change Value" x:Name="button" Clicked="Button_Clicked"/>
     </StackLayout>
   </ContentPage.Content>
 </ContentPage>
