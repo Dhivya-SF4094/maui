@@ -12,7 +12,7 @@ namespace Maui.Controls.Sample.Issues
 
 		private void Button_Clicked(object sender, EventArgs e)
 		{
-			searchbar.MaxLength = 5;
+			searchbar.MaxLength = 4;
 		}
 
     }

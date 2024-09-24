@@ -18,11 +18,9 @@ namespace Microsoft.Maui.TestCases.Tests.Issues
 		{
 			App.WaitForElement("SearchBar");
 			App.EnterText("SearchBar", "r");
-			App.WaitForElement("ChangeValue");
 			App.Click("ChangeValue");
 			App.EnterText("SearchBar", "r");
 			App.EnterText("SearchBar", "c");
-			App.EnterText("SearchBar", "h");
 			VerifyScreenshot();
 		}
 	}
