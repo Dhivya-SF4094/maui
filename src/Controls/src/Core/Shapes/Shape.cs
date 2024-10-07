@@ -263,11 +263,11 @@ namespace Microsoft.Maui.Controls.Shapes
 
 		private static void OnStrokePropertyChanged(BindableObject bindable, object oldValue, object newValue)
 		{
-			if (bindable is RoundRectangle rec)
+			if (bindable is RoundRectangle rect)
 			{
-				if (rec is not null && IsStrokeUpdated)
+				if (rect is not null && IsStrokeUpdated)
 				{
-					rec.Height -= (double)oldValue;
+					rect.Height -= (double)oldValue;
 					IsStrokeUpdated = false;
 				}
 			}
