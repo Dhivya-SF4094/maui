@@ -586,7 +586,7 @@ namespace Microsoft.Maui.Controls
 		public double Height
 		{
 			get { return _mockHeight == -1 ? (double)GetValue(HeightProperty) : _mockHeight; }
-			set { SetValue(HeightPropertyKey, value); }
+			internal set { SetValue(HeightPropertyKey, value); }
 		}
 
 		/// <summary>

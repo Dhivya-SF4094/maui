@@ -1,3 +1,2 @@
 #nullable enable
 override Microsoft.Maui.Controls.Handlers.Compatibility.FrameRenderer.MovedToWindow() -> void
-Microsoft.Maui.Controls.VisualElement.Height.set -> void
