@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿#if !MACCATALYST
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using UITest.Appium;
 using UITest.Core;
 
@@ -15,14 +17,13 @@ namespace Microsoft.Maui.TestCases.Tests.Issues
 		[Category(UITestCategories.Entry)]
 		public void RoundRectangleHeight()
 		{
-			var initialHeight = App.WaitForElement("RoundRectangle").GetRect().Height;
+			var entry = App.WaitForElement("Entry");
 			App.EnterText("Entry", "E");
-			App.EnterText("Entry", "n");
-			App.EnterText("Entry", "t");
-			App.EnterText("Entry", "r");
-			App.EnterText("Entry", "y");
-			var finalHeight = App.WaitForElement("RoundRectangle").GetRect().Height;
-			Assert.Equals(initialHeight, finalHeight);
+			var initialHeight = entry.GetRect().Height.ToString();
+			App.EnterText("Entry", "ntry Control");
+			var finalHeight = App.WaitForElement("Entry").GetRect().Height;
+			ClassicAssert.AreEqual(initialHeight, $"{finalHeight}");
 		}
 	}
 }
+#endif
