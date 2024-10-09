@@ -267,7 +267,6 @@ namespace Microsoft.Maui.Controls.Shapes
 			{
 				if (rect is not null && IsStrokeUpdated)
 				{
-					rect.Height -= (double)oldValue;
 					IsStrokeUpdated = false;
 				}
 			}
