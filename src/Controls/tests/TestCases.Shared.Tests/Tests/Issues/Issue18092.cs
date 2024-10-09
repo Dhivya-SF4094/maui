@@ -19,10 +19,10 @@ namespace Microsoft.Maui.TestCases.Tests.Issues
 		{
 			var entry = App.WaitForElement("Entry");
 			App.EnterText("Entry", "E");
-			var initialHeight = entry.GetRect().Height.ToString();
+			var initialHeight = entry.GetRect().Height;
 			App.EnterText("Entry", "ntry Control");
 			var finalHeight = App.WaitForElement("Entry").GetRect().Height;
-			ClassicAssert.AreEqual(initialHeight, $"{finalHeight}");
+			Assert.That(initialHeight, Is.EqualTo(finalHeight));
 		}
 	}
 }
