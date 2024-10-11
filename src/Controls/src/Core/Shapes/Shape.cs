@@ -449,7 +449,11 @@ namespace Microsoft.Maui.Controls.Shapes
 			{
 				result.Height += StrokeThickness;
 				result.Width += StrokeThickness;
-				_isStrokeUpdated = true;
+
+				if (this is RoundRectangle)
+				{
+					_isStrokeUpdated = true;
+				}
 			}
 
 			return result;
