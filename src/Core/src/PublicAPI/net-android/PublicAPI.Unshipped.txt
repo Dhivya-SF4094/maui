@@ -1,1 +1,3 @@
 #nullable enable
+Microsoft.Maui.IStepper.Increment.get -> double
+*REMOVED*Microsoft.Maui.IStepper.Interval.get -> double
