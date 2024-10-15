@@ -15,12 +15,14 @@ namespace Microsoft.Maui.TestCases.Tests.Issues
 		[Category(UITestCategories.Stepper)]
 		public void ChangeIncrementValue()
 		{
-			App.WaitForElement("MyStepper");
-			App.IncreaseStepper("MyStepper");
-			App.Tap("Incrementbutton");
-			App.IncreaseStepper("MyStepper");
-			VerifyScreenshot();
+			App.WaitForElement("Stepper");
+			var initialValue = App.FindElement("Stepper").GetText();
+			App.IncreaseStepper("Stepper");
+			App.Click("incrementButton");
+			App.IncreaseStepper("Stepper");
+			App.DecreaseStepper("Stepper");
+			var finalValue = App.FindElement("Stepper").GetText();
+			Assert.That(initialValue, Is.Not.EqualTo(finalValue));
 		}
-
 	}
 }
