@@ -2,8 +2,7 @@
 
 namespace Maui.Controls.Sample.Issues
 {
-	[XamlCompilation(XamlCompilationOptions.Compile)]
-	[Issue(IssueTracker.Github, 20706, "Stepper doesn't change increment value when being bound to a double in MVVM context (Windows)")]
+	[Issue(IssueTracker.Github, 20706, "Stepper doesn't change increment value when being bound to a double in MVVM context (Windows)", PlatformAffected.UWP)]
 	public partial class Issue20706 : ContentPage
 	{
 		public Issue20706 ()
@@ -11,11 +10,11 @@ namespace Maui.Controls.Sample.Issues
 			InitializeComponent ();
 		}
 
-		private void AddItemsButton_Clicked(object sender, EventArgs e)
+		private void button_Clicked(object sender, EventArgs e)
 		{
 			stepperValue.Increment = 10;
 		}
-	}
+    }
 
 	internal class ViewModelClass : INotifyPropertyChanged
 	{

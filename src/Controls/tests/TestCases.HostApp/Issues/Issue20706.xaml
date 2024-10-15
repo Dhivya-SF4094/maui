@@ -8,7 +8,7 @@
   </ContentPage.BindingContext>
   <ContentPage.Content>
     <VerticalStackLayout>
-      <Stepper AutomationId="Stepper" x:Name="stepperValue"
+      <Stepper AutomationId="myStepper" x:Name="stepperValue"
                Maximum="1000"
 	            Increment="{Binding Increment}" />
       <Entry AutomationId="entry" 

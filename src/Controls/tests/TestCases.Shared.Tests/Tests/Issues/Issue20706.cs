@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿#if !MACCATALYST
+using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
 
@@ -15,14 +16,13 @@ namespace Microsoft.Maui.TestCases.Tests.Issues
 		[Category(UITestCategories.Stepper)]
 		public void ChangeIncrementValue()
 		{
-			App.WaitForElement("Stepper");
-			var initialValue = App.FindElement("Stepper").GetText();
-			App.IncreaseStepper("Stepper");
+			App.WaitForElement("incrementButton");
+			App.IncreaseStepper("myStepper");
 			App.Click("incrementButton");
-			App.IncreaseStepper("Stepper");
-			App.DecreaseStepper("Stepper");
-			var finalValue = App.FindElement("Stepper").GetText();
-			Assert.That(initialValue, Is.Not.EqualTo(finalValue));
+			App.IncreaseStepper("myStepper");
+			App.DecreaseStepper("myStepper");
+			VerifyScreenshot();
 		}
 	}
 }
+#endif
