@@ -28,7 +28,7 @@ namespace Microsoft.Maui.Controls.Shapes
 
 		double _fallbackWidth;
 		double _fallbackHeight;
-		bool _isStrokeUpdated;
+	//	bool _isStrokeUpdated;
 
 		/// <summary>Bindable property for <see cref="Fill"/>.</summary>
 		public static readonly BindableProperty FillProperty =
@@ -60,14 +60,14 @@ namespace Microsoft.Maui.Controls.Shapes
 
 		/// <summary>Bindable property for <see cref="StrokeThickness"/>.</summary>
 		public static readonly BindableProperty StrokeThicknessProperty =
-			BindableProperty.Create(nameof(StrokeThickness), typeof(double), typeof(Shape), 1.0, 
-		    propertyChanged: (bindable, oldvalue, newvalue) =>
-			{
-				if (bindable is RoundRectangle rect && rect._isStrokeUpdated)
-				{
-					rect._isStrokeUpdated = false;
-				}
-			});
+			BindableProperty.Create(nameof(StrokeThickness), typeof(double), typeof(Shape), 1.0);
+		 //   propertyChanged: (bindable, oldvalue, newvalue) =>
+			//{
+			//	if (bindable is RoundRectangle rect && rect._isStrokeUpdated)
+			//	{
+			//		rect._isStrokeUpdated = false;
+			//	}
+			//});
 
 		/// <summary>Bindable property for <see cref="StrokeDashArray"/>.</summary>
 		public static readonly BindableProperty StrokeDashArrayProperty =
@@ -390,7 +390,16 @@ namespace Microsoft.Maui.Controls.Shapes
 
 			// TODO: not using this.GetPath().Bounds.Size;
 			//       since default GetBoundsByFlattening(0.001) returns incorrect results for curves
-			RectF pathBounds = this.GetPath().GetBoundsByFlattening(1);
+			RectF pathBounds;
+			if (this is RoundRectangle rect)
+			{
+
+				pathBounds = rect.InnerPath().GetBoundsByFlattening(1);
+			}
+			else
+			{
+			    pathBounds = this.GetPath().GetBoundsByFlattening(1);
+			}
 			SizeF boundsByFlattening = pathBounds.Size;
 
 			result.Height = boundsByFlattening.Height;
@@ -445,15 +454,15 @@ namespace Microsoft.Maui.Controls.Shapes
 					break;
 			}
 
-			if (!_isStrokeUpdated)
+			//if (!_isStrokeUpdated)
 			{
 				result.Height += StrokeThickness;
 				result.Width += StrokeThickness;
 
-				if (this is RoundRectangle)
-				{
-					_isStrokeUpdated = true;
-				}
+				//if (this is RoundRectangle)
+				//{
+				//	_isStrokeUpdated = true;
+				//}
 			}
 
 			return result;
