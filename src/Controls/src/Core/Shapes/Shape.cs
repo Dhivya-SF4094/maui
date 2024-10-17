@@ -391,10 +391,10 @@ namespace Microsoft.Maui.Controls.Shapes
 			// TODO: not using this.GetPath().Bounds.Size;
 			//       since default GetBoundsByFlattening(0.001) returns incorrect results for curves
 			RectF pathBounds;
-			if (this is RoundRectangle rect)
+			if (this is IRoundRectangle rect)
 			{
 
-				pathBounds = rect.InnerPath().GetBoundsByFlattening(1);
+				pathBounds = rect.RounRectangleInnerPath().GetBoundsByFlattening(1);
 			}
 			else
 			{
