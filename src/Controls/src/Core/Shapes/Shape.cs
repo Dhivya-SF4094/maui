@@ -382,7 +382,7 @@ namespace Microsoft.Maui.Controls.Shapes
 		protected override Size MeasureOverride(double widthConstraint, double heightConstraint)
 		{
 			var result = base.MeasureOverride(widthConstraint, heightConstraint);
-
+			RectF pathBounds;
 			if (result.Width != 0 && result.Height != 0)
 			{
 				return result;
@@ -390,11 +390,11 @@ namespace Microsoft.Maui.Controls.Shapes
 
 			// TODO: not using this.GetPath().Bounds.Size;
 			//       since default GetBoundsByFlattening(0.001) returns incorrect results for curves
-			RectF pathBounds;
-			if (this is IRoundRectangle rect)
+			// Get the inner path by subtracting the stroke thickness for a rounded rectangle, as the GetPath() method returns the path including the stroke thickness.
+			// For other shapes, the GetPath() method excludes the stroke thickness"
+			if (this is IRoundRectangle roundRectangle)
 			{
-
-				pathBounds = rect.RounRectangleInnerPath().GetBoundsByFlattening(1);
+				pathBounds = roundRectangle.InnerPath().GetBoundsByFlattening(1);
 			}
 			else
 			{
