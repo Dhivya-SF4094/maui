@@ -149,14 +149,14 @@ namespace Microsoft.Maui.Controls
 			{
 				var maxTitleRect = ComputeTitleRect(platformButton, button, image, double.PositiveInfinity, double.PositiveInfinity, borderWidth, padding, true);
 
-				var smallerWidth = (nfloat)Math.Min(maxTitleRect.Width, platformButton.CurrentImage?.Size.Width ?? 0);
+				var smallerWidth = (nfloat)Math.Max(maxTitleRect.Width, platformButton.CurrentImage?.Size.Width ?? 0);
 				if (padding.HorizontalThickness < smallerWidth)
 				{
 					buttonContentWidth += (nfloat)(smallerWidth - padding.HorizontalThickness);
 				}
 			}
 
-			var returnSize = new Size(Math.Min(buttonContentWidth, widthConstraint),
+			var returnSize = new Size(Math.Max(buttonContentWidth, widthConstraint),
 							Math.Min(buttonContentHeight, heightConstraint));
 
 			// Rounding the values up to the nearest whole number to match UIView.SizeThatFits
