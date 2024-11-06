@@ -31,10 +31,9 @@ namespace Microsoft.Maui.Platform
 				textField.BecomeFirstResponder();
 			}
 			else
-			{
 				textField.SecureTextEntry = entry.IsPassword;
-				textField.TextContentType = UITextContentType.OneTimeCode;
-			}
+
+			textField.TextContentType = UITextContentType.OneTimeCode;
 		}
 
 		public static void UpdateHorizontalTextAlignment(this UITextField textField, ITextAlignment textAlignment)
