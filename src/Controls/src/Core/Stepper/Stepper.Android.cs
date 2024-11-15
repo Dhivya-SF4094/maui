@@ -6,6 +6,6 @@ public class Stepper.Android
 {
     internal static void MapInterval(IStepperHandler handler, IStepper view)
     {
-       (handler.PlatformView as Stepper)?.UpdateIncrement(view);
+       handler.PlatformView.UpdateIncrement(view);
     }
 }
