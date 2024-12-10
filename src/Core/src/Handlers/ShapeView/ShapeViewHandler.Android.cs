@@ -18,7 +18,7 @@ namespace Microsoft.Maui.Handlers
 			if (shapeView.Background is not null && shapeView.Fill is not null)
 			{
 				handler.UpdateValue(nameof(IViewHandler.ContainerView));
-				handler.ToPlatform().UpdateBackground(shapeView);
+				handler.ToPlatform().UpdateBackground(shapeView.Fill);
 
 				handler.PlatformView?.InvalidateShape(shapeView);
 			}
