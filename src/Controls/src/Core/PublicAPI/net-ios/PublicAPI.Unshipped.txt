@@ -342,4 +342,3 @@ virtual Microsoft.Maui.Controls.Handlers.Items2.ItemsViewHandler2<TItemsView>.Up
 override Microsoft.Maui.Controls.Handlers.Compatibility.FrameRenderer.MovedToWindow() -> void
 Microsoft.Maui.Controls.Handlers.BoxViewHandler.BoxViewHandler(Microsoft.Maui.IPropertyMapper! mapper) -> void
 static Microsoft.Maui.Controls.Handlers.BoxViewHandler.Mapper -> Microsoft.Maui.IPropertyMapper<Microsoft.Maui.Controls.BoxView!, Microsoft.Maui.Handlers.IShapeViewHandler!>!
-static Microsoft.Maui.Controls.Handlers.BoxViewHandler.MapColor(Microsoft.Maui.Handlers.IShapeViewHandler! handler, Microsoft.Maui.Controls.BoxView! view) -> void

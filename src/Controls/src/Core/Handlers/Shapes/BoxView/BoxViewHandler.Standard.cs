@@ -2,9 +2,6 @@
 {
 	public partial class BoxViewHandler : ShapeViewHandler
 	{
-		public static void MapColor(IShapeViewHandler handler, BoxView view)
-		{
-
-		}
+		public static void MapColor(IShapeViewHandler handler, BoxView view){}
 	}
 }

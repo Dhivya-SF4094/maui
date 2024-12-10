@@ -6,20 +6,17 @@ namespace Microsoft.Maui.Controls.Handlers
 	{
 		public static new IPropertyMapper<BoxView, IShapeViewHandler> Mapper = new PropertyMapper<BoxView, IShapeViewHandler>(ShapeViewHandler.Mapper)
 		{
-			[nameof(BoxView.Color)] = MapColor,
-			
+#if ANDROID
+			[nameof(BoxView.Color)] = MapColor,		
+#endif
 		};
-
-	
 
 		public BoxViewHandler() : base(Mapper)
 		{
-
 		}
 
 		public BoxViewHandler(IPropertyMapper mapper) : base(mapper ?? Mapper)
 		{
-
 		}
 	}
 }
