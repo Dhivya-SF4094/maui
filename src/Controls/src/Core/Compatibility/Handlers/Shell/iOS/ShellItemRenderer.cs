@@ -315,48 +315,35 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		{
 			var moreNavigationCells = GetMoreNavigationCells();
 			var viewControllersLength = ViewControllers.Length;
-			for (int j = 0; j < ViewControllers.Length; j++)
+			// now that they are applied we can set the enabled state of the TabBar items
+			for (int i = 4; i < viewControllersLength; i++)
 			{
-				//var shellItem=moreNavigationCells[j];
-				var tab = TabBar.Items[j];
-				var renderer = RendererForViewController(ViewControllers[j]);
-
-				if (renderer?.ShellSection != null)
+				if ((i - 4) >= (moreNavigationCells.Length))
 				{
-					tab.Enabled = renderer.ShellSection.IsEnabled; // Set TabBar item enabled state
+					break;
 				}
 
-				// now that they are applied we can set the enabled state of the TabBar items
-				for (int i = 4; i < viewControllersLength; i++)
-				{
-					if ((i - 4) >= (moreNavigationCells.Length))
-					{
-						break;
-					}
-
-					//var renderer = RendererForViewController(ViewControllers[i]);
-					var cell = moreNavigationCells[i - 4];
+				var renderer = RendererForViewController(ViewControllers[i]);
+				var cell = moreNavigationCells[i - 4];
 
 #pragma warning disable CA1416, CA1422 // TODO: 'UITableViewCell.TextLabel' is unsupported on: 'ios' 14.0 and later
-					if (!renderer.ShellSection.IsEnabled)
-					{
-						cell.UserInteractionEnabled = false;
+				if (!renderer.ShellSection.IsEnabled)
+				{
+					cell.UserInteractionEnabled = false;
 
-						if (_defaultMoreTextLabelTextColor == null)
-							_defaultMoreTextLabelTextColor = cell.TextLabel.TextColor;
+					if (_defaultMoreTextLabelTextColor == null)
+						_defaultMoreTextLabelTextColor = cell.TextLabel.TextColor;
 
-						cell.TextLabel.TextColor = Color.FromRgb(213, 213, 213).ToPlatform();
-					}
-					else if (!cell.UserInteractionEnabled)
-					{
-						cell.UserInteractionEnabled = true;
-						cell.TextLabel.TextColor = _defaultMoreTextLabelTextColor;
-					}
-#pragma warning restore CA1416, CA1422
+					cell.TextLabel.TextColor = Color.FromRgb(213, 213, 213).ToPlatform();
 				}
+				else if (!cell.UserInteractionEnabled)
+				{
+					cell.UserInteractionEnabled = true;
+					cell.TextLabel.TextColor = _defaultMoreTextLabelTextColor;
+				}
+#pragma warning restore CA1416, CA1422
 			}
 
-		}
 			UITableViewCell[] GetMoreNavigationCells()
 			{
 				if (MoreNavigationController.TopViewController.View is UITableView uITableView && uITableView.Window is not null)
@@ -364,6 +351,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 
 				return EmptyUITableViewCellArray;
 			}
+		}
 
 		void GoTo(ShellSection shellSection)
 		{

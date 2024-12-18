@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Maui.Graphics;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 namespace Microsoft.Maui.Handlers
 {
@@ -11,9 +12,20 @@ namespace Microsoft.Maui.Handlers
 			_ = PlatformView ?? throw new InvalidOperationException($"{nameof(PlatformView)} should have been set by base class.");
 			_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} should have been set by base class.");
 			_ = MauiContext ?? throw new InvalidOperationException($"{nameof(MauiContext)} should have been set by base class.");
+			if (child?.Handler is not null)
+			{
+				// Check if the child has a parent and detach it
+				var platformView = child.Handler.PlatformView as FrameworkElement;
 
-			var targetIndex = VirtualView.GetLayoutHandlerIndex(child);
-			PlatformView.Children.Insert(targetIndex, child.ToPlatform(MauiContext));
+				if (platformView?.Parent is Panel oldParent)
+				{
+					oldParent.Children.Remove(platformView);
+				}
+			}
+			//var targetIndex = VirtualView.GetLayoutHandlerIndex(child);
+			//PlatformView.Children.Add(child.ToPlatform(MauiContext));
+			var platformChild = child?.ToPlatform(MauiContext);
+			PlatformView.Children.Add(platformChild);
 		}
 
 		public override void SetVirtualView(IView view)

@@ -8,7 +8,6 @@
             Content="{Binding Content}" 
             Foreground="{Binding TitleColor}" 
             Background="{Binding Background}" 
-            IsEnabled="{Binding IsEnabled, Mode=TwoWay}"
             IsSelected="{Binding IsSelected, Mode=TwoWay}"
             MenuItemsSource="{Binding MenuItemsSource}"
             Icon="{Binding Icon}"

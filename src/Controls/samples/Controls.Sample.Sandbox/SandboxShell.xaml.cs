@@ -6,4 +6,9 @@ public partial class SandboxShell : Shell
 	{
 		InitializeComponent();
 	}
+	//private void OnButtonClicked(object sender, EventArgs e)
+	//{
+	//	//tabTwo.IsEnabled = true;
+	//	ChangeTab.Title = "Updated title";
+	//}
 }
