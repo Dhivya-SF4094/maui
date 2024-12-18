@@ -81,6 +81,7 @@ namespace Microsoft.Maui.Platform
 
 		object? _content;
 		bool _isSelected;
+		bool _isEnabled;
 		WBrush? _selectedBackground;
 		WBrush? _unselectedBackground;
 		WBrush? _selectedForeground;
@@ -215,6 +216,18 @@ namespace Microsoft.Maui.Platform
 				_isSelected = value;
 				OnPropertyChanged(nameof(Background));
 				UpdateForeground();
+			}
+		}
+		public bool IsEnabled
+		{
+			get => _isEnabled;
+			set
+			{
+				if (_isEnabled != value)
+				{
+					_isEnabled = value;
+					OnPropertyChanged(nameof(IsEnabled));
+				}
 			}
 		}
 

@@ -1,17 +1,13 @@
 ﻿#nullable disable
 using System;
 using Microsoft.UI.Xaml;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Microsoft.Maui.Controls.Handlers
 {
 	public partial class ShellContentHandler : ElementHandler<ShellContent, FrameworkElement>
 	{
 		public static PropertyMapper<ShellContent, ShellContentHandler> Mapper =
-				new PropertyMapper<ShellContent, ShellContentHandler>(ElementMapper) {
-					[nameof(ShellContent.Title)] = MapTitle,
-				};
-
+				new PropertyMapper<ShellContent, ShellContentHandler>(ElementMapper) { [nameof(ShellContent.Title)] = MapTitle };
 
 		public static CommandMapper<ShellContent, ShellContentHandler> CommandMapper =
 				new CommandMapper<ShellContent, ShellContentHandler>(ElementCommandMapper);

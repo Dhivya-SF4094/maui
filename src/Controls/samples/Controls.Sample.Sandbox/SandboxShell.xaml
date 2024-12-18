@@ -3,51 +3,20 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="Maui.Controls.Sample.SandboxShell"
     xmlns:local="clr-namespace:Maui.Controls.Sample"
- 
     x:Name="shell">
-  <!--<TabBar>
-
-    <ShellContent Title="first"  ContentTemplate="{DataTemplate local:MainPage}"/>
-    <ShellContent Title="second" IsEnabled="False"  ContentTemplate="{DataTemplate local:SecondPage}" />
-  </TabBar>-->
-  
-  <TabBar>
-    <Tab Title="first" IsEnabled="true">
-      <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
-    </Tab>
-    <Tab Title="second" x:Name="Tab2" IsEnabled="False">
-      <ShellContent Title="Second shell content" ContentTemplate="{DataTemplate local:SecondPage}"/>
-    </Tab>
-  </TabBar>
-
-  <!--<TabBar AutomationId="TabBar">
-    <Tab Title="Nested Tabs" x:Name="ChangeTab" AutomationId="tabbar">
-      <ShellContent x:Name="tab" Title="Home">
-        <ContentPage>
-          <StackLayout HorizontalOptions="Center" Spacing="30">
-            <HorizontalStackLayout>
-              <Label Text="Current Shell Title : " FontAttributes="Bold"/>
-              --><!--<Label Text="{Binding Source={x:Reference tab}, Path=Title}" AutomationId="LabelId" />--><!--
-            </HorizontalStackLayout>
-            <Button Text="Change Title" AutomationId="ChangeShellContentTitle" VerticalOptions="Center" HorizontalOptions="Center" WidthRequest="100" HeightRequest="40" Clicked="OnButtonClicked"/>
-          </StackLayout>
-        </ContentPage>
-      </ShellContent>
-    </Tab>
-    <Tab Title="2nd tab" x:Name="tabTwo">
-        <ShellContent Title="Settings">
-          <ContentPage>
-            <Label Text="This is Settings page"/>
-          </ContentPage>
-        </ShellContent>
-      </Tab>
-    
-  </TabBar>-->
-
-  <!--<FlyoutItem>
-    <ShellContent Title="First" ContentTemplate="{DataTemplate local:MainPage}" IsEnabled="True"/>
-    <ShellContent Title="Second" ContentTemplate="{DataTemplate local:SecondPage}" IsEnabled="False" />
-  </FlyoutItem>-->
- 
-
+    <TabBar Shell.TabBarForegroundColor="Green"
+        Shell.TabBarUnselectedColor="Red">
+        <Tab Title="MainPage1" Icon="groceries.png">
+            <ShellContent Icon="groceries.png"
+            Title="Home"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+        </Tab>
+        <Tab Title="MainPage2" Icon="dotnet_bot.png">
+            <ShellContent Icon="dotnet_bot.png"
+            Title="Home"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage2" />
+        </Tab>
+    </TabBar>
 </Shell>

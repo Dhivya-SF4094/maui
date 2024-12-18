@@ -1,5 +1,4 @@
 ﻿using System;
-using Android.Views;
 
 namespace Microsoft.Maui.Handlers
 {
@@ -43,16 +42,7 @@ namespace Microsoft.Maui.Handlers
 			handler.PlatformView.RemoveAllViews();
 
 			if (handler.VirtualView.PresentedContent is IView view)
-			{
-				// Ensure the view is removed from its current parent
-				var nativeView = view.ToPlatform(handler.MauiContext);
-				
-				// Remove the view from its current parent, if any
-				(nativeView.Parent as ViewGroup)?.RemoveView(nativeView);
-
-				// Add the view to the new parent
-				handler.PlatformView.AddView(nativeView);
-			}
+				handler.PlatformView.AddView(view.ToPlatform(handler.MauiContext));
 		}
 
 		public static partial void MapHeight(IBorderHandler handler, IBorderView border)
