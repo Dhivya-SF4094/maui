@@ -296,8 +296,8 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 				var renderer = _context.CreateShellSectionRenderer(shellContent);
 
 				renderer.IsInMoreTab = willUseMore && i >= maxTabs - 1;
-
 				renderer.ShellSection = shellContent;
+				renderer.ShellSection.IsEnabled = shellContent.IsEnabled;
 				AddRenderer(renderer);
 				viewControllers[i++] = renderer.ViewController;
 			}
@@ -315,26 +315,26 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		{
 			var moreNavigationCells = GetMoreNavigationCells();
 			var viewControllersLength = ViewControllers.Length;
-			for (int j = 0; j < ViewControllers.Length; j++)
+			for (int i = 0; i < ViewControllers.Length; i++)
 			{
-				var tab = TabBar.Items[j];
-				var renderer = RendererForViewController(ViewControllers[j]);
-
-				if (renderer?.ShellSection != null)
+				var renderer = RendererForViewController(ViewControllers[i]);
+				if (i < 4)
 				{
-					// Set TabBar item enabled state
-					tab.Enabled = renderer.ShellSection.IsEnabled; 
+					var tab = TabBar.Items[i];
+					if (renderer?.ShellSection != null)
+					{
+						// Set TabBar item enabled state
+						tab.Enabled = renderer.ShellSection.IsEnabled;
+					}
 				}
-
-				// now that they are applied we can set the enabled state of the TabBar items
-				for (int i = 4; i < viewControllersLength; i++)
+				else if (i >= 4)
 				{
+					// now that they are applied we can set the enabled state of the TabBar items
 					if ((i - 4) >= (moreNavigationCells.Length))
 					{
 						break;
 					}
 					var cell = moreNavigationCells[i - 4];
-
 #pragma warning disable CA1416, CA1422 // TODO: 'UITableViewCell.TextLabel' is unsupported on: 'ios' 14.0 and later
 					if (!renderer.ShellSection.IsEnabled)
 					{
@@ -354,14 +354,16 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 				}
 			}
 
-			UITableViewCell[] GetMoreNavigationCells()
-			{
-				if (MoreNavigationController.TopViewController.View is UITableView uITableView && uITableView.Window is not null)
-					return uITableView.VisibleCells;
-
-				return EmptyUITableViewCellArray;
-			}
 		}
+
+		UITableViewCell[] GetMoreNavigationCells()
+		{
+			if (MoreNavigationController.TopViewController.View is UITableView uITableView && uITableView.Window is not null)
+				return uITableView.VisibleCells;
+
+			return EmptyUITableViewCellArray;
+		}
+
 
 		void GoTo(ShellSection shellSection)
 		{

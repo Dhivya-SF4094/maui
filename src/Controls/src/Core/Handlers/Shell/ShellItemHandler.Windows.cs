@@ -150,7 +150,6 @@ namespace Microsoft.Maui.Controls.Handlers
 				((Shell)VirtualView.Parent).CurrentItem = shellContent;
 			}
 		}
-
 		internal void MapMenuItems()
 		{
 			IShellItemController shellItemController = VirtualView;
@@ -158,6 +157,7 @@ namespace Microsoft.Maui.Controls.Handlers
 
 			foreach (var item in shellItemController.GetItems())
 			{
+				item.PropertyChanged += Item_PropertyChanged;
 				if (Routing.IsImplicit(item))
 					items.Add(item.CurrentItem);
 				else
@@ -169,7 +169,6 @@ namespace Microsoft.Maui.Controls.Handlers
 			_mainLevelTabs.SyncItems(items, (navItem, baseShellItem) =>
 			{
 				SetValues(baseShellItem, navItem);
-
 				if (baseShellItem is not ShellSection shellSection)
 				{
 					navItem.MenuItemsSource = null;
@@ -197,7 +196,6 @@ namespace Microsoft.Maui.Controls.Handlers
 						.SyncItems(shellSectionItems, (shellContentNavItem, shellContent) =>
 						{
 							SetValues(shellContent, shellContentNavItem);
-
 							if (shellSection == VirtualView.CurrentItem &&
 								shellContent == VirtualView.CurrentItem.CurrentItem)
 							{
@@ -210,7 +208,7 @@ namespace Microsoft.Maui.Controls.Handlers
 				{
 					vm.Content = bsi.Title;
 					var iconSource = bsi.Icon?.ToIconSource(MauiContext!);
-
+					vm.IsEnabled = bsi.IsEnabled;
 					if (iconSource != null)
 					{
 						if (vm.Foreground != null)
@@ -233,7 +231,6 @@ namespace Microsoft.Maui.Controls.Handlers
 
 			UpdateValue(Shell.TabBarIsVisibleProperty.PropertyName);
 		}
-
 		void UpdateSearchHandler()
 		{
 			if (VirtualView.Parent is not Shell shell)
@@ -427,6 +424,25 @@ namespace Microsoft.Maui.Controls.Handlers
 			}
 		}
 
+		private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == "IsEnabled")
+			{
+				if (_mainLevelTabs == null)
+					return;
+
+				foreach (var items in _mainLevelTabs)
+				{
+					if (items.Data == sender)
+					{
+						if (sender is BaseShellItem shellItem)
+						{
+							items.IsEnabled = shellItem.IsEnabled;
+						}
+					}
+				}
+			}
+		}
 		void OnCurrentShellSectionPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if (_mainLevelTabs == null)
@@ -476,18 +492,6 @@ namespace Microsoft.Maui.Controls.Handlers
 			var paneDisplayMode = GetNavigationViewPaneDisplayMode(item);
 			mauiNavView.PaneDisplayMode = paneDisplayMode;
 			mauiNavView.PinPaneDisplayModeTo = paneDisplayMode;
-
-			// Access ShellItems and set the IsEnabled property
-			if (item is ShellItem shellItem && shellItem.Items.Count > 0)
-			{
-				foreach (var shellSection in shellItem.Items)
-				{
-					if (shellSection is not null)
-					{
-						mauiNavView.IsEnabled = shellSection.IsEnabled;
-					}
-				}
-			}
 		}
 
 		public static void MapTabBarIsVisible(ShellItemHandler handler, ShellItem item)
