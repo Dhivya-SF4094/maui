@@ -158,6 +158,7 @@ namespace Microsoft.Maui.Controls.Handlers
 
 			foreach (var item in shellItemController.GetItems())
 			{
+				item.PropertyChanged += Item_PropertyChanged;
 				if (Routing.IsImplicit(item))
 					items.Add(item.CurrentItem);
 				else
@@ -210,7 +211,7 @@ namespace Microsoft.Maui.Controls.Handlers
 				{
 					vm.Content = bsi.Title;
 					var iconSource = bsi.Icon?.ToIconSource(MauiContext!);
-
+					vm.IsEnabled = bsi.IsEnabled;
 					if (iconSource != null)
 					{
 						if (vm.Foreground != null)
@@ -232,6 +233,27 @@ namespace Microsoft.Maui.Controls.Handlers
 				navView.SelectedItem = selectedItem;
 
 			UpdateValue(Shell.TabBarIsVisibleProperty.PropertyName);
+		}
+
+		private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == "IsEnabled")
+			{
+				if (_mainLevelTabs == null)
+					return;
+
+
+				foreach (var items in _mainLevelTabs)
+				{
+					if(items.Data == sender)
+					{
+						if (sender is BaseShellItem shellItem)
+						{
+							items.IsEnabled = shellItem.IsEnabled;
+						}
+					}
+				}
+			}
 		}
 
 		void UpdateSearchHandler()
