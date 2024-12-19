@@ -315,7 +315,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			var moreNavigationCells = GetMoreNavigationCells();
 			var viewControllersLength = ViewControllers.Length;
 
-			if (TabBar.Items.Length >= viewControllersLength)
+			if (TabBar.Items.Length <= viewControllersLength)
 			{
 				for (int i = 0; i < TabBar.Items.Length; i++)
 				{
