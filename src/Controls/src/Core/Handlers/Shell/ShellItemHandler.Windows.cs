@@ -449,6 +449,20 @@ namespace Microsoft.Maui.Controls.Handlers
 					}
 				}
 			}
+			else if (e.PropertyName == nameof(BaseShellItem.Title))
+			{
+				foreach (var items in _mainLevelTabs)
+				{
+					if (items.Data == sender)
+					{
+						if (sender is BaseShellItem shellItem)
+						{
+							items.Content = shellItem.Title;
+						}
+						break;
+					}
+				}
+			}
 		}
 		void OnCurrentShellSectionPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
