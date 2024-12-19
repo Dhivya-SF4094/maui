@@ -213,8 +213,8 @@ namespace Microsoft.Maui.Controls.Handlers
 				void SetValues(BaseShellItem bsi, NavigationViewItemViewModel vm)
 				{
 					vm.Content = bsi.Title;
-					var iconSource = bsi.Icon?.ToIconSource(MauiContext!);
 					vm.IsEnabled = bsi.IsEnabled;
+					var iconSource = bsi.Icon?.ToIconSource(MauiContext!);
 					if (iconSource != null)
 					{
 						if (vm.Foreground != null)
