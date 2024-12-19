@@ -315,11 +315,14 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			var moreNavigationCells = GetMoreNavigationCells();
 			var viewControllersLength = ViewControllers.Length;
 
-			for (int i = 0; i < TabBar.Items.Length; i++)
+			if (TabBar.Items.Length >= viewControllersLength)
 			{
-				var tab = TabBar.Items[i];
-				var itemRenderer = RendererForViewController(ViewControllers[i]);
-				tab.Enabled = itemRenderer.ShellSection.IsEnabled;
+				for (int i = 0; i < TabBar.Items.Length; i++)
+				{
+					var tab = TabBar.Items[i];
+					var itemRenderer = RendererForViewController(ViewControllers[i]);
+					tab.Enabled = itemRenderer.ShellSection.IsEnabled;
+				}
 			}
 
 			// now that they are applied we can set the enabled state of the TabBar items

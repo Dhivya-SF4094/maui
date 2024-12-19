@@ -432,7 +432,7 @@ namespace Microsoft.Maui.Controls.Handlers
 
 		private void OnShellItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == "IsEnabled")
+			if (e.PropertyName == nameof(BaseShellItem.IsEnabled))
 			{
 				if (_mainLevelTabs == null)
 					return;
