@@ -297,7 +297,6 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 
 				renderer.IsInMoreTab = willUseMore && i >= maxTabs - 1;
 				renderer.ShellSection = shellContent;
-				renderer.ShellSection.IsEnabled = shellContent.IsEnabled;
 				AddRenderer(renderer);
 				viewControllers[i++] = renderer.ViewController;
 			}
@@ -315,55 +314,51 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		{
 			var moreNavigationCells = GetMoreNavigationCells();
 			var viewControllersLength = ViewControllers.Length;
-			for (int i = 0; i < ViewControllers.Length; i++)
+
+			for (int i = 0; i < TabBar.Items.Length; i++)
 			{
-				var renderer = RendererForViewController(ViewControllers[i]);
-				if (i < 4)
-				{
-					var tab = TabBar.Items[i];
-					if (renderer?.ShellSection != null)
-					{
-						// Set TabBar item enabled state
-						tab.Enabled = renderer.ShellSection.IsEnabled;
-					}
-				}
-				else if (i >= 4)
-				{
-					// now that they are applied we can set the enabled state of the TabBar items
-					if ((i - 4) >= (moreNavigationCells.Length))
-					{
-						break;
-					}
-					var cell = moreNavigationCells[i - 4];
-#pragma warning disable CA1416, CA1422 // TODO: 'UITableViewCell.TextLabel' is unsupported on: 'ios' 14.0 and later
-					if (!renderer.ShellSection.IsEnabled)
-					{
-						cell.UserInteractionEnabled = false;
-
-						if (_defaultMoreTextLabelTextColor == null)
-							_defaultMoreTextLabelTextColor = cell.TextLabel.TextColor;
-
-						cell.TextLabel.TextColor = Color.FromRgb(213, 213, 213).ToPlatform();
-					}
-					else if (!cell.UserInteractionEnabled)
-					{
-						cell.UserInteractionEnabled = true;
-						cell.TextLabel.TextColor = _defaultMoreTextLabelTextColor;
-					}
-#pragma warning restore CA1416, CA1422
-				}
+				var tab = TabBar.Items[i];
+				var itemRenderer = RendererForViewController(ViewControllers[i]);
+				tab.Enabled = itemRenderer.ShellSection.IsEnabled;
 			}
 
+			// now that they are applied we can set the enabled state of the TabBar items
+			for (int i = 4; i < viewControllersLength; i++)
+			{
+				if ((i - 4) >= (moreNavigationCells.Length))
+				{
+					break;
+				}
+
+				var renderer = RendererForViewController(ViewControllers[i]);
+				var cell = moreNavigationCells[i - 4];
+
+#pragma warning disable CA1416, CA1422 // TODO: 'UITableViewCell.TextLabel' is unsupported on: 'ios' 14.0 and later
+				if (!renderer.ShellSection.IsEnabled)
+				{
+					cell.UserInteractionEnabled = false;
+
+					if (_defaultMoreTextLabelTextColor == null)
+						_defaultMoreTextLabelTextColor = cell.TextLabel.TextColor;
+
+					cell.TextLabel.TextColor = Color.FromRgb(213, 213, 213).ToPlatform();
+				}
+				else if (!cell.UserInteractionEnabled)
+				{
+					cell.UserInteractionEnabled = true;
+					cell.TextLabel.TextColor = _defaultMoreTextLabelTextColor;
+				}
+#pragma warning restore CA1416, CA1422
+			}
+
+			UITableViewCell[] GetMoreNavigationCells()
+			{
+				if (MoreNavigationController.TopViewController.View is UITableView uITableView && uITableView.Window is not null)
+					return uITableView.VisibleCells;
+
+				return EmptyUITableViewCellArray;
+			}
 		}
-
-		UITableViewCell[] GetMoreNavigationCells()
-		{
-			if (MoreNavigationController.TopViewController.View is UITableView uITableView && uITableView.Window is not null)
-				return uITableView.VisibleCells;
-
-			return EmptyUITableViewCellArray;
-		}
-
 
 		void GoTo(ShellSection shellSection)
 		{

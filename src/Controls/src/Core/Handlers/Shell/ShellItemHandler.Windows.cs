@@ -100,7 +100,13 @@ namespace Microsoft.Maui.Controls.Handlers
 			}
 
 			if (_shellItem is IShellItemController shellItemController)
+			{
 				shellItemController.ItemsCollectionChanged -= OnItemsChanged;
+				foreach (var item in shellItemController.GetItems())
+				{
+					item.PropertyChanged -= OnShellItemPropertyChanged;
+				}
+			}
 		}
 
 		public override void SetVirtualView(Maui.IElement view)
@@ -157,7 +163,7 @@ namespace Microsoft.Maui.Controls.Handlers
 
 			foreach (var item in shellItemController.GetItems())
 			{
-				item.PropertyChanged += Item_PropertyChanged;
+				item.PropertyChanged += OnShellItemPropertyChanged;
 				if (Routing.IsImplicit(item))
 					items.Add(item.CurrentItem);
 				else
@@ -424,7 +430,7 @@ namespace Microsoft.Maui.Controls.Handlers
 			}
 		}
 
-		private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+		private void OnShellItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == "IsEnabled")
 			{
@@ -439,6 +445,7 @@ namespace Microsoft.Maui.Controls.Handlers
 						{
 							items.IsEnabled = shellItem.IsEnabled;
 						}
+						break;
 					}
 				}
 			}
