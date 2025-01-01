@@ -21,7 +21,18 @@ namespace Microsoft.Maui.Platform
 
 		public static void UpdateValue(this MauiStepper platformStepper, IStepper stepper)
 		{
-			platformStepper.Value = stepper.Value;
+			if (stepper.Value > stepper.Maximum)
+			{
+				platformStepper.Value = stepper.Maximum;
+			}
+			else if (stepper.Value < stepper.Minimum)
+			{
+				platformStepper.Value = stepper.Minimum;
+			}
+			else
+			{
+				platformStepper.Value = stepper.Value;
+			}
 		}
 
 		public static void UpdateBackground(this MauiStepper platformStepper, IStepper stepper)

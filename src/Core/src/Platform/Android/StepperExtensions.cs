@@ -22,6 +22,15 @@ namespace Microsoft.Maui.Platform
 
 		public static void UpdateValue(this MauiStepper linearLayout, IStepper stepper)
 		{
+			if (stepper.Value > stepper.Maximum)
+			{
+				stepper.Value = stepper.Maximum;
+			}
+			else if (stepper.Value < stepper.Minimum)
+			{
+				stepper.Value = stepper.Minimum;
+			}
+
 			UpdateButtons(linearLayout, stepper);
 		}
 
