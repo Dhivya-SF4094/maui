@@ -5,7 +5,9 @@
     xmlns:local="clr-namespace:MauiCollectionViewFooterBug"
     x:Class="Maui.Controls.Sample.Issues.Issue8761">
 
-    <CollectionView ItemsSource="{Binding Items}">
+     <CollectionView ItemsSource="{Binding Items}"
+                 Header="{Binding .}"
+                 Footer="{Binding .}">
         <CollectionView.HeaderTemplate>
             <DataTemplate>
                 <Button

@@ -108,14 +108,10 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				_currentHeader = null;
 			}
 
-			var header = ItemsView.Header ?? ItemsView.HeaderTemplate;
+			var header = ItemsView.Header;
 
 			switch (header)
 			{
-				case null:
-					ListViewBase.Header = null;
-					break;
-
 				case string text:
 					ListViewBase.HeaderTemplate = null;
 					ListViewBase.Header = new TextBlock { Text = text };
@@ -157,14 +153,10 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				_currentFooter = null;
 			}
 
-			var footer = ItemsView.Footer ?? ItemsView.FooterTemplate;
+			var footer = ItemsView.Footer;
 
 			switch (footer)
 			{
-				case null:
-					ListViewBase.Footer = null;
-					break;
-
 				case string text:
 					ListViewBase.FooterTemplate = null;
 					ListViewBase.Footer = new TextBlock { Text = text };
