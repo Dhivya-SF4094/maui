@@ -531,30 +531,18 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			int firstVisibleItemIndex = -1;
 			int lastVisibleItemIndex = -1;
 
-			if (ListViewBase.ItemsPanelRoot is ItemsStackPanel itemsPanel)
+			var presenters = ListViewBase.GetChildren<ListViewItemPresenter>();
+			if (presenters is not null && _scrollViewer is not null)
 			{
-				firstVisibleItemIndex = itemsPanel.FirstVisibleIndex;
-				lastVisibleItemIndex = itemsPanel.LastVisibleIndex;
-			}
-			else
-			{
-				var presenters = ListViewBase.GetChildren<ListViewItemPresenter>();
+				var visiblePresenters = presenters
+					.Select((presenter, index) => new { Presenter = presenter, Index = index })
+					.Where(x => IsElementVisibleInContainer(x.Presenter, _scrollViewer, itemsLayoutOrientation))
+					.ToList();
 
-				if (presenters != null && _scrollViewer != null)
+				if (visiblePresenters.Count > 0)
 				{
-					int count = 0;
-					foreach (ListViewItemPresenter presenter in presenters)
-					{
-						if (IsElementVisibleInContainer(presenter, _scrollViewer, itemsLayoutOrientation))
-						{
-							if (firstVisibleItemIndex == -1)
-								firstVisibleItemIndex = count;
-
-							lastVisibleItemIndex = count;
-						}
-
-						count++;
-					}
+					firstVisibleItemIndex = visiblePresenters.First().Index;
+					lastVisibleItemIndex = visiblePresenters.Last().Index;
 				}
 			}
 
@@ -582,7 +570,8 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 				default:
 					return elementBounds.Left < containerBounds.Right && elementBounds.Right > containerBounds.Left;
-			};
+			}
+			;
 		}
 
 		async void ScrollToRequested(object sender, ScrollToRequestEventArgs args)
