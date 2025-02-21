@@ -188,6 +188,9 @@ namespace Microsoft.Maui.Handlers
 
 			UpdatePickerFromPickerSource(pickerSource);
 			textField.ResignFirstResponder();
+
+			if (VirtualView is IPicker virtualView)
+				virtualView.IsFocused = false;
 		}
 
 		class MauiPickerProxy
@@ -228,6 +231,8 @@ namespace Microsoft.Maui.Handlers
 				if (Handler is not PickerHandler handler)
 					return false;
 
+				if (VirtualView is IPicker virtualView)
+					virtualView.IsFocused = true;
 
 				// The PlatformView will always be a MauiPicker (which derives from UITextfield) by definition, but we're forced to use
 				// UITextField as the parameter to satisfy the signature for ShouldBeginEditing. The following cast is safe. 
