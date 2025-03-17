@@ -57,7 +57,7 @@ namespace Microsoft.Maui.Platform
 
 			_borderPath?.Arrange(new global::Windows.Foundation.Rect(0, 0, finalSize.Width, finalSize.Height));
 
-			if (_borderStroke is not null)
+			if (_borderStroke is not null && this.Content is not null)
 			{
 				actual.Width -= _borderStroke.StrokeThickness * 2;
 				actual.Height -= _borderStroke.StrokeThickness * 2;
