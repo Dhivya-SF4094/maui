@@ -153,7 +153,16 @@ namespace Microsoft.Maui
 					var cleansedFont = CleanseFontName(family);
 					result = UIFont.FromName(cleansedFont, size);
 					if (result != null)
+					{
+
+						if (hasAttributes)
+						{
+							var defaultFont = UIFont.SystemFontOfSize(size);
+							result = UIFont.FromDescriptor(defaultFont.FontDescriptor.CreateWithAttributes(GetFontAttributes(font)), size);
+						}
+
 						return ApplyScaling(font, result);
+					}
 
 					result = UIFont.FromName(family, size);
 					if (result != null)
