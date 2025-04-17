@@ -828,7 +828,8 @@ namespace Microsoft.Maui.Controls
 			HasNavigatedTo = true;
 			NavigatedTo?.Invoke(this, args);
 			OnNavigatedTo(args);
-			(this as IPageContainer<Page>)?.CurrentPage?.SendNavigatedTo(args);
+			if (this is not Shell)
+				(this as IPageContainer<Page>)?.CurrentPage?.SendNavigatedTo(args);
 		}
 
 		internal void SendNavigatingFrom(NavigatingFromEventArgs args)
@@ -843,7 +844,8 @@ namespace Microsoft.Maui.Controls
 			HasNavigatedTo = false;
 			NavigatedFrom?.Invoke(this, args);
 			OnNavigatedFrom(args);
-			(this as IPageContainer<Page>)?.CurrentPage?.SendNavigatedFrom(args, false);
+			if (this is not Shell)
+				(this as IPageContainer<Page>)?.CurrentPage?.SendNavigatedFrom(args, false);
 
 			if (!disconnectHandlers)
 			{
