@@ -1597,8 +1597,8 @@ namespace Microsoft.Maui.Controls
 
 			_previousPage?.SendNavigatedFrom(new NavigatedFromEventArgs(CurrentPage, navigationType));
 			CurrentPage?.SendNavigatedTo(new NavigatedToEventArgs(_previousPage));
-			this.SendNavigatedTo(new NavigatedToEventArgs(_previousPage));
 			this.SendNavigatedFrom(new NavigatedFromEventArgs(CurrentPage, navigationType));
+			this.SendNavigatedTo(new NavigatedToEventArgs(_previousPage));
 			_previousPage = null;
 
 			if (CurrentPage != null)
