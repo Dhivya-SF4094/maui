@@ -24,7 +24,7 @@ namespace Microsoft.Maui.Handlers
 			if (appWindow is not null)
 			{
 				// then pass the actual size back to the user
-				UpdateVirtualViewFrame(appWindow);
+				UpdateVirtualViewFrame();
 
 				// THEN attach the event to reduce churn
 				appWindow.Changed += OnWindowChanged;
@@ -191,13 +191,16 @@ namespace Microsoft.Maui.Handlers
 			if (!args.DidSizeChange && !args.DidPositionChange)
 				return;
 
-			UpdateVirtualViewFrame(sender);
+			UpdateVirtualViewFrame();
 		}
 
-		void UpdateVirtualViewFrame(AppWindow appWindow)
+		void UpdateVirtualViewFrame()
 		{
-			var size = appWindow.Size;
-			var pos = appWindow.Position;
+			var hwnd = PlatformView.GetWindowHandle();
+			var bounds = hwnd.GetExtendedFrameBounds();
+
+			var pos = (bounds.X, bounds.Y);
+		    var size = (bounds.Width, bounds.Height);
 
 			var density = PlatformView.GetDisplayDensity();
 
