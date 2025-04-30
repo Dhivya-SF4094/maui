@@ -26,10 +26,22 @@ namespace Microsoft.Maui.Platform
 	
 		internal static Rect GetExtendedFrameBounds(this IntPtr hwnd)
 		{
+			try
+			{
+				if (hwnd == IntPtr.Zero)
+				{
+					return new Rect();
+				}
+
 				if (DwmGetWindowAttribute(hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, out PlatformMethods.RECT rect, Marshal.SizeOf<PlatformMethods.RECT>()) == 0)
 				{
 					return new Rect(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
 				}
+			}
+			catch
+			{
+				return new Rect();
+			}
 
 			return new Rect();
 		}
