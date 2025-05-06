@@ -185,15 +185,16 @@ namespace Microsoft.Maui.Handlers
 				.PlatformView
 				.UpdateTitleBar(window, handler.MauiContext);
 		}
-
+	//	bool ignoreSize;
 		void OnWindowChanged(AppWindow sender, AppWindowChangedEventArgs args)
 		{
 			if (!args.DidSizeChange && !args.DidPositionChange)
 				return;
-
+			//if(ignoreSize)
+			//	return;
 			UpdateVirtualViewFrame(sender);
 		}
-
+		
 		void UpdateVirtualViewFrame(AppWindow appWindow)
 		{
 			var hwnd = PlatformView.GetWindowHandle();
@@ -202,6 +203,11 @@ namespace Microsoft.Maui.Handlers
 			(double X, double Y) pos;
 			(double Width, double Height) size;
 
+			pos = (bounds.X, bounds.Y);
+			size = (bounds.Width, bounds.Height);
+
+			//System.Diagnostics.Debug.WriteLine("position: " + pos);
+			//System.Diagnostics.Debug.WriteLine("size: " + size);
 			if (bounds.IsEmpty)
 			{
 				// If the bounds are empty, we can use the app window's size and position
@@ -209,15 +215,12 @@ namespace Microsoft.Maui.Handlers
 				size = (appWindow.Size.Width, appWindow.Size.Height);
 			}
 
-			// Otherwise, we use the bounds from the hwnd
-			pos = (bounds.X, bounds.Y);
-			size = (bounds.Width, bounds.Height);
-
 			var density = PlatformView.GetDisplayDensity();
-
+			// ignoreSize = true;
 			VirtualView.FrameChanged(new Rect(
 				pos.X / density, pos.Y / density,
 				size.Width / density, size.Height / density));
+			//ignoreSize = false;
 		}
 	}
 }
