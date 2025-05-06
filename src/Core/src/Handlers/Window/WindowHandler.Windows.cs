@@ -199,25 +199,22 @@ namespace Microsoft.Maui.Handlers
 			var hwnd = PlatformView.GetWindowHandle();
 			var bounds = hwnd.GetExtendedFrameBounds();
 
-			(double X, double Y) pos;
-			(double Width, double Height) size;
-
-			if (bounds.IsEmpty)
-			{
-				// If the bounds are empty, we can use the app window's size and position
-				pos = (appWindow.Position.X, appWindow.Position.Y);
-				size = (appWindow.Size.Width, appWindow.Size.Height);
-			}
-
-			// Otherwise, we use the bounds from the hwnd
-			pos = (bounds.X, bounds.Y);
-			size = (bounds.Width, bounds.Height);
-
+			var size = appWindow.Size;
+			var pos = appWindow.Position;
 			var density = PlatformView.GetDisplayDensity();
 
+			bool isMaximized = (appWindow.Presenter as OverlappedPresenter)!.IsMaximizable && (appWindow.Presenter as OverlappedPresenter)!.State == OverlappedPresenterState.Maximized;
+			if (isMaximized)
+			{
+				// If the window is maximized, we need to use the bounds of the window
+				// instead of the size and position of the app window.
+				size = new SizeInt32((int)bounds.Width, (int)bounds.Height);
+				pos = new PointInt32((int)bounds.X, (int)bounds.Y);
+			}
+
 			VirtualView.FrameChanged(new Rect(
-				pos.X / density, pos.Y / density,
-				size.Width / density, size.Height / density));
+			pos.X / density, pos.Y / density,
+			size.Width / density, size.Height / density));
 		}
 	}
 }
