@@ -130,11 +130,7 @@ namespace Microsoft.Maui.Platform
 			platformWindow.UpdateSize(window);
 
 		public static void UpdateSize(this UI.Xaml.Window platformWindow, IWindow window)
-        {
-            var hwnd = platformWindow.GetWindowHandle();
-            var bounds = hwnd.GetExtendedFrameBounds();
-
-
+		{
 			var appWindow = platformWindow.GetAppWindow();
 			if (appWindow is null)
 				return;
@@ -142,14 +138,8 @@ namespace Microsoft.Maui.Platform
 			var density = platformWindow.GetDisplayDensity();
 			var width = window.Width;
 			var height = window.Height;
-			var currSize = new SizeInt32((int)bounds.Width, (int)bounds.Height);
 
-			// Convert bounds.Size to SizeInt32
-			if (bounds.IsEmpty)
-            {
-				currSize = appWindow.Size;
-                // Handle empty bounds if necessary
-            }
+			var currSize = appWindow.Size;
 			width = Primitives.Dimension.IsExplicitSet(width)
 				? Math.Round(width * density)
 				: currSize.Width;
