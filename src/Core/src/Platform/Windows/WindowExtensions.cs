@@ -24,13 +24,15 @@ namespace Microsoft.Maui.Platform
 			out PlatformMethods.RECT pvAttribute,
 			int cbAttribute);
 	
+		private static readonly Rect EmptyRect = new(0, 0, 0, 0);
+
 		internal static Rect GetExtendedFrameBounds(this IntPtr hwnd)
 		{
 			try
 			{
 				if (hwnd == IntPtr.Zero)
 				{
-					return new Rect();
+					return EmptyRect;
 				}
 
 				if (DwmGetWindowAttribute(hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, out PlatformMethods.RECT rect, Marshal.SizeOf<PlatformMethods.RECT>()) == 0)
@@ -40,10 +42,10 @@ namespace Microsoft.Maui.Platform
 			}
 			catch
 			{
-				return new Rect();
+				return EmptyRect;
 			}
 
-			return new Rect();
+			return EmptyRect;
 		}
 
 		internal static Rect[]? GetDefaultTitleBarDragRectangles(this UI.Xaml.Window platformWindow, IWindow window)
