@@ -162,6 +162,18 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				{
 					ListViewBase.LayoutUpdated -= ItemsPanel_LayoutUpdated;
 					ListViewBase.ScrollIntoView(lastItem);
+
+					if (VirtualView is CollectionView cv)
+					{
+						if (cv.Footer is not null || cv.FooterTemplate is not null)
+						{
+							var scrollViewer = ListViewBase.GetFirstDescendant<ScrollViewer>();
+							scrollViewer?.DispatcherQueue.TryEnqueue(() =>
+							{
+								scrollViewer.ChangeView(null, scrollViewer.ScrollableHeight, null, true);
+							});
+						}
+					}
 				}
 				ListViewBase.LayoutUpdated += ItemsPanel_LayoutUpdated;
 			}
