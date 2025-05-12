@@ -314,12 +314,19 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 			if (emptyView == null)
 			{
-				if (ListViewBase is IEmptyView emptyViewControl)
+				if (_emptyView != null && ListViewBase is IEmptyView emptyViewControl)
 				{
 					emptyViewControl.EmptyViewVisibility = WVisibility.Collapsed;
 				}
 
+				if (_formsEmptyView != null)
+				{
+					ItemsView.RemoveLogicalChild(_formsEmptyView);
+					_formsEmptyView = null;
+				}
+
 				_emptyView = null;
+				_emptyViewDisplayed = false;
 				return;
 			}
 
