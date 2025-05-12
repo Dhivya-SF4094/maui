@@ -177,11 +177,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				}
 				ListViewBase.LayoutUpdated += ItemsPanel_LayoutUpdated;
 			}
-			else
-			{
-				// If the items panel is not available, scroll directly
-				ListViewBase.ScrollIntoView(lastItem);
-			}
 		}
 
 		protected abstract ListViewBase SelectListViewBase();
