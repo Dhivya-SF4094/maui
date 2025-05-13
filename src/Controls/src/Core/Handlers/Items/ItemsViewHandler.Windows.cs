@@ -157,7 +157,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			var itemsPanel = ListViewBase.ItemsPanelRoot;
 			if (itemsPanel is not null)
 			{
-				// Subscribe to the LayoutUpdated event for a one-time scroll operation
 				void ItemsPanel_LayoutUpdated(object sender, object e)
 				{
 					ListViewBase.LayoutUpdated -= ItemsPanel_LayoutUpdated;
