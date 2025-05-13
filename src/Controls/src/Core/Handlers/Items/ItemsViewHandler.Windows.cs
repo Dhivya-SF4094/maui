@@ -155,7 +155,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		void ScrollToLastItem(object lastItem)
 		{
 			var itemsPanel = ListViewBase.ItemsPanelRoot;
-			if (itemsPanel != null)
+			if (itemsPanel is not null)
 			{
 				// Subscribe to the LayoutUpdated event for a one-time scroll operation
 				void ItemsPanel_LayoutUpdated(object sender, object e)
@@ -163,9 +163,9 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 					ListViewBase.LayoutUpdated -= ItemsPanel_LayoutUpdated;
 					ListViewBase.ScrollIntoView(lastItem);
 
-					if (VirtualView is CollectionView cv)
+					if (VirtualView is CollectionView collectionView)
 					{
-						if (cv.Footer is not null || cv.FooterTemplate is not null)
+						if (collectionView.Footer is not null || collectionView.FooterTemplate is not null)
 						{
 							var scrollViewer = ListViewBase.GetFirstDescendant<ScrollViewer>();
 							scrollViewer?.DispatcherQueue.TryEnqueue(() =>
