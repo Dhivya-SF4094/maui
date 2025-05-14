@@ -5,12 +5,12 @@ namespace Maui.Controls.Sample.Issues;
 
 public class Issue18657 : ContentPage
 {
-     EmptyViewModel ViewModel;
+	Issue18657EmptyViewModel ViewModel;
 	CollectionView collectionView;
 
 	public Issue18657()
 	{
-		ViewModel = new EmptyViewModel();
+		ViewModel = new Issue18657EmptyViewModel();
 		BindingContext = ViewModel;
 
 		var button = new Button
@@ -58,11 +58,11 @@ public class Issue18657 : ContentPage
 	}
 }
 
-public class EmptyViewModel
+public class Issue18657EmptyViewModel
 {
 	public ObservableCollection<string> ItemList { get; set; }
 
-	public EmptyViewModel()
+	public Issue18657EmptyViewModel()
 	{
 		ItemList = new ObservableCollection<string>();
 	}

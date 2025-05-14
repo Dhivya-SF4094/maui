@@ -356,6 +356,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			UpdateHorizontalScrollBarVisibility();
 			UpdateEmptyView();
 		}
+
 		void RemoveEmptyView()
 		{
 			if (_emptyView is not null && ListViewBase is IEmptyView emptyViewControl)
@@ -372,6 +373,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			_emptyView = null;
 			_emptyViewDisplayed = false;
 		}
+
 		void FindScrollViewer(ListViewBase listView)
 		{
 			var scrollViewer = listView.GetFirstDescendant<ScrollViewer>();
