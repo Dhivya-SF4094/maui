@@ -204,7 +204,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		{
 			bool isEmpty = (CollectionViewSource?.View?.Count ?? 0) == 0;
 
-			if (isEmpty)
+			if (isEmpty && (ItemsView.EmptyView is not null || ItemsView.EmptyViewTemplate is not null))
 			{
 				if (_formsEmptyView != null)
 				{
@@ -230,7 +230,10 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				if (_emptyViewDisplayed)
 				{
 					if (_emptyView != null && ListViewBase is IEmptyView emptyView)
+					{
 						emptyView.EmptyViewVisibility = WVisibility.Collapsed;
+						emptyView.SetEmptyView(null, null);
+					}
 
 					ItemsView.RemoveLogicalChild(_formsEmptyView);
 				}
@@ -310,11 +313,11 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				return;
 			}
 
-			var emptyView = Element.EmptyView;
+			var emptyView = Element.EmptyViewTemplate ?? Element.EmptyView;
 
 			if (emptyView is null)
 			{
-				RemoveEmptyView();
+				UpdateEmptyViewVisibility();
 				return;
 			}
 
@@ -355,23 +358,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			UpdateVerticalScrollBarVisibility();
 			UpdateHorizontalScrollBarVisibility();
 			UpdateEmptyView();
-		}
-
-		void RemoveEmptyView()
-		{
-			if (_emptyView is not null && ListViewBase is IEmptyView emptyViewControl)
-			{
-				emptyViewControl.EmptyViewVisibility = WVisibility.Collapsed;
-			}
-
-			if (_formsEmptyView is not null && _emptyViewDisplayed)
-			{
-				ItemsView.RemoveLogicalChild(_formsEmptyView);
-				_formsEmptyView = null;
-			}
-
-			_emptyView = null;
-			_emptyViewDisplayed = false;
 		}
 
 		void FindScrollViewer(ListViewBase listView)
