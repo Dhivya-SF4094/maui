@@ -148,36 +148,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			if (VirtualView.ItemsUpdatingScrollMode == ItemsUpdatingScrollMode.KeepLastItemInView)
 			{
 				var lastItem = items[itemsCount - 1];
-				ScrollToLastItem(lastItem);
-			}
-		}
-
-		void ScrollToLastItem(object lastItem)
-		{
-			var itemsPanel = ListViewBase.ItemsPanelRoot;
-			if (itemsPanel is not null)
-			{
-				void OnItemsPanelLayoutUpdated(object sender, object e)
-				{
-					ListViewBase.LayoutUpdated -= OnItemsPanelLayoutUpdated;
-					ListViewBase.ScrollIntoView(lastItem);
-
-					// In WinUI, ListViewBase.Footer and FooterTemplate are rendered as separate UI elements outside the scrollable items area. 
-					// Scrolling to the last data item does not bring the footer into view. 
-					// To ensure the footer is visible when present, explicitly scroll to the bottom of the ScrollViewer if a footer is set.
-					if (VirtualView is CollectionView collectionView)
-					{
-                        if (collectionView.Footer is not null || collectionView.FooterTemplate is not null)
-                        {
-                            var scrollViewer = ListViewBase.GetFirstDescendant<ScrollViewer>();
-                            scrollViewer?.DispatcherQueue.TryEnqueue(() =>
-                            {
-                                scrollViewer.ChangeView(null, scrollViewer.ScrollableHeight, null, true);
-                            });
-                        }   
-					}
-				}
-				ListViewBase.LayoutUpdated += OnItemsPanelLayoutUpdated;
+				ListViewBase.ScrollIntoView(lastItem, ScrollIntoViewAlignment.Leading);
 			}
 		}
 
