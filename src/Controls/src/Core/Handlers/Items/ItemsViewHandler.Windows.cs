@@ -204,7 +204,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		{
 			bool isEmpty = (CollectionViewSource?.View?.Count ?? 0) == 0;
 
-			if (isEmpty && (ItemsView.EmptyView is not null || ItemsView.EmptyViewTemplate is not null))
+			if (isEmpty)
 			{
 				if (_formsEmptyView != null)
 				{
