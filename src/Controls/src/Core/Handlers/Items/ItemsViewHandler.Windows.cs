@@ -320,13 +320,13 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			{
 				_emptyView = RealizeEmptyView(view);
 			}
-			else if (emptyView is string text)
+			else
 			{
 				_emptyView = new TextBlock
 				{
 					HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Center,
 					VerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment.Center,
-					Text = text,
+					Text = (string)emptyView,
 				};
 			}
 
