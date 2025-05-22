@@ -305,7 +305,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			var emptyView = Element.EmptyView;
 			var emptyViewTemplate = Element.EmptyViewTemplate;
 
-			if (emptyView is null && (emptyViewTemplate is null || emptyViewTemplate is DataTemplateSelector))
+			if (emptyView is null && emptyViewTemplate is null)
 			{
 				RemoveEmptyView();
 				(ListViewBase as IEmptyView)?.SetEmptyView(null, null);
