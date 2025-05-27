@@ -16,6 +16,10 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		readonly double _horizontalSpacing;
 		double _adjustedHorizontalSpacing = -1;
 
+		public int HorizontalOffset { get; }
+
+		public int VerticalOffset { get; }
+
 		public CarouselSpacingItemDecoration(IItemsLayout itemsLayout, FormsCarouselView carouselView)
 		{
 			var layout = itemsLayout ?? throw new ArgumentNullException(nameof(itemsLayout));
@@ -30,10 +34,18 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				case LinearItemsLayout listItemsLayout:
 					_orientation = listItemsLayout.Orientation;
 					if (_orientation == ItemsLayoutOrientation.Horizontal)
-						_horizontalSpacing = listItemsLayout.ItemSpacing;
+						_horizontalSpacing = listItemsLayout.ItemSpacing / 2;
 					else
-						_verticalSpacing = listItemsLayout.ItemSpacing;
+						_verticalSpacing = listItemsLayout.ItemSpacing / 2;
 					break;
+			}
+
+			// Convert spacing values to pixels using the carouselView's Handler.Context if available, otherwise set to 0 and calculate later
+			if (carouselView?.Handler?.MauiContext?.Context != null)
+			{
+				var context = carouselView.Handler.MauiContext.Context;
+				HorizontalOffset = (int)context.ToPixels(_horizontalSpacing);
+				VerticalOffset = (int)context.ToPixels(_verticalSpacing);
 			}
 
 			_carouselView = carouselView;

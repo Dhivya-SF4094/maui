@@ -95,7 +95,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				if (double.IsInfinity(width))
 					return width;
 
-				itemWidth = (int)(width - Context?.ToPixels(VirtualView.PeekAreaInsets.Left) - Context?.ToPixels(VirtualView.PeekAreaInsets.Right) - Context?.ToPixels(listItemsLayout.ItemSpacing));
+				itemWidth = (int)(width - Context?.ToPixels(VirtualView.PeekAreaInsets.Left));
 			}
 
 			return itemWidth;
