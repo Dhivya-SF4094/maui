@@ -1,6 +1,4 @@
-using System;
 using System.Collections.ObjectModel;
-using Maui.Controls.Sample.Issues;
 
 namespace Maui.Controls.Sample.Issues;
 
@@ -30,14 +28,11 @@ public class Issue29609 : ContentPage
             {
                 var grid = new Grid
                 {
-                    Margin = 0,
-                    Padding = 0,
                     BackgroundColor = Colors.Yellow
                 };
 
                 var label = new Label
                 {
-                    FontSize = 24,
                     HorizontalOptions = LayoutOptions.Center,
                     VerticalOptions = LayoutOptions.Center
                 };
