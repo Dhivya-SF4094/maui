@@ -16,10 +16,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		readonly double _horizontalSpacing;
 		double _adjustedHorizontalSpacing = -1;
 
-		public int HorizontalOffset { get; }
-
-		public int VerticalOffset { get; }
-
 		public CarouselSpacingItemDecoration(IItemsLayout itemsLayout, FormsCarouselView carouselView)
 		{
 			var layout = itemsLayout ?? throw new ArgumentNullException(nameof(itemsLayout));
