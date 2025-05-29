@@ -480,15 +480,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				var verticalPadding = -spacingDecoration.VerticalOffset;
 				SetPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
 			}
-			else if (_itemDecoration is CarouselSpacingItemDecoration carouselSpacingDecoration)
-			{
-				// CarouselSpacingItemDecoration applies spacing to the left and right of the items.
-				// We need to adjust the padding on the RecyclerView so this spacing isn't visible around the outer edge of control.
-				var horizontalPadding = -carouselSpacingDecoration.HorizontalOffset;
-				var verticalPadding = -carouselSpacingDecoration.VerticalOffset;
-				SetPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
-			}
-
 		}
 
 		protected virtual ItemDecoration CreateSpacingDecoration(IItemsLayout itemsLayout)
