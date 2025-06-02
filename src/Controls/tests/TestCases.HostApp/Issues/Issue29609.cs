@@ -18,7 +18,7 @@ public class Issue29609 : ContentPage
         var label = new Label
         {
             Text = "ItemSpacing on CarouselView resizes items",
-            AutomationId = "29609Label"
+            AutomationId = "29609DescriptionLabel"
         };
         var carouselView = new CarouselView
         {
@@ -58,7 +58,7 @@ public class Issue29609 : ContentPage
     }
 }
 
-public partial class Issue29609_ViewModel
+public class Issue29609_ViewModel
 {
     public ObservableCollection<string> Items = new();
 
