@@ -16,7 +16,7 @@ public class Issue29609 : _IssuesUITest
     [Category(UITestCategories.CarouselView)]
     public void VerifySpacingAffectsItemSize()
     {
-        App.WaitForElement("ItemSpacing_CarouselView");
+        App.WaitForElement("29609CarouselView");
         VerifyScreenshot();
     }
 }

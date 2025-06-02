@@ -13,11 +13,11 @@ public class Issue29609 : ContentPage
         var carouselView = new CarouselView
         {
             BackgroundColor = Colors.Red,
+            AutomationId = "29609CarouselView",
             HeightRequest = 400,
             WidthRequest = 300,
             ItemsSource = ViewModel.Items,
             Loop = false,
-            AutomationId = "ItemSpacing_CarouselView",
             ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Horizontal)
             {
                 ItemSpacing = 50,
@@ -53,7 +53,7 @@ public partial class Issue29609_ViewModel
 
     public Issue29609_ViewModel()
     {
-        for (var i = 0; i < 2; i++)
+        for (var i = 0; i < 5; i++)
         {
             Items.Add($"Item {i}");
         }
