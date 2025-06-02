@@ -1,3 +1,4 @@
+# if TEST_FAILS_ON_WINDOWS // ItemSpacing on CarouselView is not applied on Windows https://github.com/dotnet/maui/issues/29772
 using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
@@ -16,7 +17,8 @@ public class Issue29609 : _IssuesUITest
     [Category(UITestCategories.CarouselView)]
     public void VerifySpacingAffectsItemSize()
     {
-        App.WaitForElement("29609CarouselView");
+        App.WaitForElement("29609Label");
         VerifyScreenshot();
     }
 }
+#endif

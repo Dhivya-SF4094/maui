@@ -10,6 +10,16 @@ public class Issue29609 : ContentPage
     {
         ViewModel = new Issue29609_ViewModel();
         BindingContext = ViewModel;
+        var stack = new StackLayout
+        {
+            VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Center
+        };
+        var label = new Label
+        {
+            Text = "ItemSpacing on CarouselView resizes items",
+            AutomationId = "29609Label"
+        };
         var carouselView = new CarouselView
         {
             BackgroundColor = Colors.Red,
@@ -42,8 +52,9 @@ public class Issue29609 : ContentPage
                 return grid;
             })
         };
-
-        Content = carouselView;
+        stack.Children.Add(label);
+        stack.Children.Add(carouselView);
+        Content = stack;
     }
 }
 
