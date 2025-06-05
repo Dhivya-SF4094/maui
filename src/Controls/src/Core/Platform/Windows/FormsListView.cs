@@ -74,6 +74,15 @@ namespace Microsoft.Maui.Controls.Platform
 			if (_emptyView != null)
 			{
 				_emptyViewContentControl.Content = _emptyView;
+
+				if (_emptyView is FrameworkElement fe)
+				{
+                    if (_formsEmptyView != null)
+                    {
+                        _emptyViewContentControl.Margin = new Microsoft.UI.Xaml.Thickness(_formsEmptyView.Margin.Left, _formsEmptyView.Margin.Top, _formsEmptyView.Margin.Right, _formsEmptyView.Margin.Bottom);
+                    }
+				}
+
 				UpdateEmptyViewVisibility(EmptyViewVisibility);
 			}
 		}
