@@ -17,22 +17,29 @@ public class Issue8494 : ContentPage
 			AutomationId = "EmptyViewDescriptionLabel",
 		};
 
-		var collectionView = new CollectionView
+		var emptyViewLayout = new StackLayout
 		{
-			ItemsSource = ViewModel.ItemList,
-			Background = Colors.Green,
-			EmptyView = new VerticalStackLayout
-			{
-				Margin = new Thickness(20),
-				BackgroundColor = Colors.AliceBlue,
-				Children =
+			Margin = new Thickness(40),
+			Children =
 				{
 					new Label
 					{
-						Text = "Empty View",
+						Text = "Stay Home! Until:",
+						BackgroundColor = Colors.Blue,
+						HorizontalTextAlignment = TextAlignment.Center,
+					},
+					new Button
+					{
+						Text = "Find a Destination",
+						BackgroundColor = Colors.Yellow,
 					}
 				}
-			},
+		};
+
+		var collectionView = new CollectionView
+		{
+			BackgroundColor = Colors.Green,
+			EmptyView = emptyViewLayout
 		};
 
 		var stack = new StackLayout
