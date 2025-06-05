@@ -35,7 +35,10 @@ public class Issue8494 : ContentPage
 			},
 		};
 
-		var stack = new StackLayout();
+		var stack = new StackLayout
+		{
+			VerticalOptions = LayoutOptions.Center,
+		};
 
 		stack.Children.Add(label);
 		stack.Children.Add(collectionView);
