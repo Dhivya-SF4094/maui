@@ -133,7 +133,7 @@ namespace Microsoft.Maui.Controls.Platform
 			_emptyView = emptyView;
 			_formsEmptyView = formsEmptyView;
 
-			if (_formsEmptyView != null && _emptyView != null)
+			if (_formsEmptyView is not null && _emptyView is not null)
 			{
 				var margin = _formsEmptyView.Margin;
 				_emptyView.Margin = WinUIHelpers.CreateThickness(margin.Left, margin.Top, margin.Right, margin.Bottom);
