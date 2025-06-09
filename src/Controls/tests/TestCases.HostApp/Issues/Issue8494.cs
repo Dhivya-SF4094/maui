@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 
 namespace Maui.Controls.Sample.Issues;
+
 [Issue(IssueTracker.Github, 8494, "Margin doesn't work inside CollectionView EmptyView", PlatformAffected.UWP)]
 
 public class Issue8494 : ContentPage
@@ -10,7 +11,7 @@ public class Issue8494 : ContentPage
 	public Issue8494()
 	{
 		ViewModel = new Issue8494EmptyViewModel();
-
+		BindingContext = ViewModel;
 		var label = new Label
 		{
 			Text = "EmptyView should be laid out with respect to the Specified margin",
@@ -28,28 +29,28 @@ public class Issue8494 : ContentPage
 						BackgroundColor = Colors.Blue,
 						HorizontalTextAlignment = TextAlignment.Center,
 					},
-					new Button
-					{
-						Text = "Find a Destination",
-						BackgroundColor = Colors.Yellow,
-					}
 				}
 		};
 
 		var collectionView = new CollectionView
 		{
+			ItemsSource = ViewModel.ItemList,
 			BackgroundColor = Colors.Green,
-			EmptyView = emptyViewLayout
+			EmptyView = emptyViewLayout,
 		};
 
-		var stack = new StackLayout
+		var grid = new Grid
 		{
-			VerticalOptions = LayoutOptions.Center,
+			RowDefinitions =
+			{
+				new RowDefinition { Height = GridLength.Auto },
+				new RowDefinition { Height = GridLength.Star },
+			}
 		};
 
-		stack.Children.Add(label);
-		stack.Children.Add(collectionView);
-		Content = stack;
+		grid.Add(label, 0, 0);
+		grid.Add(collectionView, 0, 1);
+		Content = grid;
 	}
 }
 
