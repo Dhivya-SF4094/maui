@@ -25,7 +25,7 @@ public class Issue8494 : ContentPage
 				{
 					new Label
 					{
-						Text = "Stay Home! Until:",
+						Text = "EmptyView with Margin.",
 						BackgroundColor = Colors.Blue,
 						HorizontalTextAlignment = TextAlignment.Center,
 					},

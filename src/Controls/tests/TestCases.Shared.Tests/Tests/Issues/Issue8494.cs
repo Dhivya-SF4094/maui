@@ -13,7 +13,7 @@ public class Issue8494 : _IssuesUITest
 
 	[Test]
 	[Category(UITestCategories.CollectionView)]
-	public void RemoveEmptyViewAtRuntime()
+	public void CheckEmptyViewMargin()
 	{
 		App.WaitForElement("EmptyViewDescriptionLabel");
 		VerifyScreenshot();
