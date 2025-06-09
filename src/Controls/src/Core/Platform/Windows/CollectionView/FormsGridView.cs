@@ -133,6 +133,12 @@ namespace Microsoft.Maui.Controls.Platform
 			_emptyView = emptyView;
 			_formsEmptyView = formsEmptyView;
 
+			if (_formsEmptyView != null && _emptyView != null)
+			{
+				var margin = _formsEmptyView.Margin;
+				_emptyView.Margin = WinUIHelpers.CreateThickness(margin.Left, margin.Top, margin.Right, margin.Bottom);
+			}
+
 			if (_emptyViewContentControl != null)
 			{
 				_emptyViewContentControl.Content = emptyView;
@@ -151,12 +157,6 @@ namespace Microsoft.Maui.Controls.Platform
 			if (_emptyView != null && _emptyViewContentControl != null)
 			{
 				_emptyViewContentControl.Content = _emptyView;
-
-				if (_formsEmptyView != null)
-				{
-					_emptyViewContentControl.Margin = new Microsoft.UI.Xaml.Thickness(_formsEmptyView.Margin.Left, _formsEmptyView.Margin.Top, _formsEmptyView.Margin.Right, _formsEmptyView.Margin.Bottom);
-				}
-
 				UpdateEmptyViewVisibility(EmptyViewVisibility);
 			}
 		}
