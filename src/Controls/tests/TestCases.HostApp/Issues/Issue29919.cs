@@ -7,6 +7,13 @@ public class Issue29919 : ContentPage
 {
     public Issue29919()
     {
+		var stack = new StackLayout();
+		var label = new Label
+		{
+			Text = "Application should not crash.",
+			AutomationId = "29919DescriptionLabel",
+		};
+
         var layout = new HorizontalStackLayout
         {
             Padding = new Thickness(5),
@@ -14,6 +21,8 @@ public class Issue29919 : ContentPage
             VerticalOptions = LayoutOptions.Center
         };
 
-        Content = layout;
+		stack.Children.Add(label);
+		stack.Children.Add(layout);
+		Content = stack;
     }
 }
