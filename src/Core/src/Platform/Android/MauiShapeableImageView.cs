@@ -8,7 +8,6 @@ namespace Microsoft.Maui.Platform
 	internal class MauiShapeableImageView : ShapeableImageView
 	{
 		public IImageButton? ImageButton { get; set; }
-
 		public MauiShapeableImageView(Context? context) : base(context)
 		{
 		}

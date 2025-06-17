@@ -53,11 +53,6 @@ namespace Microsoft.Maui.Handlers
 		[MissingMapper]
 		public static void MapPadding(IImageButtonHandler handler, IImageButton imageButton) { }
 
-		public static void MapAspect(IImageButtonHandler handler, IImageButton imageButton)
-		{
-			handler.PlatformView.UpdateAspect(imageButton);
-		}
-
 		void OnReleased(object? sender, EventArgs e)
 		{
 			VirtualView?.Released();

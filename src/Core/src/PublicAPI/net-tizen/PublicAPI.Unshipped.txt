@@ -1,3 +1,1 @@
 #nullable enable
-
-static Microsoft.Maui.Handlers.ImageButtonHandler.MapAspect(Microsoft.Maui.Handlers.IImageButtonHandler! handler, Microsoft.Maui.IImageButton! imageButton) -> void

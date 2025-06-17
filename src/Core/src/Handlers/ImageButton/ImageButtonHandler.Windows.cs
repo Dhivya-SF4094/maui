@@ -100,16 +100,6 @@ namespace Microsoft.Maui.Handlers
 			(handler.PlatformView as Button)?.UpdatePadding(imageButton);
 		}
 
-		public static void MapAspect(IImageButtonHandler handler, IImageButton imageButton)
-		{
-			if (handler.PlatformView?.Content is Image image)
-			{
-				image.UpdateAspect(imageButton);
-			}
-
-			handler.UpdateValue(nameof(IImageButton.Padding));
-		}
-
 		void OnClick(object sender, RoutedEventArgs e)
 		{
 			VirtualView?.Clicked();

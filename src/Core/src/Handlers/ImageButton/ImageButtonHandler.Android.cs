@@ -76,7 +76,6 @@ namespace Microsoft.Maui.Handlers
 		public static void MapAspect(IImageButtonHandler handler, IImageButton imageButton)
 		{
 			handler.PlatformView?.UpdateAspect(imageButton);
-			handler.PlatformView?.UpdatePadding(imageButton);
 		}
 
 		void OnFocusChange(object? sender, View.FocusChangeEventArgs e)
