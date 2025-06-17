@@ -7,6 +7,8 @@ namespace Microsoft.Maui.Platform
 {
 	internal class MauiShapeableImageView : ShapeableImageView
 	{
+		public IImageButton? ImageButton { get; set; }
+
 		public MauiShapeableImageView(Context? context) : base(context)
 		{
 		}
@@ -32,8 +34,16 @@ namespace Microsoft.Maui.Platform
 			// Padding with the result.
 			base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
 
-			// We need to reset the padding to 0 to avoid a double padding.
-			SetPadding(0, 0, 0, 0);
+			// If this is an ImageButton, call UpdatePadding to ensure the border is visible
+			if (ImageButton != null)
+			{
+				this.UpdatePadding(ImageButton);
+			}
+			else
+			{
+				// Default case: reset padding to avoid double padding
+				SetPadding(0, 0, 0, 0);
+			}
 		}
 	}
 }

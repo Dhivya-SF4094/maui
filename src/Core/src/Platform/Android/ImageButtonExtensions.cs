@@ -23,7 +23,7 @@ namespace Microsoft.Maui.Platform
 		public static void UpdatePadding(this ShapeableImageView platformButton, IImageButton imageButton)
 		{
 			var padding = platformButton.Context!.ToPixels(imageButton.Padding);
-			var (strokeWidth, _, _) = imageButton.GetStrokeProperties(platformButton.Context!, true);
+			var (strokeWidth, strokeColor, _) = imageButton.GetStrokeProperties(platformButton.Context!, true);
 			int additionalPadding = strokeWidth;
 			padding = new Thickness(padding.Left + additionalPadding, padding.Top + additionalPadding, padding.Right + additionalPadding, padding.Bottom + additionalPadding);
 
@@ -35,6 +35,23 @@ namespace Microsoft.Maui.Platform
 			// The padding is also reset in MauiShapeableImageView.
 			platformButton.SetPadding(0, 0, 0, 0);
 
+			// Handle specific settings for different aspect modes
+			switch (imageButton.Aspect)
+			{
+				case Aspect.AspectFill:
+				case Aspect.Center:
+					// For AspectFill and Center, ensure the border is visible by explicitly setting stroke properties
+					platformButton.ClipToOutline = true;
+					platformButton.StrokeColor = strokeColor;
+					platformButton.StrokeWidth = strokeWidth;
+					break;
+				case Aspect.AspectFit:
+				case Aspect.Fill:
+					// Make sure stroke is applied for these modes too
+					platformButton.StrokeColor = strokeColor;
+					platformButton.StrokeWidth = strokeWidth;
+					break;
+			}
 		}
 
 		internal static void UpdateButtonStroke(this ShapeableImageView platformView, IButtonStroke button)
@@ -81,6 +98,12 @@ namespace Microsoft.Maui.Platform
 							.SetAllCornerSizes(0)
 							.Build();
 				});
+		}
+
+		public static void UpdateAspect(this ShapeableImageView platformButton, IImageButton imageButton)
+		{
+			platformButton.SetScaleType(imageButton.Aspect.ToScaleType());
+			platformButton.UpdatePadding(imageButton);
 		}
 	}
 }

@@ -68,6 +68,13 @@ namespace Microsoft.Maui.Handlers
 			(handler.PlatformView as UIButton)?.UpdatePadding(imageButton);
 		}
 
+		public static void MapAspect(IImageButtonHandler handler, IImageButton imageButton)
+		{
+			// iOS implementation would typically update the aspect ratio here
+			// For now, we're just updating padding as it may be impacted by aspect changes
+			handler.UpdateValue(nameof(IImageButton.Padding));
+		}
+
 		partial class ImageButtonImageSourcePartSetter
 		{
 			public override void SetImageSource(UIImage? platformImage)

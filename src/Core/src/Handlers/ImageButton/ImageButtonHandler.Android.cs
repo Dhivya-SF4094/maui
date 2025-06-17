@@ -15,6 +15,12 @@ namespace Microsoft.Maui.Handlers
 			platformView.SetPadding(0, 0, 0, 0);
 			platformView.SoundEffectsEnabled = false;
 
+			// Set the ImageButton property so it can be used in OnMeasure
+			if (platformView is MauiShapeableImageView mauiView)
+			{
+				mauiView.ImageButton = VirtualView;
+			}
+
 			return platformView;
 		}
 
@@ -64,6 +70,12 @@ namespace Microsoft.Maui.Handlers
 
 		public static void MapPadding(IImageButtonHandler handler, IImageButton imageButton)
 		{
+			handler.PlatformView?.UpdatePadding(imageButton);
+		}
+
+		public static void MapAspect(IImageButtonHandler handler, IImageButton imageButton)
+		{
+			handler.PlatformView?.UpdateAspect(imageButton);
 			handler.PlatformView?.UpdatePadding(imageButton);
 		}
 

@@ -33,6 +33,7 @@ namespace Microsoft.Maui.Handlers
 			[nameof(IButtonStroke.StrokeColor)] = MapStrokeColor,
 			[nameof(IButtonStroke.CornerRadius)] = MapCornerRadius,
 			[nameof(IImageButton.Padding)] = MapPadding,
+			[nameof(IImage.Aspect)] = MapAspect,
 #if ANDROID || WINDOWS
 			[nameof(IImageButton.Background)] = MapBackground,
 #endif
@@ -85,5 +86,13 @@ namespace Microsoft.Maui.Handlers
 			{
 			}
 		}
+
+#if !ANDROID && !TIZEN && !WINDOWS && !__IOS__ && !MACCATALYST
+		// Platform-agnostic implementation
+		public static void MapAspect(IImageButtonHandler handler, IImageButton imageButton)
+		{
+			// No implementation for unsupported platforms
+		}
+#endif
 	}
 }
