@@ -64,7 +64,7 @@ namespace Maui.Controls.Sample
 		{
 			Page mainPage = null;
 			OverrideMainPage(ref mainPage);
-			return mainPage ?? new Issue29956();
+			return mainPage ?? new CoreNavigationPage();
 		}
 	}
 

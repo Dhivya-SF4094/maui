@@ -2,33 +2,4 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui.Controls.Sample.MainPage"
              xmlns:local="clr-namespace:Maui.Controls.Sample">
-    <VerticalStackLayout>
-        <HorizontalStackLayout>
-            <RadioButton Content="AspectFit"
-                         IsChecked="True"
-                         GroupName="AspectGroup"
-                         CheckedChanged="AspectRadio_CheckedChanged"
-                         AutomationId="ImageAspectFit"/>
-            <RadioButton Content="AspectFill"
-                         GroupName="AspectGroup"
-                         CheckedChanged="AspectRadio_CheckedChanged"
-                         AutomationId="ImageAspectFill"/>
-            <RadioButton Content="Fill"
-                         GroupName="AspectGroup"
-                         CheckedChanged="AspectRadio_CheckedChanged"
-                         AutomationId="ImageFill"/>
-            <RadioButton Content="Center"
-                         GroupName="AspectGroup"
-                         CheckedChanged="AspectRadio_CheckedChanged"
-                         AutomationId="ImageCenter"/>
-        </HorizontalStackLayout>
-        <ImageButton x:Name="MyImageButton"
-                     Source="https://aka.ms/campus.jpg"
-                     Aspect="{Binding Aspect}"
-                     BorderWidth="20"
-                     BorderColor="Black"
-                     WidthRequest="350"
-                     HeightRequest="450"/>
-
-    </VerticalStackLayout>
 </ContentPage>
