@@ -39,6 +39,10 @@ namespace Microsoft.Maui.Platform
 			switch (imageButton.Aspect)
 			{
 				case Aspect.AspectFill:
+					platformButton.ClipToOutline = false;
+					platformButton.StrokeColor = strokeColor;
+					platformButton.StrokeWidth = strokeWidth;
+					break;
 				case Aspect.Center:
 					// For AspectFill and Center, ensure the border is visible by explicitly setting stroke properties
 					platformButton.ClipToOutline = true;
@@ -52,12 +56,6 @@ namespace Microsoft.Maui.Platform
 					platformButton.StrokeWidth = strokeWidth;
 					break;
 			}
-		}
-
-		public static void UpdateAspect(this ShapeableImageView platformButton, IImageButton imageButton)
-		{
-			platformButton.SetScaleType(imageButton.Aspect.ToScaleType());
-			platformButton.UpdatePadding(imageButton);
 		}
 
 		internal static void UpdateButtonStroke(this ShapeableImageView platformView, IButtonStroke button)

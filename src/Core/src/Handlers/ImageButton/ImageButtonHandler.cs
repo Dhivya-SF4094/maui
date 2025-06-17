@@ -33,7 +33,6 @@ namespace Microsoft.Maui.Handlers
 			[nameof(IButtonStroke.StrokeColor)] = MapStrokeColor,
 			[nameof(IButtonStroke.CornerRadius)] = MapCornerRadius,
 			[nameof(IImageButton.Padding)] = MapPadding,
-			[nameof(IImage.Aspect)] = MapAspect,
 #if ANDROID || WINDOWS
 			[nameof(IImageButton.Background)] = MapBackground,
 #endif
@@ -87,14 +86,6 @@ namespace Microsoft.Maui.Handlers
 			}
 		}
 
-#if !ANDROID
-		// Default implementation for platforms that don't have a specialized implementation
-		public static void MapAspect(IImageButtonHandler handler, IImageButton imageButton)
-		{
-			// For non-Android platforms, we might just want to update padding as a fallback
-			handler.UpdateValue(nameof(IImageButton.Padding));
-		}
-#endif
 
 
 	}
