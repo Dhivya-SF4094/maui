@@ -87,12 +87,15 @@ namespace Microsoft.Maui.Handlers
 			}
 		}
 
-#if !ANDROID && !TIZEN && !WINDOWS && !__IOS__ && !MACCATALYST
-		// Platform-agnostic implementation
+#if !ANDROID
+		// Default implementation for platforms that don't have a specialized implementation
 		public static void MapAspect(IImageButtonHandler handler, IImageButton imageButton)
 		{
-			// No implementation for unsupported platforms
+			// For non-Android platforms, we might just want to update padding as a fallback
+			handler.UpdateValue(nameof(IImageButton.Padding));
 		}
 #endif
+
+
 	}
 }

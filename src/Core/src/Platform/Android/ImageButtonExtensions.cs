@@ -54,6 +54,12 @@ namespace Microsoft.Maui.Platform
 			}
 		}
 
+		public static void UpdateAspect(this ShapeableImageView platformButton, IImageButton imageButton)
+		{
+			platformButton.SetScaleType(imageButton.Aspect.ToScaleType());
+			platformButton.UpdatePadding(imageButton);
+		}
+
 		internal static void UpdateButtonStroke(this ShapeableImageView platformView, IButtonStroke button)
 		{
 			if (!platformView.UpdateMauiRippleDrawableStroke(button))
@@ -100,10 +106,6 @@ namespace Microsoft.Maui.Platform
 				});
 		}
 
-		public static void UpdateAspect(this ShapeableImageView platformButton, IImageButton imageButton)
-		{
-			platformButton.SetScaleType(imageButton.Aspect.ToScaleType());
-			platformButton.UpdatePadding(imageButton);
-		}
+
 	}
 }
