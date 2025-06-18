@@ -158,6 +158,11 @@ namespace Microsoft.Maui.Handlers
 		public static void MapIsEnabled(IEditorHandler handler, IEditor editor) =>
 			handler.PlatformView?.UpdateIsEnabled(editor);
 
+		public static void MapFlowDirection(IEditorHandler handler, IEditor editor)
+		{
+			handler.PlatformView?.UpdateFlowDirection(editor);
+		}
+
 		class MauiTextViewEventProxy
 		{
 			bool _set;

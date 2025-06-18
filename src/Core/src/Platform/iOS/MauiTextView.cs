@@ -46,6 +46,8 @@ namespace Microsoft.Maui.Platform
 			set
 			{
 				_placeholderLabel.Text = value;
+				_placeholderLabel.TextAlignment = this.TextAlignment;
+				_placeholderLabel.SemanticContentAttribute = this.SemanticContentAttribute;
 				_placeholderLabel.SizeToFit();
 			}
 		}
@@ -56,6 +58,8 @@ namespace Microsoft.Maui.Platform
 			set
 			{
 				_placeholderLabel.AttributedText = value;
+				_placeholderLabel.TextAlignment = this.TextAlignment;
+				_placeholderLabel.SemanticContentAttribute = this.SemanticContentAttribute;
 				_placeholderLabel.SizeToFit();
 			}
 		}

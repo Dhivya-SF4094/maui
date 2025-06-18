@@ -138,29 +138,63 @@ namespace Microsoft.Maui.Platform
 		{
 			var placeholder = editor.Placeholder;
 
-			if (editor is IView view && view.FlowDirection == FlowDirection.RightToLeft && !string.IsNullOrEmpty(placeholder))
+			if (string.IsNullOrEmpty(placeholder))
 			{
-				// Create paragraph style for RTL text
+				textView.PlaceholderText = null;
+				textView.AttributedPlaceholderText = null;
+				return;
+			}
+
+			// Apply RTL/LTR settings based on editor's flow direction
+			bool isRTL = editor is IView view && view.FlowDirection == FlowDirection.RightToLeft;
+			if (isRTL)
+			{
+				// For RTL, we need to create a special attributed string
 				var paragraphStyle = new NSMutableParagraphStyle
 				{
 					Alignment = UITextAlignment.Right,
 					BaseWritingDirection = NSWritingDirection.RightToLeft
 				};
 
-				// Create attributes dictionary
 				var attributes = new NSMutableDictionary();
 				attributes[UIStringAttributeKey.ParagraphStyle] = paragraphStyle;
-				var attributedString = new NSAttributedString(placeholder, attributes);
-				textView.AttributedPlaceholderText = attributedString;
+				attributes[UIStringAttributeKey.ForegroundColor] = editor.PlaceholderColor?.ToPlatform() ?? ColorExtensions.PlaceholderColor;
+
+				textView.AttributedPlaceholderText = new NSAttributedString(placeholder, attributes);
 			}
 			else
 			{
+				// For LTR, standard placeholder is sufficient
 				textView.PlaceholderText = placeholder;
 			}
+
+			// Hide placeholder if text is present
+			if (!string.IsNullOrEmpty(textView.Text))
+				textView.PlaceholderText = null;
+
+			// Force immediate layout update
+			textView.SetNeedsLayout();
 		}
 
 		public static void UpdatePlaceholderColor(this MauiTextView textView, IEditor editor) =>
 			textView.PlaceholderTextColor = editor.PlaceholderColor?.ToPlatform() ?? ColorExtensions.PlaceholderColor;
+
+		public static void UpdateFlowDirection(this MauiTextView textView, IEditor editor)
+		{
+			if (editor is IView view)
+			{
+				// Update text view's RTL/LTR properties
+				bool isRTL = view.FlowDirection == FlowDirection.RightToLeft;
+				textView.TextAlignment = isRTL ? UITextAlignment.Right : UITextAlignment.Left;
+				textView.SemanticContentAttribute = isRTL ?
+					UISemanticContentAttribute.ForceRightToLeft :
+					UISemanticContentAttribute.Unspecified;
+
+				// Update placeholder with the new flow direction
+				UpdatePlaceholder(textView, editor);
+
+			}
+		}
 
 		static void UpdateCursorSelection(this UITextView textView, IEditor editor)
 		{

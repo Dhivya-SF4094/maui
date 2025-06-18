@@ -1,1 +1,3 @@
 #nullable enable
+static Microsoft.Maui.Handlers.EditorHandler.MapFlowDirection(Microsoft.Maui.Handlers.IEditorHandler! handler, Microsoft.Maui.IEditor! editor) -> void
+static Microsoft.Maui.Platform.TextViewExtensions.UpdateFlowDirection(this Microsoft.Maui.Platform.MauiTextView! textView, Microsoft.Maui.IEditor! editor) -> void
