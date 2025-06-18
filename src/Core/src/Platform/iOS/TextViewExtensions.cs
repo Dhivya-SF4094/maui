@@ -1,4 +1,5 @@
 ﻿using System;
+using Foundation;
 using ObjCRuntime;
 using UIKit;
 
@@ -133,8 +134,30 @@ namespace Microsoft.Maui.Platform
 			textView.VerticalTextAlignment = editor.VerticalTextAlignment;
 		}
 
-		public static void UpdatePlaceholder(this MauiTextView textView, IEditor editor) =>
-			textView.PlaceholderText = editor.Placeholder;
+		public static void UpdatePlaceholder(this MauiTextView textView, IEditor editor)
+		{
+			var placeholder = editor.Placeholder;
+
+			if (editor is IView view && view.FlowDirection == FlowDirection.RightToLeft && !string.IsNullOrEmpty(placeholder))
+			{
+				// Create paragraph style for RTL text
+				var paragraphStyle = new NSMutableParagraphStyle
+				{
+					Alignment = UITextAlignment.Right,
+					BaseWritingDirection = NSWritingDirection.RightToLeft
+				};
+
+				// Create attributes dictionary
+				var attributes = new NSMutableDictionary();
+				attributes[UIStringAttributeKey.ParagraphStyle] = paragraphStyle;
+				var attributedString = new NSAttributedString(placeholder, attributes);
+				textView.AttributedPlaceholderText = attributedString;
+			}
+			else
+			{
+				textView.PlaceholderText = placeholder;
+			}
+		}
 
 		public static void UpdatePlaceholderColor(this MauiTextView textView, IEditor editor) =>
 			textView.PlaceholderTextColor = editor.PlaceholderColor?.ToPlatform() ?? ColorExtensions.PlaceholderColor;
