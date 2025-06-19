@@ -1,5 +1,6 @@
 ﻿using System;
 using CoreGraphics;
+using CoreText;
 using Foundation;
 using UIKit;
 
@@ -10,19 +11,37 @@ namespace Microsoft.Maui.Graphics.Platform
 		public SizeF GetStringSize(string value, IFont font, float fontSize)
 		{
 			if (string.IsNullOrEmpty(value))
+			{
 				return new SizeF();
+			}
 
-			var nsString = new NSString(value);
-			var uiFont = font?.ToPlatformFont(fontSize) ?? FontExtensions.GetDefaultPlatformFont();
+			using var attributedString = new NSAttributedString(
+			 value,
+			 new CTStringAttributes
+			 {
+				 Font = font?.ToCTFont(fontSize) ?? FontExtensions.GetDefaultCTFont(fontSize)
+			 });
 
-			CGSize size = nsString.GetBoundingRect(
-				CGSize.Empty,
-				NSStringDrawingOptions.UsesLineFragmentOrigin,
-				new UIStringAttributes { Font = uiFont },
-				null).Size;
+			using var framesetter = new CTFramesetter(attributedString);
 
-			uiFont.Dispose();
-			return new SizeF((float)size.Width, (float)size.Height);
+			NSRange fitRange;
+			var measuredSize = framesetter.SuggestFrameSize(
+			 new NSRange(0, 0),
+			 null,
+			 new CGSize(float.MaxValue, float.MaxValue),
+			 out fitRange);
+
+			var path = new CGPath();
+			path.AddRect(new RectF(0, 0, (float)measuredSize.Width, (float)measuredSize.Height));
+			path.CloseSubpath();
+
+			var suggestedSize = GetTextSize(framesetter, path);
+			path.Dispose();
+
+			var width = (float)Math.Ceiling(suggestedSize.Width);
+			var height = (float)Math.Ceiling(suggestedSize.Height);
+
+			return new SizeF(width, height);
 		}
 	}
 }
