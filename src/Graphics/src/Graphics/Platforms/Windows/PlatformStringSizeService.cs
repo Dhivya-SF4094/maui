@@ -31,11 +31,7 @@ namespace Microsoft.Maui.Graphics.Platform
 
             var device = CanvasDevice.GetSharedDevice();
 
-            // Use a large layout width to ensure the text is not clipped horizontally
-            float layoutWidth = 10000f;
-            float layoutHeight = 10000f;
-
-            using (var textLayout = new CanvasTextLayout(device, value, format, layoutWidth, layoutHeight))
+            using (var textLayout = new CanvasTextLayout(device, value, format, float.MaxValue, float.MaxValue))
             {
                 textLayout.VerticalAlignment = verticalAlignment switch
                 {
@@ -53,15 +49,16 @@ namespace Microsoft.Maui.Graphics.Platform
                     _ => CanvasHorizontalAlignment.Left,
                 };
 
-                // Calculate the actual bounds of the text
                 var bounds = textLayout.LayoutBounds;
 
                 // If LayoutBounds is empty, fallback to DrawBounds
                 if (bounds.Width <= 0 || bounds.Height <= 0)
+                {
                     bounds = textLayout.DrawBounds;
+                }
 
                 return new SizeF((float)bounds.Width, (float)bounds.Height);
             }
         }
-	}
+    }
 }

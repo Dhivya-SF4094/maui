@@ -24,23 +24,23 @@ namespace Maui.Controls.Sample.Issues
             layout.Add(label);
 
             // Test Case 1: Single long line (basic case)
-            layout.Add(CreateTestCase("Test Case 1: Short text", ShortText));
+            layout.Add(CreateDrawable("Test Case 1: Short text", ShortText));
 
             // Test Case 2: Multi-line text
-            layout.Add(CreateTestCase("Test Case 2: Multi-line Text", MultiLineText));
+            layout.Add(CreateDrawable("Test Case 2: Multi-line Text", MultiLineText));
 
             // Test Case 3: Unicode/non-Latin text
-            layout.Add(CreateTestCase("Test Case 3: Long Text", LongText));
+            layout.Add(CreateDrawable("Test Case 3: Long Text", LongText));
 
             Content = layout;
         }
 
-        private Border CreateTestCase(string testName, string text)
+        private Border CreateDrawable(string testName, string text)
         {
             var graphicsView = new GraphicsView
             {
                 HeightRequest = 150,
-                Drawable = new TextTestDrawable(text, testName)
+                Drawable = new Issue18679_Drawable(text, testName)
             };
 
             return new Border
@@ -52,7 +52,7 @@ namespace Maui.Controls.Sample.Issues
         }
     }
 
-    public class TextTestDrawable : IDrawable
+    public class Issue18679_Drawable : IDrawable
     {
         readonly string _text;
         readonly string _label;
@@ -60,7 +60,7 @@ namespace Maui.Controls.Sample.Issues
         const int FontSize = 20;
 
 
-        public TextTestDrawable(string text, string label)
+        public Issue18679_Drawable(string text, string label)
         {
             _text = text;
             _label = label;

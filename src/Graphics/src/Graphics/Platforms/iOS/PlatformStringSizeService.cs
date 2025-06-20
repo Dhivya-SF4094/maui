@@ -38,8 +38,8 @@ namespace Microsoft.Maui.Graphics.Platform
 			var suggestedSize = GetTextSize(framesetter, path);
 			path.Dispose();
 
-			var width = (float)Math.Ceiling(suggestedSize.Width);
-			var height = (float)Math.Ceiling(suggestedSize.Height);
+			var width = (float)suggestedSize.Width;
+			var height = (float)suggestedSize.Height;
 
 			return new SizeF(width, height);
 		}
