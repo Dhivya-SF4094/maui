@@ -18,8 +18,8 @@ namespace Microsoft.Maui.Graphics.Platform
 			var attributes = new CTStringAttributes();
 			attributes.Font = font?.ToCTFont(fontSize) ?? FontExtensions.GetDefaultCTFont(fontSize);
 
-			using var attributedString = new NSAttributedString(value, attributes);
-			using var framesetter = new CTFramesetter(attributedString);
+			var attributedString = new NSAttributedString(value, attributes);
+			var framesetter = new CTFramesetter(attributedString);
 
 			// Get suggested frame size with unlimited constraints
 			var measuredSize = framesetter.SuggestFrameSize(
@@ -28,6 +28,8 @@ namespace Microsoft.Maui.Graphics.Platform
 				new CGSize(float.MaxValue, float.MaxValue),
 				out _);
 
+			framesetter.Dispose();
+			attributedString.Dispose();
 			return new SizeF((float)measuredSize.Width, (float)measuredSize.Height);
 		}
 	}
