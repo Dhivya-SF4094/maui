@@ -6,7 +6,7 @@ namespace Maui.Controls.Sample.Issues
     public class Issue18679 : TestContentPage
     {
         const string ShortText = "ShortText";
-        const string LongText = "CiaomondorowfdskleCiaomondorowfdskle";
+        const string LongText = "CiaomondorowfdskleCiaomondorowfdsk";
         const string MultiLineText = "HELLO, WORLD!\nCiao mondo row 2\nGuten tag!?àèìòù@";
 
         protected override void Init()
@@ -86,13 +86,13 @@ namespace Maui.Controls.Sample.Issues
 
             // Draw the actual text first
             canvas.FontColor = Colors.Black;
-            canvas.DrawString(_text, 10, 40, dirtyRect.Width, dirtyRect.Height,
+            canvas.DrawString(_text, 2, 40, dirtyRect.Width, dirtyRect.Height,
                 HorizontalAlignment.Left, VerticalAlignment.Top);
 
             // Draw the measured bounds rectangle
             canvas.StrokeColor = Colors.Red;
             canvas.StrokeSize = 1;
-            canvas.DrawRectangle(10, 40, stringSize.Width, stringSize.Height);
+            canvas.DrawRectangle(2, 40, stringSize.Width, stringSize.Height);
 
             canvas.RestoreState();
         }

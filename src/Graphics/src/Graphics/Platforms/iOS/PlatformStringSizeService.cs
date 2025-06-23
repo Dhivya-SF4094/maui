@@ -15,33 +15,20 @@ namespace Microsoft.Maui.Graphics.Platform
 				return new SizeF();
 			}
 
-			using var attributedString = new NSAttributedString(
-			 value,
-			 new CTStringAttributes
-			 {
-				 Font = font?.ToCTFont(fontSize) ?? FontExtensions.GetDefaultCTFont(fontSize)
-			 });
+			var attributes = new CTStringAttributes();
+			attributes.Font = font?.ToCTFont(fontSize) ?? FontExtensions.GetDefaultCTFont(fontSize);
 
+			using var attributedString = new NSAttributedString(value, attributes);
 			using var framesetter = new CTFramesetter(attributedString);
 
-			NSRange fitRange;
+			// Get suggested frame size with unlimited constraints
 			var measuredSize = framesetter.SuggestFrameSize(
-			 new NSRange(0, 0),
-			 null,
-			 new CGSize(float.MaxValue, float.MaxValue),
-			 out fitRange);
+				new NSRange(0, 0),
+				null,
+				new CGSize(float.MaxValue, float.MaxValue),
+				out _);
 
-			var path = new CGPath();
-			path.AddRect(new RectF(0, 0, (float)measuredSize.Width, (float)measuredSize.Height));
-			path.CloseSubpath();
-
-			var suggestedSize = GetTextSize(framesetter, path);
-			path.Dispose();
-
-			var width = (float)suggestedSize.Width;
-			var height = (float)suggestedSize.Height;
-
-			return new SizeF(width, height);
+			return new SizeF((float)measuredSize.Width, (float)measuredSize.Height);
 		}
 	}
 }
