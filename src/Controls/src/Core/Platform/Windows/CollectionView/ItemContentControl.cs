@@ -180,6 +180,16 @@ namespace Microsoft.Maui.Controls.Platform
 					throw new InvalidOperationException($"{dataTemplate} could not be created from {content}");
 				}
 
+				// Add to logical tree IMMEDIATELY after creation and BEFORE any style-triggering operations
+				// This ensures the parent chain is established for resource resolution during style application
+				itemsView?.AddLogicalChild(_visualElement);
+
+				// Force re-registration of implicit styles now that the element has a proper parent chain
+				if (_visualElement is StyleableElement styleableElement)
+				{
+					styleableElement._mergedStyle.ReRegisterImplicitStyles(_visualElement.GetType().FullName);
+				}
+
 				_visualElement.BindingContext = dataContext;
 				_handler = _visualElement.ToHandler(mauiContext);
 
@@ -208,8 +218,6 @@ namespace Microsoft.Maui.Controls.Platform
 			{
 				Content = new ContentLayoutPanel(_handler.VirtualView);
 			}
-
-			itemsView?.AddLogicalChild(_visualElement);
 
 			if (itemsView is SelectableItemsView selectableItemsView && selectableItemsView.SelectionMode is not SelectionMode.None)
 			{
