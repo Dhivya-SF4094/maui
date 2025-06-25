@@ -2,4 +2,33 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui.Controls.Sample.MainPage"
              xmlns:local="clr-namespace:Maui.Controls.Sample">
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+            <Label Text="TimePicker FlowDirection Test" FontSize="18" FontAttributes="Bold" />
+            
+            <Label Text="Left to Right TimePicker:" />
+            <TimePicker x:Name="LtrTimePicker" 
+                       FlowDirection="LeftToRight" 
+                       Time="14:30" 
+                       BackgroundColor="LightGray" />
+            
+            <Label Text="Right to Left TimePicker:" />
+            <TimePicker x:Name="RtlTimePicker" 
+                       FlowDirection="RightToLeft" 
+                       Time="14:30" 
+                       BackgroundColor="LightBlue" />
+            
+            <Label Text="Match Parent TimePicker (should inherit from parent):" />
+            <TimePicker x:Name="MatchParentTimePicker" 
+                       FlowDirection="MatchParent" 
+                       Time="14:30" 
+                       BackgroundColor="LightYellow" />
+            
+            <Button Text="Toggle Page FlowDirection" 
+                    x:Name="ToggleFlowDirectionButton" 
+                    Clicked="OnToggleFlowDirectionClicked" />
+            
+            <Label x:Name="StatusLabel" Text="Page FlowDirection: LeftToRight" />
+        </StackLayout>
+    </ScrollView>
 </ContentPage>
