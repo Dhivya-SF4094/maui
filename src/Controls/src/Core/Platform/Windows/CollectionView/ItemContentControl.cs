@@ -184,12 +184,6 @@ namespace Microsoft.Maui.Controls.Platform
 				// This ensures the parent chain is established for resource resolution during style application
 				itemsView?.AddLogicalChild(_visualElement);
 
-				// Force re-registration of implicit styles now that the element has a proper parent chain
-				if (_visualElement is StyleableElement styleableElement)
-				{
-					styleableElement._mergedStyle.ReRegisterImplicitStyles(_visualElement.GetType().FullName);
-				}
-
 				_visualElement.BindingContext = dataContext;
 				_handler = _visualElement.ToHandler(mauiContext);
 
