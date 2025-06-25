@@ -36,6 +36,20 @@ namespace Microsoft.Maui.DeviceTests
 			await CreateHandlerAsync(timePicker);
 		}
 
+		[Theory(DisplayName = "FlowDirection Initializes Correctly")]
+		[InlineData(FlowDirection.LeftToRight)]
+		[InlineData(FlowDirection.RightToLeft)]
+		public async Task FlowDirectionInitializesCorrectly(FlowDirection flowDirection)
+		{
+			var timePicker = new TimePickerStub()
+			{
+				FlowDirection = flowDirection,
+				Time = new TimeSpan(17, 0, 0)
+			};
+
+			await ValidatePropertyInitValue(timePicker, () => flowDirection, GetFlowDirection, flowDirection);
+		}
+
 		[Category(TestCategory.TimePicker)]
 		public class TimePickerTextStyleTests : TextStyleHandlerTests<TimePickerHandler, TimePickerStub>
 		{
