@@ -56,7 +56,7 @@ namespace Microsoft.Maui.Handlers
 			handler.PlatformView?.UpdateTextColor(timePicker);
 		}
 
-		public static void MapFlowDirection(TimePickerHandler handler, ITimePicker timePicker)
+		public static void MapFlowDirection(ITimePickerHandler handler, ITimePicker timePicker)
 		{
 			handler.PlatformView?.UpdateFlowDirection(timePicker);
 			handler.PlatformView?.UpdateTextAlignment(timePicker);

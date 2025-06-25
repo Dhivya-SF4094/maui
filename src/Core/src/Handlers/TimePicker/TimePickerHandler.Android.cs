@@ -79,7 +79,11 @@ namespace Microsoft.Maui.Handlers
 
 			handler.PlatformView?.UpdateFont(timePicker, fontManager);
 		}
-
+		public static void MapFlowDirection(ITimePickerHandler handler, ITimePicker timePicker)
+		{
+			handler.PlatformView?.UpdateFlowDirection(timePicker);
+			handler.PlatformView?.UpdateTextAlignment(timePicker);
+		}
 		public static void MapTextColor(ITimePickerHandler handler, ITimePicker timePicker)
 		{
 			handler.PlatformView?.UpdateTextColor(timePicker);

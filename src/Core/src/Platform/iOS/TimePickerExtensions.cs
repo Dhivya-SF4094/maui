@@ -77,7 +77,9 @@ namespace Microsoft.Maui.Platform
 
 		public static void UpdateTextAlignment(this MauiTimePicker textField, ITimePicker timePicker)
 		{
-			// TODO: Update TextAlignment based on the EffectiveFlowDirection property.
+			UISemanticContentAttribute updateValue = textField.SemanticContentAttribute;
+
+			textField.TextAlignment = (updateValue == UISemanticContentAttribute.ForceRightToLeft) ? UITextAlignment.Right : UITextAlignment.Left;
 		}
 	}
 }

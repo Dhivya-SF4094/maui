@@ -11,5 +11,7 @@ namespace Microsoft.Maui.Handlers
 		public static void MapCharacterSpacing(ITimePickerHandler handler, ITimePicker view) { }
 		public static void MapFont(ITimePickerHandler handler, ITimePicker view) { }
 		public static void MapTextColor(ITimePickerHandler handler, ITimePicker timePicker) { }
+
+		public static void MapFlowDirection(ITimePickerHandler handler, ITimePicker timePicker) { }
 	}
 }
