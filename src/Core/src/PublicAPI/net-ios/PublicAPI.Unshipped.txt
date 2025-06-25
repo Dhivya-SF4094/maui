@@ -1,1 +1,3 @@
 #nullable enable
+static Microsoft.Maui.Platform.TimePickerExtensions.UpdateFlowDirection(this Microsoft.Maui.Platform.MauiTimePicker! mauiTimePicker, Microsoft.Maui.ITimePicker! timePicker) -> void
+static Microsoft.Maui.Platform.TimePickerExtensions.UpdateFlowDirection(this UIKit.UIDatePicker! picker, Microsoft.Maui.ITimePicker! timePicker) -> void

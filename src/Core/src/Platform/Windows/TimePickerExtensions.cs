@@ -85,5 +85,10 @@ namespace Microsoft.Maui.Platform
 			"TimePickerButtonBackgroundDisabled",
 			"TimePickerButtonBackgroundFocused",
 		};
+
+		public static void UpdateFlowDirection(this TimePicker platformTimePicker, ITimePicker timePicker)
+		{
+			platformTimePicker.UpdateFlowDirection(timePicker as IView);
+		}
 	}
 }

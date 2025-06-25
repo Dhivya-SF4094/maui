@@ -85,6 +85,11 @@ namespace Microsoft.Maui.Handlers
 			handler.PlatformView?.UpdateTextColor(timePicker);
 		}
 
+		public static void MapFlowDirection(ITimePickerHandler handler, ITimePicker timePicker)
+		{
+			handler.PlatformView?.UpdateFlowDirection(timePicker);
+		}
+
 		void ShowPickerDialog()
 		{
 			if (VirtualView == null)

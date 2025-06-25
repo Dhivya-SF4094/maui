@@ -51,6 +51,11 @@ namespace Microsoft.Maui.Handlers
 			handler.PlatformView?.UpdateBackground(timePicker);
 		}
 
+		public static void MapFlowDirection(ITimePickerHandler handler, ITimePicker timePicker)
+		{
+			handler.PlatformView?.UpdateFlowDirection(timePicker);
+		}
+
 		void OnControlTimeChanged(object? sender, TimePickerValueChangedEventArgs e)
 		{
 			if (VirtualView != null)
