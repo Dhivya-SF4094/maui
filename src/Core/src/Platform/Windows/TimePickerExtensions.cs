@@ -88,8 +88,21 @@ namespace Microsoft.Maui.Platform
 
 		public static void UpdateFlowDirection(this TimePicker platformTimePicker, ITimePicker timePicker)
 		{
-			platformTimePicker.UpdateFlowDirection(timePicker as IView);
-			
+			// Set FlowDirection on the TimePicker itself following the same pattern as UpdateCharacterSpacing
+			var flowDirection = timePicker.FlowDirection;
+			switch (flowDirection)
+			{
+				case FlowDirection.MatchParent:
+					platformTimePicker.ClearValue(UI.Xaml.FrameworkElement.FlowDirectionProperty);
+					break;
+				case FlowDirection.LeftToRight:
+					platformTimePicker.FlowDirection = UI.Xaml.FlowDirection.LeftToRight;
+					break;
+				case FlowDirection.RightToLeft:
+					platformTimePicker.FlowDirection = UI.Xaml.FlowDirection.RightToLeft;
+					break;
+			}
+
 			if (platformTimePicker.IsLoaded)
 			{
 				UpdateFlowDirectionInTimePicker(platformTimePicker, timePicker);
