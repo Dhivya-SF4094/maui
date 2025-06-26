@@ -1,8 +1,6 @@
 ﻿using System;
 using Microsoft.Maui.Graphics;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using WFlowDirection = Microsoft.UI.Xaml.FlowDirection;
 
 namespace Microsoft.Maui.Platform
 {
