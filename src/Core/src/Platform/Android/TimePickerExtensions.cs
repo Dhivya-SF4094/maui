@@ -22,8 +22,8 @@
 		public static void UpdateTextAlignment(this MauiTimePicker textField, ITimePicker timePicker)
 		{
 			textField.TextAlignment = timePicker.FlowDirection == FlowDirection.RightToLeft
-	? Android.Views.TextAlignment.TextEnd
-	: Android.Views.TextAlignment.TextStart;
+					? Android.Views.TextAlignment.TextEnd
+					: Android.Views.TextAlignment.TextStart;
 		}
 	}
 }
