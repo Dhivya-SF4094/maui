@@ -10,7 +10,17 @@ namespace Microsoft.Maui.Handlers
 
 		protected override void ConnectHandler(TimePicker platformView)
 		{
+			platformView.Loaded += PlatformView_Loaded;
 			platformView.TimeChanged += OnControlTimeChanged;
+		}
+
+		private void PlatformView_Loaded(object sender, UI.Xaml.RoutedEventArgs e)
+		{
+			if(VirtualView is not null)
+			{
+				PlatformView.UpdateTextAlignment(VirtualView);
+			}
+
 		}
 
 		protected override void DisconnectHandler(TimePicker platformView)
@@ -41,7 +51,8 @@ namespace Microsoft.Maui.Handlers
 		}
 		public static void MapFlowDirection(ITimePickerHandler handler, ITimePicker timePicker)
 		{
-
+			handler.PlatformView?.UpdateFlowDirection(timePicker);
+			handler.PlatformView?.UpdateTextAlignment(timePicker);
 		}
 		public static void MapTextColor(ITimePickerHandler handler, ITimePicker timePicker)
 		{

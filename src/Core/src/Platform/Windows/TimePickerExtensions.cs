@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.Maui.Graphics;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using WFlowDirection = Microsoft.UI.Xaml.FlowDirection;
 
 namespace Microsoft.Maui.Platform
 {
@@ -47,6 +49,42 @@ namespace Microsoft.Maui.Platform
 
 			platformTimePicker.RefreshThemeResources();
 		}
+        public static void UpdateTextAlignment(this TimePicker platformTimePicker, ITimePicker timePicker)
+        {
+			var flowDirection = timePicker.FlowDirection;
+			switch (flowDirection)
+			{
+				case FlowDirection.LeftToRight:
+					platformTimePicker.HorizontalAlignment = (UI.Xaml.HorizontalAlignment)WFlowDirection.LeftToRight;
+					break;
+				case FlowDirection.RightToLeft:
+					platformTimePicker.HorizontalAlignment = (UI.Xaml.HorizontalAlignment)WFlowDirection.RightToLeft;
+					break;
+			}
+
+			if(platformTimePicker.IsLoaded)
+			{
+				UpdateFlowDirectionInTimePicker(platformTimePicker, timePicker);
+			}
+			else
+			{
+				platformTimePicker.Loaded += (s, e) => UpdateFlowDirectionInTimePicker(platformTimePicker, timePicker);
+			}
+		}
+
+		private static void UpdateFlowDirectionInTimePicker(TimePicker platformTimePicker, ITimePicker timePicker)
+		{
+			var textBox = platformTimePicker.GetDescendantByName<TextBlock>("TimePickerTextBox");
+			if(textBox is null)
+			{
+				return;
+			}
+
+			textBox.TextAlignment = timePicker.FlowDirection == FlowDirection.LeftToRight
+				? Microsoft.UI.Xaml.TextAlignment.Left
+				: Microsoft.UI.Xaml.TextAlignment.Right;
+		}
+
 
 		// ResourceKeys controlling the foreground color of the TimePicker.
 		// https://docs.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.timepicker?view=windows-app-sdk-1.1
