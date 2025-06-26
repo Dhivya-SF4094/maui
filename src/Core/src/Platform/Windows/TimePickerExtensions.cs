@@ -89,6 +89,50 @@ namespace Microsoft.Maui.Platform
 		public static void UpdateFlowDirection(this TimePicker platformTimePicker, ITimePicker timePicker)
 		{
 			platformTimePicker.UpdateFlowDirection(timePicker as IView);
+			
+			if (platformTimePicker.IsLoaded)
+			{
+				UpdateFlowDirectionInTimePicker(platformTimePicker, timePicker);
+			}
+			else
+			{
+				platformTimePicker.OnLoaded(() =>
+				{
+					UpdateFlowDirectionInTimePicker(platformTimePicker, timePicker);
+				});
+			}
+		}
+
+		static void UpdateFlowDirectionInTimePicker(this TimePicker platformTimePicker, ITimePicker timePicker)
+		{
+			var hourTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("HourTextBlock");
+			var minuteTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("MinuteTextBlock");
+			var periodTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("PeriodTextBlock");
+
+			var isRtl = timePicker.FlowDirection == FlowDirection.RightToLeft;
+			var textAlignment = isRtl ? UI.Xaml.TextAlignment.Right : UI.Xaml.TextAlignment.Left;
+
+			if (hourTextBlock is not null)
+			{
+				if (timePicker.FlowDirection == FlowDirection.MatchParent)
+					hourTextBlock.ClearValue(TextBlock.TextAlignmentProperty);
+				else
+					hourTextBlock.TextAlignment = textAlignment;
+			}
+			if (minuteTextBlock is not null)
+			{
+				if (timePicker.FlowDirection == FlowDirection.MatchParent)
+					minuteTextBlock.ClearValue(TextBlock.TextAlignmentProperty);
+				else
+					minuteTextBlock.TextAlignment = textAlignment;
+			}
+			if (periodTextBlock is not null)
+			{
+				if (timePicker.FlowDirection == FlowDirection.MatchParent)
+					periodTextBlock.ClearValue(TextBlock.TextAlignmentProperty);
+				else
+					periodTextBlock.TextAlignment = textAlignment;
+			}
 		}
 	}
 }
