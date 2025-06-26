@@ -20,7 +20,8 @@ namespace Microsoft.Maui.Handlers
 		{
 #if ANDROID || WINDOWS
 			[nameof(ITimePicker.Background)] = MapBackground,
-#elif IOS
+			[nameof(ITimePicker.FlowDirection)] = MapFlowDirection,
+#elif IOS || MACCATALYST
 			[nameof(ITimePicker.FlowDirection)] = MapFlowDirection,
 #endif
 			[nameof(ITimePicker.CharacterSpacing)] = MapCharacterSpacing,

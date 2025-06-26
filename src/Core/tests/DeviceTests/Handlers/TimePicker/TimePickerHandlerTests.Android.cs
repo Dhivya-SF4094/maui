@@ -72,5 +72,11 @@ namespace Microsoft.Maui.DeviceTests
 			AColor currentTextColor = new AColor(currentTextColorInt);
 			return currentTextColor.ToColor();
 		}
+
+		FlowDirection GetFlowDirection(TimePickerHandler timePickerHandler)
+		{
+			var mauiTimePicker = GetNativeTimePicker(timePickerHandler);
+			return mauiTimePicker.LayoutDirection.ToFlowDirection();
+		}
 	}
 }

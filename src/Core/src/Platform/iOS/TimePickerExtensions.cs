@@ -79,5 +79,21 @@ namespace Microsoft.Maui.Platform
 		{
 			// TODO: Update TextAlignment based on the EffectiveFlowDirection property.
 		}
+
+		public static void UpdateFlowDirection(this MauiTimePicker mauiTimePicker, ITimePicker timePicker)
+		{
+			mauiTimePicker.UpdateFlowDirection(timePicker, null);
+		}
+
+		public static void UpdateFlowDirection(this UIDatePicker picker, ITimePicker timePicker)
+		{
+			picker.UpdateFlowDirection(timePicker as IView);
+		}
+
+		public static void UpdateFlowDirection(this MauiTimePicker mauiTimePicker, ITimePicker timePicker, UIDatePicker? picker)
+		{
+			picker?.UpdateFlowDirection(timePicker as IView);
+			mauiTimePicker.UpdateFlowDirection(timePicker as IView);
+		}
 	}
 }

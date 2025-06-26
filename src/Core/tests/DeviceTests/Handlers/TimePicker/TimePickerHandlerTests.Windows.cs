@@ -26,5 +26,21 @@ namespace Microsoft.Maui.DeviceTests
 
 			Assert.True(condition);
 		}
+
+		FlowDirection GetFlowDirection(TimePickerHandler timePickerHandler)
+		{
+			var platformTimePicker = GetNativeTimePicker(timePickerHandler);
+			return ConvertToFlowDirection(platformTimePicker.FlowDirection);
+		}
+
+		FlowDirection ConvertToFlowDirection(Microsoft.UI.Xaml.FlowDirection flowDirection)
+		{
+			return flowDirection switch
+			{
+				Microsoft.UI.Xaml.FlowDirection.RightToLeft => FlowDirection.RightToLeft,
+				Microsoft.UI.Xaml.FlowDirection.LeftToRight => FlowDirection.LeftToRight,
+				_ => FlowDirection.MatchParent
+			};
+		}
 	}
 }

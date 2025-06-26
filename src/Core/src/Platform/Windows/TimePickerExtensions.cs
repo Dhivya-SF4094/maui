@@ -85,5 +85,58 @@ namespace Microsoft.Maui.Platform
 			"TimePickerButtonBackgroundDisabled",
 			"TimePickerButtonBackgroundFocused",
 		};
+
+		public static void UpdateFlowDirection(this TimePicker platformTimePicker, ITimePicker timePicker)
+		{
+			// Set FlowDirection on the TimePicker itself following the same pattern as UpdateCharacterSpacing
+			var flowDirection = timePicker.FlowDirection;
+			switch (flowDirection)
+			{
+				case FlowDirection.MatchParent:
+					platformTimePicker.ClearValue(UI.Xaml.FrameworkElement.FlowDirectionProperty);
+					break;
+				case FlowDirection.LeftToRight:
+					platformTimePicker.FlowDirection = UI.Xaml.FlowDirection.LeftToRight;
+					break;
+				case FlowDirection.RightToLeft:
+					platformTimePicker.FlowDirection = UI.Xaml.FlowDirection.RightToLeft;
+					break;
+			}
+
+			if (platformTimePicker.IsLoaded)
+			{
+				UpdateFlowDirectionInTimePicker(platformTimePicker);
+			}
+			else
+			{
+				platformTimePicker.OnLoaded(() =>
+				{
+					UpdateFlowDirectionInTimePicker(platformTimePicker);
+				});
+			}
+		}
+
+		static void UpdateFlowDirectionInTimePicker(this TimePicker platformTimePicker)
+		{
+			var hourTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("HourTextBlock");
+			var minuteTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("MinuteTextBlock");
+			var periodTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("PeriodTextBlock");
+
+			var isRtl = platformTimePicker.FlowDirection == UI.Xaml.FlowDirection.RightToLeft;
+			var textAlignment = isRtl ? UI.Xaml.TextAlignment.Right : UI.Xaml.TextAlignment.Left;
+
+			if (hourTextBlock is not null)
+			{
+				hourTextBlock.TextAlignment = textAlignment;
+			}
+			if (minuteTextBlock is not null)
+			{
+				minuteTextBlock.TextAlignment = textAlignment;
+			}
+			if (periodTextBlock is not null)
+			{
+				periodTextBlock.TextAlignment = textAlignment;
+			}
+		}
 	}
 }

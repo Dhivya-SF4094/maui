@@ -63,6 +63,22 @@ namespace Microsoft.Maui.DeviceTests
 			var mauiTimePicker = GetNativeTimePicker(timePickerHandler);
 			return mauiTimePicker.AttributedText.GetCharacterSpacing();
 		}
+
+		FlowDirection GetFlowDirection(TimePickerHandler timePickerHandler)
+		{
+			var mauiTimePicker = GetNativeTimePicker(timePickerHandler);
+			return ConvertToFlowDirection(mauiTimePicker.SemanticContentAttribute);
+		}
+
+		FlowDirection ConvertToFlowDirection(UISemanticContentAttribute attribute)
+		{
+			return attribute switch
+			{
+				UISemanticContentAttribute.ForceRightToLeft => FlowDirection.RightToLeft,
+				UISemanticContentAttribute.ForceLeftToRight => FlowDirection.LeftToRight,
+				_ => FlowDirection.MatchParent
+			};
+		}
 	}
 }
 #endif

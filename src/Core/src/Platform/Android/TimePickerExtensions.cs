@@ -19,5 +19,10 @@
 
 			mauiTimePicker.Text = time.ToFormattedString(format);
 		}
+
+		public static void UpdateFlowDirection(this MauiTimePicker mauiTimePicker, ITimePicker timePicker)
+		{
+			mauiTimePicker.UpdateFlowDirection(timePicker as IView);
+		}
 	}
 }
