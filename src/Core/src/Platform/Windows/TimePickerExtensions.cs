@@ -105,46 +105,37 @@ namespace Microsoft.Maui.Platform
 
 			if (platformTimePicker.IsLoaded)
 			{
-				UpdateFlowDirectionInTimePicker(platformTimePicker, timePicker);
+				UpdateFlowDirectionInTimePicker(platformTimePicker);
 			}
 			else
 			{
 				platformTimePicker.OnLoaded(() =>
 				{
-					UpdateFlowDirectionInTimePicker(platformTimePicker, timePicker);
+					UpdateFlowDirectionInTimePicker(platformTimePicker);
 				});
 			}
 		}
 
-		static void UpdateFlowDirectionInTimePicker(this TimePicker platformTimePicker, ITimePicker timePicker)
+		static void UpdateFlowDirectionInTimePicker(this TimePicker platformTimePicker)
 		{
 			var hourTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("HourTextBlock");
 			var minuteTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("MinuteTextBlock");
 			var periodTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("PeriodTextBlock");
 
-			var isRtl = timePicker.FlowDirection == FlowDirection.RightToLeft;
+			var isRtl = platformTimePicker.FlowDirection == UI.Xaml.FlowDirection.RightToLeft;
 			var textAlignment = isRtl ? UI.Xaml.TextAlignment.Right : UI.Xaml.TextAlignment.Left;
 
 			if (hourTextBlock is not null)
 			{
-				if (timePicker.FlowDirection == FlowDirection.MatchParent)
-					hourTextBlock.ClearValue(TextBlock.TextAlignmentProperty);
-				else
-					hourTextBlock.TextAlignment = textAlignment;
+				hourTextBlock.TextAlignment = textAlignment;
 			}
 			if (minuteTextBlock is not null)
 			{
-				if (timePicker.FlowDirection == FlowDirection.MatchParent)
-					minuteTextBlock.ClearValue(TextBlock.TextAlignmentProperty);
-				else
-					minuteTextBlock.TextAlignment = textAlignment;
+				minuteTextBlock.TextAlignment = textAlignment;
 			}
 			if (periodTextBlock is not null)
 			{
-				if (timePicker.FlowDirection == FlowDirection.MatchParent)
-					periodTextBlock.ClearValue(TextBlock.TextAlignmentProperty);
-				else
-					periodTextBlock.TextAlignment = textAlignment;
+				periodTextBlock.TextAlignment = textAlignment;
 			}
 		}
 	}
