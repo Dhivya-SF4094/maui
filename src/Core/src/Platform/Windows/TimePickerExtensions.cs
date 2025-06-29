@@ -49,37 +49,26 @@ namespace Microsoft.Maui.Platform
 		}
 
         public static void UpdateTextAlignment(this TimePicker platformTimePicker, ITimePicker timePicker)
-        {			
+        {
+			var flowDirection = timePicker.FlowDirection;
+			var textAlignment = flowDirection == FlowDirection.RightToLeft
+				? UI.Xaml.TextAlignment.Right
+				: UI.Xaml.TextAlignment.Left;
 
-			if(platformTimePicker.IsLoaded)
-			{
-				UpdateFlowDirectionInTimePicker(platformTimePicker, timePicker);
-			}
-			else
-			{
-				platformTimePicker.Loaded += (s, e) => UpdateFlowDirectionInTimePicker(platformTimePicker, timePicker);
-			}
+
+			SetTextAlignment(platformTimePicker, "HourTextBlock", textAlignment);
+			SetTextAlignment(platformTimePicker, "MinuteTextBlock", textAlignment);
+			SetTextAlignment(platformTimePicker, "PeriodTextBlock", textAlignment);
 		}
 
-        static void UpdateFlowDirectionInTimePicker(TimePicker platformTimePicker, ITimePicker timePicker)
-        {
-            var flowDirection = timePicker.FlowDirection;
-            var textAlignment = (flowDirection == FlowDirection.MatchParent || flowDirection == FlowDirection.LeftToRight)
-                ? Microsoft.UI.Xaml.TextAlignment.Left
-                : Microsoft.UI.Xaml.TextAlignment.Right;
-
-            var hourTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("HourTextBlock");
-            if (hourTextBlock is not null)
-                hourTextBlock.TextAlignment = textAlignment;
-
-            var minuteTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("MinuteTextBlock");
-            if (minuteTextBlock is not null)
-                minuteTextBlock.TextAlignment = textAlignment;
-
-            var periodTextBlock = platformTimePicker.GetDescendantByName<TextBlock>("PeriodTextBlock");
-            if (periodTextBlock is not null)
-                periodTextBlock.TextAlignment = textAlignment;
-        }
+		static void SetTextAlignment(TimePicker platformTimePicker, string elementName, Microsoft.UI.Xaml.TextAlignment textAlignment)
+		{
+			var textBlock = platformTimePicker.GetDescendantByName<TextBlock>(elementName);
+			if (textBlock is not null)
+			{
+				textBlock.TextAlignment = textAlignment;
+			}
+		}
 
 		// ResourceKeys controlling the foreground color of the TimePicker.
 		// https://docs.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.timepicker?view=windows-app-sdk-1.1
