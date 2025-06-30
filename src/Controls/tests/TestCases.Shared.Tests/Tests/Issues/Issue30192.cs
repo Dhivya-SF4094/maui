@@ -17,6 +17,7 @@ public class Issue30192 : _IssuesUITest
     public void TimePickerFlowDirectionTest()
     {
         App.WaitForElement("ToggleFlowDirectionButton");
+        App.Tap("ToggleFlowDirectionButton");
         VerifyScreenshot();
     }
 }
