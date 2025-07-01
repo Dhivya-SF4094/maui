@@ -37,7 +37,7 @@ namespace Microsoft.Maui.Platform
 		{
 			picker?.UpdateTime(timePicker);
 
-			var cultureInfo = Culture.CurrentCulture;
+			var cultureInfo = CultureInfo.CurrentCulture;
 
 			if (string.IsNullOrEmpty(timePicker.Format))
 			{

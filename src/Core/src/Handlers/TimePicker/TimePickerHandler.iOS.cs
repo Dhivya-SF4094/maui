@@ -58,8 +58,11 @@ namespace Microsoft.Maui.Handlers
 
 		public static void MapFlowDirection(ITimePickerHandler handler, ITimePicker timePicker)
 		{
-			handler.PlatformView?.UpdateFlowDirection(timePicker);
-			handler.PlatformView?.UpdateTextAlignment(timePicker);
+			if (handler.PlatformView is not null)
+			{
+				handler.PlatformView.UpdateFlowDirection(timePicker);
+				handler.PlatformView.UpdateTextAlignment(timePicker);
+			}
 		}
 
 		void SetVirtualViewTime()

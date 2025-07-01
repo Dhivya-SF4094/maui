@@ -1,3 +1,2 @@
 #nullable enable
 static Microsoft.Maui.Handlers.TimePickerHandler.MapFlowDirection(Microsoft.Maui.Handlers.ITimePickerHandler! handler, Microsoft.Maui.ITimePicker! timePicker) -> void
-static Microsoft.Maui.Platform.TimePickerExtensions.UpdateTextAlignment(this Microsoft.UI.Xaml.Controls.TimePicker! platformTimePicker, Microsoft.Maui.ITimePicker! timePicker) -> void

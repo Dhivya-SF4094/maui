@@ -48,8 +48,9 @@ namespace Microsoft.Maui.Platform
 			platformTimePicker.RefreshThemeResources();
 		}
 
-        public static void UpdateTextAlignment(this TimePicker platformTimePicker, ITimePicker timePicker)
-        {
+		// Make it public in .NET 10.
+		internal static void UpdateTextAlignment(this TimePicker platformTimePicker, ITimePicker timePicker)
+		{
 			var flowDirection = timePicker.FlowDirection;
 			var textAlignment = flowDirection == FlowDirection.RightToLeft
 				? UI.Xaml.TextAlignment.Right
