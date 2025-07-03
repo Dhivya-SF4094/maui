@@ -14,9 +14,18 @@ public class Issue30366 : _IssuesUITest
 
     [Test]
     [Category(UITestCategories.SearchBar)]
-    public void CharacterSpacingShouldApplyForSeachBarPlaceHolderText()
+    public void CharacterSpacingShouldApplyForSearchBarPlaceHolderText()
     {
         App.WaitForElement("Issue30366_SearchBar");
+        VerifyScreenshot();
+    }
+
+    [Test]
+    [Category(UITestCategories.SearchBar)]
+    public void CharacterSpacingShouldApplyForSearchBarText()
+    {
+        App.WaitForElement("Issue30366_SearchBar");
+        App.EnterText("Issue30366_SearchBar", "Test Search");
         VerifyScreenshot();
     }
 }
