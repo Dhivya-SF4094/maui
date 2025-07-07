@@ -579,10 +579,9 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 				_emptyViewFormsElement.Measure(frame.Width, frame.Height);
 				_emptyViewFormsElement.Arrange(frame.ToRectangle());
 			}
-			else
-			{
-				_emptyUIView.Frame = frame;
-			}
+
+			// Set the native UIView frame after measuring and arranging the Forms element, to avoid redundant layout updates.
+			_emptyUIView.Frame = frame;
 
 			return frame;
 		}
