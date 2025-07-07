@@ -44,6 +44,32 @@ namespace Microsoft.Maui.Controls
 					return false;
 				}
 
+				// Handle partial or non-canonical decimal input
+				if (DecimalTypes.Contains(convertTo))
+				{
+					var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+
+					// Prevent conversion of "01", "0001", etc. unless it's clean (e.g., no leading zeros except "0.x")
+					if (stringValue.Length > 1 &&
+						stringValue.StartsWith("0") &&
+						!stringValue.StartsWith("0" + decimalSeparator, StringComparison.Ordinal))
+					{
+						value = original;
+						return false;
+					}
+
+					// Prevent conversion of "-0.0", "-0.00", etc. (still typing negative decimal)
+					if (stringValue.StartsWith("-0" + decimalSeparator, StringComparison.Ordinal))
+					{
+						var afterDecimal = stringValue.Substring(("-0" + decimalSeparator).Length);
+						if (afterDecimal.All(c => c == '0' || char.IsWhiteSpace(c)))
+						{
+							value = original;
+							return false;
+						}
+					}
+				}
+
 				value = Convert.ChangeType(value, convertTo, CultureInfo.CurrentCulture);
 
 				return true;
