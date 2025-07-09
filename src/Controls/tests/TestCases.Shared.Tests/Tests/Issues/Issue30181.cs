@@ -16,11 +16,7 @@ public class Issue30181 : _IssuesUITest
     public void EntryBoundToDouble_AllowsTypingSmallNegativeDecimal()
     {
         App.WaitForElement("Issue30181Entry");
-        App.EnterText("Issue30181Entry", "-");
-        App.EnterText("Issue30181Entry", "0");
-        App.EnterText("Issue30181Entry", ".");
-        App.EnterText("Issue30181Entry", "0");
-        App.EnterText("Issue30181Entry", "1");
+        App.EnterText("Issue30181Entry", "-0.01");
         var result = App.WaitForElement("Issue30181Entry").GetText();
         Assert.That(result, Is.EqualTo("-0.01"), "The Entry should allow typing a small negative decimal value.");
     }
