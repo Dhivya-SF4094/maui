@@ -52,7 +52,8 @@ namespace Microsoft.Maui.Controls
 					// Prevent conversion of "01", "0001", etc. unless it's clean (e.g., no leading zeros except "0.x")
 					if (stringValue.Length > 1 &&
 						stringValue.StartsWith("0") &&
-						!stringValue.StartsWith("0" + decimalSeparator, StringComparison.Ordinal))
+						!stringValue.StartsWith("0" + decimalSeparator, StringComparison.Ordinal) &&
+						stringValue.IndexOf(decimalSeparator, StringComparison.Ordinal) == -1)
 					{
 						value = original;
 						return false;
@@ -75,7 +76,7 @@ namespace Microsoft.Maui.Controls
 						stringValue.Length > 2 &&
 						char.IsDigit(stringValue[2]) &&
 						stringValue[2] != Convert.ToChar(decimalSeparator) &&
-						!stringValue.Contains(decimalSeparator, StringComparison.Ordinal))
+						stringValue.IndexOf(decimalSeparator, StringComparison.Ordinal) == -1)
 					{
 						value = original;
 						return false;
