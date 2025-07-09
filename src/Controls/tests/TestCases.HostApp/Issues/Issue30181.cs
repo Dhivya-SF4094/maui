@@ -7,7 +7,7 @@ public class Issue30181 : ContentPage
 {
     public Issue30181()
     {
-        var viewModel = new MainPageViewModel();
+        var viewModel = new Issue30181_ViewModel();
         BindingContext = viewModel;
 
         var numericEntry = new Entry
@@ -27,7 +27,7 @@ public class Issue30181 : ContentPage
     }
 }
 
-public partial class MainPageViewModel : INotifyPropertyChanged
+public partial class Issue30181_ViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler PropertyChanged;
 
