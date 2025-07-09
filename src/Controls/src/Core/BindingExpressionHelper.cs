@@ -62,11 +62,21 @@ namespace Microsoft.Maui.Controls
 					if (stringValue.StartsWith("-0" + decimalSeparator, StringComparison.Ordinal))
 					{
 						var afterDecimal = stringValue.Substring(("-0" + decimalSeparator).Length);
-						if (afterDecimal.All(c => c == '0' || char.IsWhiteSpace(c)))
+						if (afterDecimal.All(c => c == '0'))
 						{
 							value = original;
 							return false;
 						}
+					}
+
+					// Prevent conversion while typing negative decimal values such as "-01", "-02", etc.
+					if (stringValue.StartsWith("-0") &&
+						stringValue.Length > 2 &&
+						char.IsDigit(stringValue[2]) &&
+						stringValue[2] != Convert.ToChar(decimalSeparator))
+					{
+						value = original;
+						return false;
 					}
 				}
 
