@@ -70,10 +70,12 @@ namespace Microsoft.Maui.Controls
 					}
 
 					// Prevent conversion while typing negative decimal values such as "-01", "-02", etc.
+					// but allow conversion of complete decimals like "-01.45" -> -1.45
 					if (stringValue.StartsWith("-0") &&
 						stringValue.Length > 2 &&
 						char.IsDigit(stringValue[2]) &&
-						stringValue[2] != Convert.ToChar(decimalSeparator))
+						stringValue[2] != Convert.ToChar(decimalSeparator) &&
+						!stringValue.Contains(decimalSeparator, StringComparison.Ordinal))
 					{
 						value = original;
 						return false;
