@@ -37,30 +37,10 @@ namespace Microsoft.Maui.Controls
 					return false;
 				}
 
-				// Handle partial or non-canonical decimal input
-				if (DecimalTypes.Contains(convertTo))
+				if ((stringValue.StartsWith("0") || stringValue.StartsWith("-0")) && DecimalTypes.Contains(convertTo))
 				{
-					var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-
-					// Prevent conversion of values with leading zeros (e.g., "01", "0.01") unless they're valid decimals like "0.x" or "-0.x".
-					if (stringValue.Length > 1 &&
-						stringValue.StartsWith("0") &&
-						stringValue.IndexOf(decimalSeparator, StringComparison.Ordinal) == -1)
-					{
-						value = original;
-						return false;
-					}
-
-					// Prevent conversion while typing incomplete negative decimals like "-01"
-					// but allow valid decimals like "-01.45" to convert to -1.45.
-					if (stringValue.StartsWith("-0") &&
-						stringValue.Length > 2 &&
-						char.IsDigit(stringValue[2]) &&
-						stringValue.IndexOf(decimalSeparator, StringComparison.Ordinal) == -1)
-					{
-						value = original;
-						return false;
-					}
+					value = original;
+					return false;
 				}
 
 				value = Convert.ChangeType(value, convertTo, CultureInfo.CurrentCulture);
