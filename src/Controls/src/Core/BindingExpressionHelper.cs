@@ -37,45 +37,25 @@ namespace Microsoft.Maui.Controls
 					return false;
 				}
 
-				// do not canonicalize "-0"; user will likely enter a period after "-0"
-				if (stringValue == "-0" && DecimalTypes.Contains(convertTo))
-				{
-					value = original;
-					return false;
-				}
-
 				// Handle partial or non-canonical decimal input
 				if (DecimalTypes.Contains(convertTo))
 				{
 					var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 
-					// Prevent conversion of "01", "0001", etc. unless it's clean (e.g., no leading zeros except "0.x")
+					// Prevent conversion of values with leading zeros (e.g., "01", "0.01") unless they're valid decimals like "0.x" or "-0.x".
 					if (stringValue.Length > 1 &&
 						stringValue.StartsWith("0") &&
-						!stringValue.StartsWith("0" + decimalSeparator, StringComparison.Ordinal) &&
 						stringValue.IndexOf(decimalSeparator, StringComparison.Ordinal) == -1)
 					{
 						value = original;
 						return false;
 					}
 
-					// Prevent conversion of "-0.0", "-0.00", etc. (still typing negative decimal)
-					if (stringValue.StartsWith("-0" + decimalSeparator, StringComparison.Ordinal))
-					{
-						var afterDecimal = stringValue.Substring(("-0" + decimalSeparator).Length);
-						if (afterDecimal.All(c => c == '0'))
-						{
-							value = original;
-							return false;
-						}
-					}
-
-					// Prevent conversion while typing negative decimal values such as "-01", "-02", etc.
-					// but allow conversion of complete decimals like "-01.45" -> -1.45
+					// Prevent conversion while typing incomplete negative decimals like "-01"
+					// but allow valid decimals like "-01.45" to convert to -1.45.
 					if (stringValue.StartsWith("-0") &&
 						stringValue.Length > 2 &&
 						char.IsDigit(stringValue[2]) &&
-						stringValue[2] != Convert.ToChar(decimalSeparator) &&
 						stringValue.IndexOf(decimalSeparator, StringComparison.Ordinal) == -1)
 					{
 						value = original;
