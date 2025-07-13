@@ -561,16 +561,6 @@ namespace Microsoft.Maui.Controls
 
 		void EnsureFlexItemPropertiesUpdated()
 		{
-			// Update the root flex item's padding to ensure it's current
-			if (_root != null)
-			{
-				var (pleft, ptop, pright, pbottom) = this.Padding;
-				_root.PaddingLeft = (float)pleft;
-				_root.PaddingTop = (float)ptop;
-				_root.PaddingRight = (float)pright;
-				_root.PaddingBottom = (float)pbottom;
-			}
-			
 			for (int n = 0; n < this.Count; n++)
 			{
 				var child = this[n];
@@ -582,7 +572,9 @@ namespace Microsoft.Maui.Controls
 
 		public void Layout(double width, double height)
 		{
-			if (_root.Parent != null)   //Layout is only computed at root level
+			// Skip layout only if this is called during flex engine's internal computation,
+			// not when it's called for arrangement by FlexLayoutManager
+			if (_root.Parent != null && InMeasureMode)   //Layout is only computed at root level during measurement
 				return;
 
 			var useMeasureHack = NeedsMeasureHack(width, height);
@@ -635,13 +627,6 @@ namespace Microsoft.Maui.Controls
 			item.Direction = (Flex.Direction)(FlexDirection)GetValue(DirectionProperty);
 			item.JustifyContent = (Flex.Justify)(FlexJustify)GetValue(JustifyContentProperty);
 			item.Wrap = (Flex.Wrap)(FlexWrap)GetValue(WrapProperty);
-			
-			// Set padding on the root item when this FlexLayout is used as a child of another FlexLayout
-			var (pleft, ptop, pright, pbottom) = this.Padding;
-			item.PaddingLeft = (float)pleft;
-			item.PaddingTop = (float)ptop;
-			item.PaddingRight = (float)pright;
-			item.PaddingBottom = (float)pbottom;
 		}
 
 		protected override void OnAdd(int index, IView view)
