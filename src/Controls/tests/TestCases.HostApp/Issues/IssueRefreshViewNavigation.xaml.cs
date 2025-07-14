@@ -36,6 +36,7 @@ namespace Maui.Controls.Sample.Issues
 					Children =
 					{
 						new Label { Text = "Second Page", AutomationId = "SecondPageLabel" },
+						new Label { Text = "Click the button below to set IsRefreshing=true on the main page while you're on this page, then return.", Margin = new Thickness(10) },
 						new Button 
 						{ 
 							Text = "Set Refresh & Go Back", 
@@ -43,8 +44,10 @@ namespace Maui.Controls.Sample.Issues
 							Command = new Command(async () =>
 							{
 								// This simulates setting IsRefreshing in a navigated page
+								// This is the exact scenario that was reported as broken
 								IsRefreshing = true;
 								await Navigation.PopAsync();
+								// When we return to the main page, the RefreshView should show the refresh indicator
 							})
 						}
 					}

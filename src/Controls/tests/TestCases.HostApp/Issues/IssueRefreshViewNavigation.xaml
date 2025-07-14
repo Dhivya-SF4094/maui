@@ -5,7 +5,7 @@
     <ContentPage.Content>
         <Grid RowDefinitions="Auto,Auto,*,Auto" x:Name="grid">
             <Label Grid.Row="0" Text="RefreshView Navigation Test" FontSize="18" HorizontalOptions="Center" />
-            <Label Grid.Row="1" Text="Navigate to another page, set IsRefreshing=true there, then return. The refresh indicator should be visible." Margin="10" />
+            <Label Grid.Row="1" Text="TEST: Navigate to another page, set IsRefreshing=true there, then return. The refresh indicator should be visible on Windows." Margin="10" />
             <RefreshView x:Name="refreshView" Grid.Row="2" IsRefreshing="{Binding IsRefreshing, Mode=TwoWay}" AutomationId="TestRefreshView">
                 <ScrollView>
                     <StackLayout Padding="10">
