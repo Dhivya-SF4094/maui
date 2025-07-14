@@ -10,6 +10,7 @@ namespace Microsoft.Maui.Handlers
 	public partial class RefreshViewHandler : ViewHandler<IRefreshView, RefreshContainer>
 	{
 		bool _isLoaded;
+		bool _pendingRefreshRequest;
 		Deferral? _refreshCompletionDeferral;
 
 		protected override RefreshContainer CreatePlatformView()
@@ -38,6 +39,7 @@ namespace Microsoft.Maui.Handlers
 			nativeView.RefreshRequested -= OnRefresh;
 
 			CompleteRefresh();
+			_pendingRefreshRequest = false;
 
 			if (nativeView.Content is ContentPanel contentPanel)
 			{
@@ -63,7 +65,11 @@ namespace Microsoft.Maui.Handlers
 		void UpdateIsRefreshing()
 		{
 			if (!_isLoaded)
+			{
+				// Store the pending refresh request to be applied when the control loads
+				_pendingRefreshRequest = VirtualView?.IsRefreshing ?? false;
 				return;
+			}
 
 			if (!VirtualView?.IsRefreshing ?? false)
 				CompleteRefresh();
@@ -130,7 +136,18 @@ namespace Microsoft.Maui.Handlers
 				.Dispatch(() =>
 				{
 					_isLoaded = true;
-					UpdateIsRefreshing();
+					
+					// Apply any pending refresh request that was made before the control was loaded
+					if (_pendingRefreshRequest)
+					{
+						_pendingRefreshRequest = false;
+						if (VirtualView?.IsRefreshing == true && _refreshCompletionDeferral == null)
+							PlatformView?.RequestRefresh();
+					}
+					else
+					{
+						UpdateIsRefreshing();
+					}
 				});
 		}
 
