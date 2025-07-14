@@ -31,6 +31,34 @@ namespace Microsoft.Maui.Handlers
 			nativeView.RefreshRequested += OnRefresh;
 
 			base.ConnectHandler(nativeView);
+			
+			// If the control is already loaded (e.g., during reconnection after navigation),
+			// we need to trigger the loaded logic immediately
+			if (nativeView.IsLoaded && !_isLoaded)
+			{
+				// Use the dispatcher to ensure the control is fully ready
+				MauiContext?.Services
+					.GetRequiredService<IDispatcher>()
+					.Dispatch(() =>
+					{
+						if (!_isLoaded) // Double-check in case OnLoaded was called in the meantime
+						{
+							_isLoaded = true;
+							
+							// Apply any pending refresh request
+							if (_pendingRefreshRequest)
+							{
+								_pendingRefreshRequest = false;
+								if (VirtualView?.IsRefreshing == true && _refreshCompletionDeferral == null)
+									PlatformView?.RequestRefresh();
+							}
+							else
+							{
+								UpdateIsRefreshing();
+							}
+						}
+					});
+			}
 		}
 
 		protected override void DisconnectHandler(RefreshContainer nativeView)
@@ -40,6 +68,7 @@ namespace Microsoft.Maui.Handlers
 
 			CompleteRefresh();
 			_pendingRefreshRequest = false;
+			_isLoaded = false; // Reset loaded state to ensure proper loading cycle on reconnection
 
 			if (nativeView.Content is ContentPanel contentPanel)
 			{
