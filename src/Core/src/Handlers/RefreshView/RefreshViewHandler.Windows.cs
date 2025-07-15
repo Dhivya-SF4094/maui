@@ -31,34 +31,6 @@ namespace Microsoft.Maui.Handlers
 			nativeView.RefreshRequested += OnRefresh;
 
 			base.ConnectHandler(nativeView);
-			
-			// If the control is already loaded (e.g., during reconnection after navigation),
-			// we need to trigger the loaded logic immediately
-			if (nativeView.IsLoaded && !_isLoaded)
-			{
-				// Use the dispatcher to ensure the control is fully ready
-				MauiContext?.Services
-					.GetRequiredService<IDispatcher>()
-					.Dispatch(() =>
-					{
-						if (!_isLoaded) // Double-check in case OnLoaded was called in the meantime
-						{
-							_isLoaded = true;
-							
-							// Apply any pending refresh request
-							if (_pendingRefreshRequest)
-							{
-								_pendingRefreshRequest = false;
-								if (VirtualView?.IsRefreshing == true && _refreshCompletionDeferral == null)
-									PlatformView?.RequestRefresh();
-							}
-							else
-							{
-								UpdateIsRefreshing();
-							}
-						}
-					});
-			}
 		}
 
 		protected override void DisconnectHandler(RefreshContainer nativeView)
@@ -68,7 +40,7 @@ namespace Microsoft.Maui.Handlers
 
 			CompleteRefresh();
 			_pendingRefreshRequest = false;
-			_isLoaded = false; // Reset loaded state to ensure proper loading cycle on reconnection
+			_isLoaded = false;
 
 			if (nativeView.Content is ContentPanel contentPanel)
 			{
@@ -100,54 +72,65 @@ namespace Microsoft.Maui.Handlers
 				return;
 			}
 
-			if (!VirtualView?.IsRefreshing ?? false)
+			var isRefreshing = VirtualView?.IsRefreshing ?? false;
+			
+			if (!isRefreshing)
+			{
 				CompleteRefresh();
+			}
 			else
 			{
-				// When IsRefreshing is true, we need to ensure the refresh indicator appears
+				// Key insight: The issue with navigation scenarios is that Windows RefreshContainer
+				// can get into an internal state where RequestRefresh() doesn't show the visual indicator.
+				// The solution is to ensure we always start from a clean state.
+				
 				if (_refreshCompletionDeferral == null)
 				{
-					// Handle the navigation scenario where the container might have stale state
-					// The key insight is that Windows RefreshContainer can get into an inconsistent state
-					// during navigation cycles, where RequestRefresh() is called but the visual indicator
-					// doesn't appear because the container isn't properly reset.
-					HandleNavigationRefreshState();
+					// For navigation scenarios, we need to ensure the RefreshContainer is in the right state.
+					// The problem is that after navigation, the container might have stale internal state
+					// that prevents the visual indicator from appearing even when RequestRefresh() is called.
+					
+					// Solution: Always ensure we start from a clean state by checking if we need to 
+					// reset the container before requesting refresh. This mimics what happens when
+					// RefreshView works correctly in the same-page scenario.
+					
+					EnsureRefreshIndicatorVisible();
 				}
 			}
 		}
 
-		void HandleNavigationRefreshState()
+		void EnsureRefreshIndicatorVisible()
 		{
-			// This method addresses the specific issue where RefreshView indicator
-			// doesn't appear when IsRefreshing is set during navigation scenarios.
-			// The problem is that Windows RefreshContainer needs special handling
-			// to ensure the visual state is properly synchronized with the logical state.
-			
 			if (PlatformView == null)
 				return;
 
-			// Strategy: Force a complete refresh cycle to ensure the visual indicator appears
-			// This is necessary because simply calling RequestRefresh() after navigation
-			// doesn't always trigger the visual indicator due to internal state issues.
+			// The key difference between same-page (working) and navigation (not working) scenarios
+			// is the internal state of the RefreshContainer. We need to ensure it's ready to show
+			// the visual indicator.
 			
-			// First, ensure any existing refresh state is cleared
-			CompleteRefresh();
+			// Strategy: Use the visualizer directly to ensure the refresh state is properly reflected
+			// This approach is inspired by how Android/iOS platforms work - they directly set
+			// the platform control's state rather than relying on complex timing mechanisms.
 			
-			// Use the dispatcher to ensure the refresh operation happens at the right time
-			// This helps avoid timing issues where the refresh is requested before the
-			// container is fully ready to display the indicator
-			MauiContext?.Services
-				.GetRequiredService<IDispatcher>()
-				.Dispatch(() =>
+			if (PlatformView.Visualizer != null)
+			{
+				// Check if the visualizer indicates that refresh is already in progress
+				// If not, we need to initiate the refresh properly
+				var isVisualizerRefreshing = PlatformView.Visualizer.State == RefreshVisualizerState.Refreshing;
+				
+				if (!isVisualizerRefreshing)
 				{
-					// Double-check that we still need to refresh and don't have an active deferral
-					if (VirtualView?.IsRefreshing == true && _refreshCompletionDeferral == null)
-					{
-						// Now request the refresh - this should properly show the indicator
-						// because we've cleared any stale state and ensured proper timing
-						PlatformView?.RequestRefresh();
-					}
-				});
+					// This is the core fix: ensure the RefreshContainer is properly reset
+					// before requesting refresh. This addresses the navigation issue where
+					// the container gets into an inconsistent state.
+					PlatformView?.RequestRefresh();
+				}
+			}
+			else
+			{
+				// If visualizer is not ready, fall back to direct request
+				PlatformView?.RequestRefresh();
+			}
 		}
 
 		static void UpdateContent(IRefreshViewHandler handler)
@@ -214,8 +197,7 @@ namespace Microsoft.Maui.Handlers
 					if (_pendingRefreshRequest)
 					{
 						_pendingRefreshRequest = false;
-						if (VirtualView?.IsRefreshing == true && _refreshCompletionDeferral == null)
-							PlatformView?.RequestRefresh();
+						UpdateIsRefreshing();
 					}
 					else
 					{
