@@ -104,13 +104,50 @@ namespace Microsoft.Maui.Handlers
 				CompleteRefresh();
 			else
 			{
-				// Always request refresh when IsRefreshing is true and we don't have an active deferral
-				// This ensures the visual indicator appears correctly, especially after navigation scenarios
+				// When IsRefreshing is true, we need to ensure the refresh indicator appears
 				if (_refreshCompletionDeferral == null)
 				{
-					PlatformView?.RequestRefresh();
+					// Handle the navigation scenario where the container might have stale state
+					// The key insight is that Windows RefreshContainer can get into an inconsistent state
+					// during navigation cycles, where RequestRefresh() is called but the visual indicator
+					// doesn't appear because the container isn't properly reset.
+					HandleNavigationRefreshState();
 				}
 			}
+		}
+
+		void HandleNavigationRefreshState()
+		{
+			// This method addresses the specific issue where RefreshView indicator
+			// doesn't appear when IsRefreshing is set during navigation scenarios.
+			// The problem is that Windows RefreshContainer needs special handling
+			// to ensure the visual state is properly synchronized with the logical state.
+			
+			if (PlatformView == null)
+				return;
+
+			// Strategy: Force a complete refresh cycle to ensure the visual indicator appears
+			// This is necessary because simply calling RequestRefresh() after navigation
+			// doesn't always trigger the visual indicator due to internal state issues.
+			
+			// First, ensure any existing refresh state is cleared
+			CompleteRefresh();
+			
+			// Use the dispatcher to ensure the refresh operation happens at the right time
+			// This helps avoid timing issues where the refresh is requested before the
+			// container is fully ready to display the indicator
+			MauiContext?.Services
+				.GetRequiredService<IDispatcher>()
+				.Dispatch(() =>
+				{
+					// Double-check that we still need to refresh and don't have an active deferral
+					if (VirtualView?.IsRefreshing == true && _refreshCompletionDeferral == null)
+					{
+						// Now request the refresh - this should properly show the indicator
+						// because we've cleared any stale state and ensured proper timing
+						PlatformView?.RequestRefresh();
+					}
+				});
 		}
 
 		static void UpdateContent(IRefreshViewHandler handler)
