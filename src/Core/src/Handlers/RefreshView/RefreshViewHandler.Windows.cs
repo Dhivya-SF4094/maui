@@ -104,22 +104,10 @@ namespace Microsoft.Maui.Handlers
 				CompleteRefresh();
 			else
 			{
-				// Check if we need to start refreshing
-				bool shouldRefresh = _refreshCompletionDeferral == null;
-				
-				// Additional check: if we have a deferral but the visualizer isn't showing as refreshing,
-				// we might need to restart the refresh (can happen after navigation)
-				if (!shouldRefresh && PlatformView?.Visualizer != null)
+				// Always request refresh when IsRefreshing is true and we don't have an active deferral
+				// This ensures the visual indicator appears correctly, especially after navigation scenarios
+				if (_refreshCompletionDeferral == null)
 				{
-					shouldRefresh = PlatformView.Visualizer.State != Microsoft.UI.Xaml.Controls.RefreshVisualizerState.Refreshing;
-				}
-				
-				if (shouldRefresh)
-				{
-					// If we have a stale deferral, clean it up first
-					if (_refreshCompletionDeferral != null)
-						CompleteRefresh();
-						
 					PlatformView?.RequestRefresh();
 				}
 			}
