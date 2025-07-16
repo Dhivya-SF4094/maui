@@ -36,7 +36,16 @@ namespace Microsoft.Maui.Platform
 		public override bool OnTouchEvent(MotionEvent? e)
 		{
 			if (e == null)
+			{
 				throw new ArgumentNullException(nameof(e));
+			}
+
+			if (_graphicsView?.IsEnabled == false)
+			{
+				// If the GraphicsView is disabled, we don't want to handle touch events.
+				// This is to prevent any interaction when the view is not interactive.
+				return false;
+			}
 
 			int touchCount = e.PointerCount;
 			var touchPoints = new PointF[touchCount];

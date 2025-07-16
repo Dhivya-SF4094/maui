@@ -47,8 +47,13 @@ namespace Microsoft.Maui.Platform
 
 		public override void TouchesBegan(NSSet touches, UIEvent? evt)
 		{
-			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView))
+			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+			{
+				// If the GraphicsView is disabled, we don't want to handle touch events.
+				// This is to prevent any interaction when the view is not interactive.
 				return;
+			}
+
 			if (!IsFirstResponder)
 				BecomeFirstResponder();
 			var viewPoints = this.GetPointsInView(evt);
@@ -58,8 +63,10 @@ namespace Microsoft.Maui.Platform
 
 		public override void TouchesMoved(NSSet touches, UIEvent? evt)
 		{
-			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView))
+			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+			{
 				return;
+			}
 			var viewPoints = this.GetPointsInView(evt);
 			_pressedContained = _rect.ContainsAny(viewPoints);
 			graphicsView.DragInteraction(viewPoints);
@@ -67,15 +74,19 @@ namespace Microsoft.Maui.Platform
 
 		public override void TouchesEnded(NSSet touches, UIEvent? evt)
 		{
-			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView))
+			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+			{
 				return;
+			}
 			graphicsView.EndInteraction(this.GetPointsInView(evt), _pressedContained);
 		}
 
 		public override void TouchesCancelled(NSSet touches, UIEvent? evt)
 		{
-			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView))
+			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+			{
 				return;
+			}
 			_pressedContained = false;
 			graphicsView.CancelInteraction();
 		}
