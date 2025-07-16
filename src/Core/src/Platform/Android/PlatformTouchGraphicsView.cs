@@ -40,7 +40,7 @@ namespace Microsoft.Maui.Platform
 				throw new ArgumentNullException(nameof(e));
 			}
 
-			if (_graphicsView?.IsEnabled == false)
+			if (_graphicsView == null || !_graphicsView.IsEnabled)
 			{
 				// If the GraphicsView is disabled, we don't want to handle touch events.
 				// This is to prevent any interaction when the view is not interactive.
