@@ -40,38 +40,35 @@ namespace Microsoft.Maui.Platform
 				throw new ArgumentNullException(nameof(e));
 			}
 
-			if (_graphicsView == null || !_graphicsView.IsEnabled)
+			// If the GraphicsView is disabled, we don't want to handle touch events.
+			// This is to prevent any interaction when the view is not interactive.
+			if (_graphicsView == null || _graphicsView.IsEnabled)
 			{
-				// If the GraphicsView is disabled, we don't want to handle touch events.
-				// This is to prevent any interaction when the view is not interactive.
-				return false;
+				int touchCount = e.PointerCount;
+				var touchPoints = new PointF[touchCount];
+				for (int i = 0; i < touchCount; i++)
+					touchPoints[i] = new PointF(e.GetX(i) / _scale, e.GetY(i) / _scale);
+
+				var actionMasked = e.Action & MotionEventActions.Mask;
+
+				switch (actionMasked)
+				{
+					case MotionEventActions.Move:
+						TouchesMoved(touchPoints);
+						break;
+					case MotionEventActions.Down:
+					case MotionEventActions.PointerDown:
+						TouchesBegan(touchPoints);
+						break;
+					case MotionEventActions.Up:
+					case MotionEventActions.PointerUp:
+						TouchesEnded(touchPoints);
+						break;
+					case MotionEventActions.Cancel:
+						TouchesCanceled();
+						break;
+				}
 			}
-
-			int touchCount = e.PointerCount;
-			var touchPoints = new PointF[touchCount];
-			for (int i = 0; i < touchCount; i++)
-				touchPoints[i] = new PointF(e.GetX(i) / _scale, e.GetY(i) / _scale);
-
-			var actionMasked = e.Action & MotionEventActions.Mask;
-
-			switch (actionMasked)
-			{
-				case MotionEventActions.Move:
-					TouchesMoved(touchPoints);
-					break;
-				case MotionEventActions.Down:
-				case MotionEventActions.PointerDown:
-					TouchesBegan(touchPoints);
-					break;
-				case MotionEventActions.Up:
-				case MotionEventActions.PointerUp:
-					TouchesEnded(touchPoints);
-					break;
-				case MotionEventActions.Cancel:
-					TouchesCanceled();
-					break;
-			}
-
 			return true;
 		}
 		public void TouchesBegan(PointF[] points)
