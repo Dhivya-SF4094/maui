@@ -102,7 +102,7 @@ namespace Microsoft.Maui.Platform
 				if (!_platformView.TryGetTarget(out var platformView))
 					return;
 
-				if (platformView._graphicsView is null || !platformView._graphicsView.TryGetTarget(out var graphicsView))
+				if (platformView._graphicsView is null || !platformView._graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
 					return;
 
 				var hoverGesture = platformView._hoverGesture;
