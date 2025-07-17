@@ -47,10 +47,10 @@ namespace Microsoft.Maui.Platform
 
 		public override void TouchesBegan(NSSet touches, UIEvent? evt)
 		{
+			// If the GraphicsView is disabled, we don't want to handle touch events.
+			// This is to prevent any interaction when the view is not interactive.
 			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
 			{
-				// If the GraphicsView is disabled, we don't want to handle touch events.
-				// This is to prevent any interaction when the view is not interactive.
 				return;
 			}
 

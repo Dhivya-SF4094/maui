@@ -62,7 +62,6 @@ public class Issue_30649 : ContentPage
 
         var border = new Border
         {
-            BackgroundColor = Colors.White,
             Stroke = Colors.DarkBlue,
             StrokeThickness = 2,
             StrokeShape = new RoundRectangle
@@ -126,31 +125,5 @@ public class SimpleShapeDrawable : IDrawable
     {
         canvas.FillColor = Colors.AliceBlue;
         canvas.FillRectangle(dirtyRect);
-
-        // Draw a circle
-        canvas.FillColor = Colors.LightBlue;
-        canvas.StrokeColor = Colors.DarkBlue;
-        canvas.StrokeSize = 3;
-
-        var centerX = dirtyRect.Width / 2;
-        var centerY = dirtyRect.Height / 3;
-        var radius = Math.Min(dirtyRect.Width, dirtyRect.Height) / 6;
-
-        canvas.FillCircle(centerX, centerY, radius);
-        canvas.DrawCircle(centerX, centerY, radius);
-
-        // Draw a rectangle
-        canvas.FillColor = Colors.LightGreen;
-        canvas.StrokeColor = Colors.DarkGreen;
-        canvas.StrokeSize = 3;
-
-        var rectWidth = dirtyRect.Width * 0.4f;
-        var rectHeight = dirtyRect.Height * 0.25f;
-        var rectX = (dirtyRect.Width - rectWidth) / 2;
-        var rectY = dirtyRect.Height * 0.6f;
-
-        var rect = new RectF(rectX, rectY, rectWidth, rectHeight);
-        canvas.FillRectangle(rect);
-        canvas.DrawRectangle(rect);
     }
 }
