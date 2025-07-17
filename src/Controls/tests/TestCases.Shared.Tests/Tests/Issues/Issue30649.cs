@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
@@ -18,11 +17,7 @@ public class Issue30649 : _IssuesUITest
     public void TestGraphicsViewTouchEventsIgnoredWhenIsEnabledFalse()
     {
         App.WaitForElement("Issue30649_GraphicsView");
-        App.WaitForElement("Enabled");
         App.Tap("Issue30649_GraphicsView");
-        App.WaitForElement("EndInteraction");
-        App.Tap("Issue30649_IsToggleSwitch");
-        App.Tap("Issue30649_GraphicsView");
-        App.WaitForNoElement("StartInteraction");
+        Assert.That(App.WaitForElement("Issue30649_Label").GetText(), Is.EqualTo("Success"), "GraphicsView event handlers should not be triggered when IsEnabled is set to False.");
     }
 }
