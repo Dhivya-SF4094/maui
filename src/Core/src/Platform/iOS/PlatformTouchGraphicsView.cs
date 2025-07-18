@@ -45,11 +45,21 @@ namespace Microsoft.Maui.Platform
 			_graphicsView = null;
 		}
 
+		bool CanProcessTouch([MaybeNullWhen(false)][NotNullWhen(true)] out IGraphicsView target)
+		{
+			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+			{
+				target = null;
+				return false;
+			}
+
+			target = graphicsView;
+			return true;
+		}
+
 		public override void TouchesBegan(NSSet touches, UIEvent? evt)
 		{
-			// If the GraphicsView is disabled, we don't want to handle touch events.
-			// This is to prevent any interaction when the view is not interactive.
-			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+			if (!CanProcessTouch(out var graphicsView))
 			{
 				return;
 			}
@@ -63,7 +73,7 @@ namespace Microsoft.Maui.Platform
 
 		public override void TouchesMoved(NSSet touches, UIEvent? evt)
 		{
-			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+			if (!CanProcessTouch(out var graphicsView))
 			{
 				return;
 			}
@@ -74,7 +84,7 @@ namespace Microsoft.Maui.Platform
 
 		public override void TouchesEnded(NSSet touches, UIEvent? evt)
 		{
-			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+			if (!CanProcessTouch(out var graphicsView))
 			{
 				return;
 			}
@@ -83,7 +93,7 @@ namespace Microsoft.Maui.Platform
 
 		public override void TouchesCancelled(NSSet touches, UIEvent? evt)
 		{
-			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+			if (!CanProcessTouch(out var graphicsView))
 			{
 				return;
 			}
