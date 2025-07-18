@@ -1,4 +1,4 @@
-#if TEST_FAILS_ON_WINDOWS // Test marked to fail on Windows due to automation ID not working as expected.
+#if TEST_FAILS_ON_WINDOWS // Graphics view is not accessible on Windows. 
 using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
