@@ -1,11 +1,11 @@
 namespace Maui.Controls.Sample.Issues;
 
 [Issue(IssueTracker.Github, 30649, "GraphicsView event handlers are triggered even when IsEnabled is set to False", PlatformAffected.Android | PlatformAffected.iOS | PlatformAffected.macOS)]
-public class Issue_30649 : ContentPage
+public class Issue30649 : ContentPage
 {
     Label statusLabel;
     GraphicsView graphicsView;
-    public Issue_30649()
+    public Issue30649()
     {
         Label label = new Label
         {
