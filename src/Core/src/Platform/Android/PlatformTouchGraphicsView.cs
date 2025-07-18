@@ -42,37 +42,39 @@ namespace Microsoft.Maui.Platform
 
 			// If the GraphicsView is disabled, we don't want to handle touch events.
 			// This is to prevent any interaction when the view is not interactive.
-			if (_graphicsView is not null && _graphicsView.IsEnabled)
+			if (_graphicsView is null || !_graphicsView.IsEnabled)
 			{
-				int touchCount = e.PointerCount;
-				var touchPoints = new PointF[touchCount];
-				for (int i = 0; i < touchCount; i++)
-				{
-					touchPoints[i] = new PointF(e.GetX(i) / _scale, e.GetY(i) / _scale);
-				}
-
-				var actionMasked = e.Action & MotionEventActions.Mask;
-
-				switch (actionMasked)
-				{
-					case MotionEventActions.Move:
-						TouchesMoved(touchPoints);
-						break;
-					case MotionEventActions.Down:
-					case MotionEventActions.PointerDown:
-						TouchesBegan(touchPoints);
-						break;
-					case MotionEventActions.Up:
-					case MotionEventActions.PointerUp:
-						TouchesEnded(touchPoints);
-						break;
-					case MotionEventActions.Cancel:
-						TouchesCanceled();
-						break;
-				}
-				return true;
+				return false;
 			}
-			return false;
+
+			int touchCount = e.PointerCount;
+			var touchPoints = new PointF[touchCount];
+			for (int i = 0; i < touchCount; i++)
+			{
+				touchPoints[i] = new PointF(e.GetX(i) / _scale, e.GetY(i) / _scale);
+			}
+
+			var actionMasked = e.Action & MotionEventActions.Mask;
+
+			switch (actionMasked)
+			{
+				case MotionEventActions.Move:
+					TouchesMoved(touchPoints);
+					break;
+				case MotionEventActions.Down:
+				case MotionEventActions.PointerDown:
+					TouchesBegan(touchPoints);
+					break;
+				case MotionEventActions.Up:
+				case MotionEventActions.PointerUp:
+					TouchesEnded(touchPoints);
+					break;
+				case MotionEventActions.Cancel:
+					TouchesCanceled();
+					break;
+			}
+			return true;
+
 		}
 		public void TouchesBegan(PointF[] points)
 		{
@@ -120,33 +122,34 @@ namespace Microsoft.Maui.Platform
 				throw new ArgumentNullException(nameof(e));
 			}
 
-			if (_graphicsView is not null && _graphicsView.IsEnabled)
+			if (_graphicsView is null || !_graphicsView.IsEnabled)
 			{
-				int touchCount = e.PointerCount;
-				var touchPoints = new PointF[touchCount];
-				for (int i = 0; i < touchCount; i++)
-				{
-					touchPoints[i] = new PointF(e.GetX(i) / _scale, e.GetY(i) / _scale);
-				}
-
-				var actionMasked = e.Action & MotionEventActions.Mask;
-
-				switch (actionMasked)
-				{
-					case MotionEventActions.HoverMove:
-						_graphicsView?.MoveHoverInteraction(touchPoints);
-						break;
-					case MotionEventActions.HoverEnter:
-						_graphicsView?.StartHoverInteraction(touchPoints);
-						break;
-					case MotionEventActions.HoverExit:
-						_graphicsView?.EndHoverInteraction();
-						break;
-				}
-
-				return true;
+				return false;
 			}
-			return false;
+
+			int touchCount = e.PointerCount;
+			var touchPoints = new PointF[touchCount];
+			for (int i = 0; i < touchCount; i++)
+			{
+				touchPoints[i] = new PointF(e.GetX(i) / _scale, e.GetY(i) / _scale);
+			}
+
+			var actionMasked = e.Action & MotionEventActions.Mask;
+
+			switch (actionMasked)
+			{
+				case MotionEventActions.HoverMove:
+					_graphicsView?.MoveHoverInteraction(touchPoints);
+					break;
+				case MotionEventActions.HoverEnter:
+					_graphicsView?.StartHoverInteraction(touchPoints);
+					break;
+				case MotionEventActions.HoverExit:
+					_graphicsView?.EndHoverInteraction();
+					break;
+			}
+
+			return true;
 		}
 
 		public void Connect(IGraphicsView graphicsView) => _graphicsView = graphicsView;
