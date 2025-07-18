@@ -1,3 +1,4 @@
+#if TEST_FAILS_ON_WINDOWS // Test marked to fail on Windows due to automation ID not working as expected.
 using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
@@ -21,3 +22,4 @@ public class Issue30649 : _IssuesUITest
         Assert.That(App.WaitForElement("Issue30649_Label").GetText(), Is.EqualTo("Success"), "GraphicsView event handlers should not be triggered when IsEnabled is set to False.");
     }
 }
+#endif
