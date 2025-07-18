@@ -10,8 +10,6 @@ public class Issue30649 : ContentPage
         Label label = new Label
         {
             Text = "The test passes if GraphicsView event handlers are not triggered when IsEnabled is set to False.",
-            HorizontalOptions = LayoutOptions.Center,
-            VerticalOptions = LayoutOptions.Center
         };
 
         graphicsView = new GraphicsView

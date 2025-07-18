@@ -47,7 +47,9 @@ namespace Microsoft.Maui.Platform
 				int touchCount = e.PointerCount;
 				var touchPoints = new PointF[touchCount];
 				for (int i = 0; i < touchCount; i++)
+				{
 					touchPoints[i] = new PointF(e.GetX(i) / _scale, e.GetY(i) / _scale);
+				}
 
 				var actionMasked = e.Action & MotionEventActions.Mask;
 
@@ -114,14 +116,18 @@ namespace Microsoft.Maui.Platform
 		public override bool OnHoverEvent(MotionEvent? e)
 		{
 			if (e == null)
+			{
 				throw new ArgumentNullException(nameof(e));
+			}
 
 			if (_graphicsView is not null && _graphicsView.IsEnabled)
 			{
 				int touchCount = e.PointerCount;
 				var touchPoints = new PointF[touchCount];
 				for (int i = 0; i < touchCount; i++)
+				{
 					touchPoints[i] = new PointF(e.GetX(i) / _scale, e.GetY(i) / _scale);
+				}
 
 				var actionMasked = e.Action & MotionEventActions.Mask;
 

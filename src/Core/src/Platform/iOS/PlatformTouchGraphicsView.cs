@@ -100,10 +100,14 @@ namespace Microsoft.Maui.Platform
 			public void OnHover()
 			{
 				if (!_platformView.TryGetTarget(out var platformView))
+				{
 					return;
+				}
 
 				if (platformView._graphicsView is null || !platformView._graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)
+				{
 					return;
+				}
 
 				var hoverGesture = platformView._hoverGesture;
 				if (hoverGesture!.State == UIGestureRecognizerState.Began)

@@ -19,7 +19,7 @@ public class Issue30649 : _IssuesUITest
     {
         App.WaitForElement("Issue30649_GraphicsView");
         App.Tap("Issue30649_GraphicsView");
-        Assert.That(App.WaitForElement("Issue30649_Label").GetText(), Is.EqualTo("Success"), "GraphicsView event handlers should not be triggered when IsEnabled is set to False.");
+        Assert.That(App.WaitForElement("Issue30649_Label").GetText(), Is.EqualTo("Success"));
     }
 }
 #endif
