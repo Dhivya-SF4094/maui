@@ -65,7 +65,7 @@ public partial class DatePickerHandler : ViewHandler<IDatePicker, CalendarDatePi
             return;
         }
 
-        if (VirtualView.Date is not null && VirtualView.Date != args.NewDate.Value.DateTime)
+        if (VirtualView.Date != args.NewDate.Value.DateTime)
         {
             VirtualView.Date = args.NewDate.Value.DateTime;
         }

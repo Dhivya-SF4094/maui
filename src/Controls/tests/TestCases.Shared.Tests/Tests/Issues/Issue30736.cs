@@ -1,8 +1,10 @@
-﻿using NUnit.Framework;
+﻿#if TEST_FAILS_ON_IOS || TEST_FAILS_ON_CATALYST // On iOS/Mac, date is selected through a wheel picker rather than tapping specific dates
+using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
 
 namespace Microsoft.Maui.TestCases.Tests.Issues;
+
 public class Issue30736 : _IssuesUITest
 {
 	public Issue30736(TestDevice testDevice) : base(testDevice)
@@ -27,3 +29,4 @@ public class Issue30736 : _IssuesUITest
 		App.WaitForElement("Date Selected event Fired");
 	}
 }
+#endif
