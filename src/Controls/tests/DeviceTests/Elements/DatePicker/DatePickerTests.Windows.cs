@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Handlers;
@@ -39,7 +38,6 @@ public partial class DatePickerTests
 		});
 	}
 
-	
 	static CalendarDatePicker GetPlatformControl(DatePickerHandler handler) =>
 		handler.PlatformView;
 }
