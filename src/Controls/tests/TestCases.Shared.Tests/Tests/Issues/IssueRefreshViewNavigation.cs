@@ -29,7 +29,7 @@ namespace Microsoft.Maui.TestCases.Tests.Issues
 			// We can't directly test the visual indicator, but we can test that
 			// the toggle button can turn it off, indicating it was on
 			App.Tap("ToggleButton");
-			
+
 			// If the refresh was working, toggling should turn it off
 			// If it wasn't working, the toggle would turn it on for the first time
 			// This is an indirect way to test the functionality
@@ -45,7 +45,7 @@ namespace Microsoft.Maui.TestCases.Tests.Issues
 			// Test that normal toggle works without navigation first
 			App.Tap("ToggleButton");
 			App.Tap("ToggleButton"); // Toggle it back
-			// Should work without issues
+									 // Should work without issues
 		}
 	}
 }

@@ -37,9 +37,9 @@ namespace Maui.Controls.Sample.Issues
 					{
 						new Label { Text = "Second Page", AutomationId = "SecondPageLabel" },
 						new Label { Text = "Click the button below to set IsRefreshing=true on the main page while you're on this page, then return.", Margin = new Thickness(10) },
-						new Button 
-						{ 
-							Text = "Set Refresh & Go Back", 
+						new Button
+						{
+							Text = "Set Refresh & Go Back",
 							AutomationId = "GoBackButton",
 							Command = new Command(async () =>
 							{

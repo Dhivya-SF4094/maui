@@ -24,7 +24,7 @@ namespace Maui.Controls.Sample.Issues
 		{
 			// Set IsRefreshing to true before InitializeComponent to simulate binding before control is loaded
 			IsRefreshing = true;
-			
+
 			InitializeComponent();
 			BindingContext = this;
 		}

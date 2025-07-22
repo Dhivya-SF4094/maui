@@ -73,7 +73,7 @@ namespace Microsoft.Maui.Handlers
 			}
 
 			var isRefreshing = VirtualView?.IsRefreshing ?? false;
-			
+
 			if (!isRefreshing)
 			{
 				CompleteRefresh();
@@ -83,17 +83,17 @@ namespace Microsoft.Maui.Handlers
 				// Key insight: The issue with navigation scenarios is that Windows RefreshContainer
 				// can get into an internal state where RequestRefresh() doesn't show the visual indicator.
 				// The solution is to ensure we always start from a clean state.
-				
+
 				if (_refreshCompletionDeferral == null)
 				{
 					// For navigation scenarios, we need to ensure the RefreshContainer is in the right state.
 					// The problem is that after navigation, the container might have stale internal state
 					// that prevents the visual indicator from appearing even when RequestRefresh() is called.
-					
+
 					// Solution: Always ensure we start from a clean state by checking if we need to 
 					// reset the container before requesting refresh. This mimics what happens when
 					// RefreshView works correctly in the same-page scenario.
-					
+
 					EnsureRefreshIndicatorVisible();
 				}
 			}
@@ -107,17 +107,17 @@ namespace Microsoft.Maui.Handlers
 			// The key difference between same-page (working) and navigation (not working) scenarios
 			// is the internal state of the RefreshContainer. We need to ensure it's ready to show
 			// the visual indicator.
-			
+
 			// Strategy: Use the visualizer directly to ensure the refresh state is properly reflected
 			// This approach is inspired by how Android/iOS platforms work - they directly set
 			// the platform control's state rather than relying on complex timing mechanisms.
-			
+
 			if (PlatformView.Visualizer != null)
 			{
 				// Check if the visualizer indicates that refresh is already in progress
 				// If not, we need to initiate the refresh properly
 				var isVisualizerRefreshing = PlatformView.Visualizer.State == RefreshVisualizerState.Refreshing;
-				
+
 				if (!isVisualizerRefreshing)
 				{
 					// This is the core fix: ensure the RefreshContainer is properly reset
@@ -192,7 +192,7 @@ namespace Microsoft.Maui.Handlers
 				.Dispatch(() =>
 				{
 					_isLoaded = true;
-					
+
 					// Apply any pending refresh request that was made before the control was loaded
 					if (_pendingRefreshRequest)
 					{
