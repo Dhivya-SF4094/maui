@@ -53,23 +53,24 @@ public partial class DatePickerHandler : ViewHandler<IDatePicker, CalendarDatePi
 		handler.PlatformView.UpdateTextColor(datePicker);
 	}
 
-    private void DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
-    {
-        if (VirtualView is null)
-        {
-            return;
-        }
+	void DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+	{
+		if (VirtualView is null)
+		{
+			return;
+		}
 
-        if (!args.NewDate.HasValue)
-        {
-            return;
-        }
+		if (!args.NewDate.HasValue)
+		{
+			VirtualView.Date = null;
+			return;
+		}
 
-        if (VirtualView.Date != args.NewDate.Value.DateTime)
-        {
-            VirtualView.Date = args.NewDate.Value.DateTime;
-        }
-    }
+		if (VirtualView.Date != args.NewDate.Value.DateTime)
+		{
+			VirtualView.Date = args.NewDate.Value.DateTime;
+		}
+	}
 
 	public static partial void MapBackground(IDatePickerHandler handler, IDatePicker datePicker)
 	{
