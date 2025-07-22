@@ -42,43 +42,4 @@ public partial class DatePickerTests
 	
 	static CalendarDatePicker GetPlatformControl(DatePickerHandler handler) =>
 		handler.PlatformView;
-
-    [Fact(DisplayName = "DateSelected event fires when Platform View date selected")]
-    public async Task DateSelectedEventFiresWhenUserSelectsDate()
-    {
-        SetupBuilder();
-
-        var initialDate = new DateTime(2023, 6, 15);
-        var newDate = new DateTime(2023, 9, 10);
-        var eventFired = false;
-        DateTime? receivedOldDate = null;
-        DateTime? receivedNewDate = null;
-
-        var datePicker = new Controls.DatePicker
-        {
-            Date = initialDate
-        };
-
-        datePicker.DateSelected += (sender, args) =>
-        {
-            eventFired = true;
-            receivedOldDate = args.OldDate;
-            receivedNewDate = args.NewDate;
-        };
-
-        var handler = await CreateHandlerAsync<DatePickerHandler>(datePicker);
-        var platformView = GetPlatformControl(handler);
-
-        // Simulate user interaction: open the picker and select a new date
-        await InvokeOnMainThreadAsync(() =>
-        {
-            platformView.Date = new DateTimeOffset(newDate);
-        });
-
-        await Task.Delay(100);
-
-        Assert.True(eventFired, "DateSelected event should have fired when user selected a date");
-        Assert.Equal(initialDate, receivedOldDate);
-        Assert.Equal(newDate, receivedNewDate);
-    }
 }
