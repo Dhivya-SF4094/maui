@@ -276,7 +276,6 @@ namespace Microsoft.Maui.Platform
 		// TODO: NET8 issoto - Revisit this, marking this method as `internal` to avoid breaking public API changes
 		internal static int GetSelectedTextLength(this EditText editText)
 		{
-			// Return absolute difference to handle both left-to-right and right-to-left selections
 			return System.Math.Abs(editText.SelectionEnd - editText.SelectionStart);
 		}
 
