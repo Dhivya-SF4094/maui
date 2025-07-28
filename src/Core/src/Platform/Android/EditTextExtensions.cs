@@ -271,8 +271,8 @@ namespace Microsoft.Maui.Platform
 			}
 			else
 			{
-				end = System.Math.Max(start, System.Math.Min(editText.Length(), start + selectionLength));
-				newSelectionLength = System.Math.Max(0, end - start);
+				end = Math.Max(start, Math.Min(editText.Length(), start + selectionLength));
+				newSelectionLength = Math.Max(0, end - start);
 			}
 
 			// Updating this property results in UpdateSelectionLength being called again messing things up
@@ -284,7 +284,7 @@ namespace Microsoft.Maui.Platform
 		// TODO: NET8 issoto - Revisit this, marking this method as `internal` to avoid breaking public API changes
 		internal static int GetSelectedTextLength(this EditText editText)
 		{
-			return System.Math.Abs(editText.SelectionEnd - editText.SelectionStart);
+			return Math.Abs(editText.SelectionEnd - editText.SelectionStart);
 		}
 
 		internal static void SetInputType(this EditText editText, ITextInput textInput)
