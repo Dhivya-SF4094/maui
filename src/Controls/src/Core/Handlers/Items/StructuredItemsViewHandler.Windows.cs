@@ -110,6 +110,53 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 			var header = ItemsView.Header ?? ItemsView.HeaderTemplate;
 
+			// Find the HeaderPresenter in the template
+			var headerPresenter = ListViewBase.GetTemplateChild("HeaderPresenter") as ContentPresenter;
+
+			if (headerPresenter == null)
+			{
+				// Fallback to old behavior if HeaderPresenter not found
+				UpdateHeaderFallback(header);
+				return;
+			}
+
+			switch (header)
+			{
+				case null:
+					headerPresenter.Content = null;
+					headerPresenter.ContentTemplate = null;
+					break;
+
+				case string text:
+					headerPresenter.ContentTemplate = null;
+					headerPresenter.Content = new TextBlock { Text = text };
+					break;
+
+				case View view:
+					headerPresenter.ContentTemplate = ViewTemplate;
+					_currentHeader = view;
+					Element.AddLogicalChild(_currentHeader);
+					headerPresenter.Content = view;
+					break;
+
+				default:
+					var headerTemplate = ItemsView.HeaderTemplate;
+					if (headerTemplate != null)
+					{
+						headerPresenter.ContentTemplate = ItemsViewTemplate;
+						headerPresenter.Content = new ItemTemplateContext(headerTemplate, header, Element, mauiContext: MauiContext);
+					}
+					else
+					{
+						headerPresenter.ContentTemplate = null;
+						headerPresenter.Content = null;
+					}
+					break;
+			}
+		}
+
+		void UpdateHeaderFallback(object header)
+		{
 			switch (header)
 			{
 				case null:
@@ -159,6 +206,53 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 			var footer = ItemsView.Footer ?? ItemsView.FooterTemplate;
 
+			// Find the FooterPresenter in the template
+			var footerPresenter = ListViewBase.GetTemplateChild("FooterPresenter") as ContentPresenter;
+
+			if (footerPresenter == null)
+			{
+				// Fallback to old behavior if FooterPresenter not found
+				UpdateFooterFallback(footer);
+				return;
+			}
+
+			switch (footer)
+			{
+				case null:
+					footerPresenter.Content = null;
+					footerPresenter.ContentTemplate = null;
+					break;
+
+				case string text:
+					footerPresenter.ContentTemplate = null;
+					footerPresenter.Content = new TextBlock { Text = text };
+					break;
+
+				case View view:
+					footerPresenter.ContentTemplate = ViewTemplate;
+					_currentFooter = view;
+					Element.AddLogicalChild(_currentFooter);
+					footerPresenter.Content = view;
+					break;
+
+				default:
+					var footerTemplate = ItemsView.FooterTemplate;
+					if (footerTemplate != null)
+					{
+						footerPresenter.ContentTemplate = ItemsViewTemplate;
+						footerPresenter.Content = new ItemTemplateContext(footerTemplate, footer, Element, mauiContext: MauiContext);
+					}
+					else
+					{
+						footerPresenter.ContentTemplate = null;
+						footerPresenter.Content = null;
+					}
+					break;
+			}
+		}
+
+		void UpdateFooterFallback(object footer)
+		{
 			switch (footer)
 			{
 				case null:
@@ -191,6 +285,16 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 					}
 					break;
 			}
+		}
+
+		protected override void UpdateItemsLayout()
+		{
+			base.UpdateItemsLayout();
+
+			// Ensure header and footer are updated after items layout changes
+			// This is particularly important when empty view is displayed with templates
+			UpdateHeader();
+			UpdateFooter();
 		}
 
 		static ListViewBase CreateGridView(GridItemsLayout gridItemsLayout)
