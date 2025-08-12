@@ -354,25 +354,17 @@ namespace Microsoft.Maui.Controls
 			foreach (object item in ItemsSource)
 				((LockableObservableListWrapper)Items).InternalAdd(GetDisplayMember(item));
 			Handler?.UpdateValue(nameof(IPicker.Items));
+			ClampSelectedIndex();
 
-			if (currentSelectedItem != null)
+			if (SelectedItem is null && currentSelectedItem is not null && ItemsSource is not null)
 			{
-				ClampSelectedIndex();
-				if (SelectedItem == null || !Object.Equals(SelectedItem, currentSelectedItem))
+				var index = ItemsSource.IndexOf(currentSelectedItem);
+				if (index >= 0)
 				{
-					var index = ItemsSource.IndexOf(currentSelectedItem);
-					if (index >= 0)
-					{
-						// Use the standard SelectedItem property to update, which will
-						// trigger the normal property changed handlers
-						SelectedItem = currentSelectedItem;
-					}
+					// Use the standard SelectedItem property to update, which will
+					// trigger the normal property changed handlers
+					SelectedItem = currentSelectedItem;
 				}
-			}
-			else
-			{
-				// Standard behavior when there's no current SelectedItem
-				ClampSelectedIndex();
 			}
 		}
 
