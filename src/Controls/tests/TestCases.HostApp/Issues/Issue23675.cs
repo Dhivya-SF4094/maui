@@ -5,12 +5,12 @@ using System.Windows.Input;
 
 namespace Maui.Controls.Sample.Issues;
 
-[Issue(IssueTracker.Github, 23675, "[MAUI] I1_Layout - Horizontal grid for DataTemplate page does not display four-row of grid and the content of step3", PlatformAffected.iOS | PlatformAffected.macOS)]
+[Issue(IssueTracker.Github, 23675, "Horizontal grid for DataTemplate page does not display four-row of grid and the content of step3", PlatformAffected.iOS | PlatformAffected.macOS)]
 public class Issue23675 : ContentPage
 {
     public Issue23675()
     {
-        BindingContext = new MonkeyViewModel();
+        BindingContext = new Issue23675ViewModel();
 
         // Main Grid
         var grid = new Grid
@@ -40,7 +40,7 @@ public class Issue23675 : ContentPage
         var collectionView = new CollectionView2
         {
             BackgroundColor = Colors.Gray,
-            ItemsSource = ((MonkeyViewModel)BindingContext).Monkeys,
+            ItemsSource = ((Issue23675ViewModel)BindingContext).Monkeys,
             ItemsLayout = new GridItemsLayout(4, ItemsLayoutOrientation.Horizontal)
         };
 
@@ -111,7 +111,7 @@ public class Issue23675 : ContentPage
     }
 }
 
-public class MonkeyViewModel : INotifyPropertyChanged
+public class Issue23675ViewModel : INotifyPropertyChanged
 {
     readonly IList<Issue23675Model> source;
     Issue23675Model selectedMonkey;
@@ -158,7 +158,7 @@ public class MonkeyViewModel : INotifyPropertyChanged
     public ICommand FilterCommand => new Command<string>(FilterItems);
     public ICommand MonkeySelectionChangedCommand => new Command(MonkeySelectionChanged);
 
-    public MonkeyViewModel()
+    public Issue23675ViewModel()
     {
         source = new List<Issue23675Model>();
         CreateMonkeyCollection();
