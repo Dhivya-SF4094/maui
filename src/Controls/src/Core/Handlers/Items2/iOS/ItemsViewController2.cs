@@ -422,7 +422,26 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 				return _emptyUIView.Frame.Size.ToSize();
 			}
 
-			return CollectionView.CollectionViewLayout.CollectionViewContentSize.ToSize();
+			var contentSize = CollectionView.CollectionViewLayout.CollectionViewContentSize.ToSize();
+
+			// ISSUE FIX: Calculate corrected height for horizontal grid layouts
+			if (ItemsViewLayout is UICollectionViewCompositionalLayout layout &&
+				layout.Configuration?.ScrollDirection == UICollectionViewScrollDirection.Horizontal &&
+				ItemsView is CollectionView cv &&
+				cv.ItemsLayout is GridItemsLayout gridLayout)
+			{
+				// Find a templated cell with valid height measurement
+				var visibleCells = CollectionView?.VisibleCells;
+				var firstTemplatedCell = visibleCells?.OfType<TemplatedCell2>().FirstOrDefault(c => c?.MeasuredSize.Height > 0);
+
+				if (firstTemplatedCell != null)
+				{
+					// Calculate the height based on row count (span) and measured cell height
+					return new Size(contentSize.Width, gridLayout.Span * firstTemplatedCell.MeasuredSize.Height);
+				}
+			}
+
+			return contentSize;
 		}
 
 		internal void UpdateView(object view, DataTemplate viewTemplate, ref UIView uiView, ref VisualElement formsElement)
