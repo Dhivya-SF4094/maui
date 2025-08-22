@@ -422,7 +422,43 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 				return _emptyUIView.Frame.Size.ToSize();
 			}
 
-			return CollectionView.CollectionViewLayout.CollectionViewContentSize.ToSize();
+			var contentSize = CollectionView.CollectionViewLayout.CollectionViewContentSize.ToSize();
+
+			// Get visible cells with valid measurements, regardless of ItemsView type
+			var visibleCells = CollectionView?.VisibleCells;
+			var templatedCell = visibleCells?.OfType<TemplatedCell2>().FirstOrDefault(c => c?.MeasuredSize.Height > 0);
+
+			if (templatedCell != null)
+			{
+				// ISSUE FIX: Calculate corrected size for horizontal layouts (both Grid and Linear)
+				bool isCarouselWithHorizontalOrientation = ItemsView is CarouselView && IsHorizontal;
+
+				// For regular CollectionView: Check actual scroll direction
+				bool isCollectionViewWithHorizontalScroll =
+					(ItemsViewLayout is UICollectionViewCompositionalLayout compositionLayout &&
+					 compositionLayout.Configuration?.ScrollDirection == UICollectionViewScrollDirection.Horizontal) ||
+					ScrollDirection == UICollectionViewScrollDirection.Horizontal;
+
+				bool isHorizontalLayout = isCarouselWithHorizontalOrientation || isCollectionViewWithHorizontalScroll;
+
+				if (isHorizontalLayout)
+				{
+					// Handle CollectionView with GridItemsLayout
+					if (ItemsView is CollectionView cv && cv.ItemsLayout is GridItemsLayout gridLayout)
+					{
+						// Calculate the height based on row count (span) and measured cell height
+						return new Size(contentSize.Width, gridLayout.Span * templatedCell.MeasuredSize.Height);
+					}
+					// Handle CarouselView or CollectionView with LinearItemsLayout
+					else if (templatedCell.MeasuredSize.Height > 0)
+					{
+						// For LinearItemsLayout or CarouselView, use the measured height directly
+						return new Size(contentSize.Width, templatedCell.MeasuredSize.Height);
+					}
+				}
+			}
+
+			return contentSize;
 		}
 
 		internal void UpdateView(object view, DataTemplate viewTemplate, ref UIView uiView, ref VisualElement formsElement)
