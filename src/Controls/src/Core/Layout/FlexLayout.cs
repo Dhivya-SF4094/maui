@@ -574,7 +574,9 @@ namespace Microsoft.Maui.Controls
 
 		public void Layout(double width, double height)
 		{
-			if (_root.Parent != null)   //Layout is only computed at root level
+			// Skip layout only if this is called during flex engine's internal computation,
+			// not when it's called for arrangement by FlexLayoutManager
+			if (_root.Parent != null && InMeasureMode)   //Layout is only computed at root level during measurement
 				return;
 
 			var useMeasureHack = NeedsMeasureHack(width, height);
