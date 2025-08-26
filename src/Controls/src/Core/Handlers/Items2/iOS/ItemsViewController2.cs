@@ -430,7 +430,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 
 			if (templatedCell != null)
 			{
-				// ISSUE FIX: Calculate corrected size for horizontal layouts (both Grid and Linear)
+				// Calculate corrected size for horizontal layouts (both Grid and Linear)
 				bool isCarouselWithHorizontalOrientation = ItemsView is CarouselView && IsHorizontal;
 
 				// For regular CollectionView: Check actual scroll direction
@@ -449,15 +449,17 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 						// Calculate the height based on row count (span) and measured cell height
 						return new Size(contentSize.Width, gridLayout.Span * templatedCell.MeasuredSize.Height);
 					}
-					// Handle CarouselView or CollectionView with LinearItemsLayout
 					else if (templatedCell.MeasuredSize.Height > 0)
 					{
 						// For LinearItemsLayout or CarouselView, use the measured height directly
 						return new Size(contentSize.Width, templatedCell.MeasuredSize.Height);
 					}
 				}
+				else
+				{
+					return new Size(contentSize.Width, templatedCell.MeasuredSize.Height);
+				}
 			}
-
 			return contentSize;
 		}
 
