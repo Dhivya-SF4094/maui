@@ -9,6 +9,7 @@ public class Issue18102 : _IssuesUITest
     public Issue18102(TestDevice testDevice) : base(testDevice)
     {
     }
+
     public override string Issue => "Padding or Margin on FlexLayout";
 
     [Test]
