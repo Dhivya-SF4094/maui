@@ -493,9 +493,11 @@ namespace Microsoft.Maui.Controls
 				_viewInfo.Add(child, new FlexInfo());
 			}
 
-			// For nested FlexLayouts, create a new Flex.Item to avoid sharing the _root item
-			var item = new Flex.Item();
-
+			// Check if the child is a FlexLayout; in that case, always create a new Flex.Item().
+			// For non-FlexLayout children, reuse _root if available, otherwise fall back to a new Flex.Item().
+			var item = child is FlexLayout
+				? new Flex.Item()
+				: (child as FlexLayout)?._root ?? new Flex.Item();
 			InitItemProperties(child, item);
 
 			item.SelfSizing = (Flex.Item it, ref float w, ref float h, bool inMeasureMode) =>
