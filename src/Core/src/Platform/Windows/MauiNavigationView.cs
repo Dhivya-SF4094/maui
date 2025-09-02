@@ -170,9 +170,9 @@ namespace Microsoft.Maui.Platform
 			{
 				case FlyoutBehavior.Flyout:
 					IsPaneToggleButtonVisible = true;
-					// Workaround for
-					// https://github.com/microsoft/microsoft-ui-xaml/issues/6493
-					PaneDisplayMode = NavigationViewPaneDisplayMode.LeftCompact;
+					// When dynamically changing, we need to be careful with transitions
+					// Set directly to LeftMinimal instead of transitioning through LeftCompact
+					// to avoid ArgumentException during runtime changes
 					PaneDisplayMode = NavigationViewPaneDisplayMode.LeftMinimal;
 					break;
 				case FlyoutBehavior.Locked:
