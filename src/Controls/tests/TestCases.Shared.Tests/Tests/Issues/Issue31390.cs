@@ -15,8 +15,9 @@ public class Issue31390 : _IssuesUITest
     [Category(UITestCategories.FlyoutPage)]
     public void EnsureFlyoutLayoutBehaviorChanges()
     {
-        App.WaitForElement("Issue31390_Flyout");
+        App.WaitForElement("Issue31390Button");
         App.Tap("Issue31390Button");
-        App.WaitForElement("Issue31390_Flyout");
-    }
+        App.TapFlyoutPageIcon();
+		App.WaitForElement("Issue31390_FlyoutLabel");
+	}
 }

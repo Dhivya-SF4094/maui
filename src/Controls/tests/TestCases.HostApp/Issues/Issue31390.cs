@@ -14,12 +14,13 @@ public class Issue31390 : FlyoutPage
         var flyoutPage = new ContentPage
         {
             Title = "Flyout",
-            AutomationId = "Issue31390_Flyout",
+            AutomationId = "Issue31390Flyout",
             Content = new StackLayout
             {
                 Children =
                     {
-                        new Label { Text = "This is Flyout" }
+                        new Label { Text = "This is Flyout", 
+						AutomationId = "Issue31390_FlyoutLabel"}
                     }
             }
         };
@@ -45,18 +46,31 @@ public class Issue31390 : FlyoutPage
         Flyout = flyoutPage;
         Detail = navigationPage;
 
-        var optionsItem = new ToolbarItem
-        {
-            Text = "Options",
-            AutomationId = "Issue31390Button"
-        };
-        optionsItem.Clicked += NavigateToOptionsPage_Clicked;
-        ToolbarItems.Add(optionsItem);
+		var ChangeToPopover = new ToolbarItem
+		{
+			Text = "ChangeToPopover",
+			AutomationId = "Issue31390Button"
+		};
+		ChangeToPopover.Clicked += NavigateToPopover_Clicked;
 
-        SetBinding(FlyoutLayoutBehaviorProperty, new Binding(nameof(Issue31390ViewModel.FlyoutLayoutBehavior)));
+
+		var SplitOnPortrait = new ToolbarItem
+		{
+			Text = "SplitOnPortrait",
+			AutomationId = "SplitOnPortraitButton"
+		};
+		SplitOnPortrait.Clicked += NavigateToSplitOnPortrait_Clicked;
+		ToolbarItems.Add(ChangeToPopover);
+		ToolbarItems.Add(SplitOnPortrait);
+		SetBinding(FlyoutLayoutBehaviorProperty, new Binding(nameof(Issue31390ViewModel.FlyoutLayoutBehavior)));
     }
 
-    private void NavigateToOptionsPage_Clicked(object sender, EventArgs e)
+	private void NavigateToSplitOnPortrait_Clicked(object sender, EventArgs e)
+	{
+		_viewModel.FlyoutLayoutBehavior = FlyoutLayoutBehavior.SplitOnPortrait;
+	}
+
+	private void NavigateToPopover_Clicked(object sender, EventArgs e)
     {
         _viewModel.FlyoutLayoutBehavior = FlyoutLayoutBehavior.Popover;
     }
