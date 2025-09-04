@@ -170,9 +170,7 @@ namespace Microsoft.Maui.Platform
 			{
 				case FlyoutBehavior.Flyout:
 					IsPaneToggleButtonVisible = true;
-					// When dynamically changing, we need to be careful with transitions
-					// Set directly to LeftMinimal instead of transitioning through LeftCompact
-					// to avoid ArgumentException during runtime changes
+					// Removed LeftCompact assignment – workaround for native NavigationView issue no longer required.
 					PaneDisplayMode = NavigationViewPaneDisplayMode.LeftMinimal;
 					break;
 				case FlyoutBehavior.Locked:
