@@ -43,8 +43,8 @@ namespace Microsoft.Maui.Layouts
 
 				var measure = child.Measure(measureWidth, measureHeight);
 
-				var width = ResolveDimension(isWidthProportional, bounds.Width, availableWidth, measure.Width);
-				var height = ResolveDimension(isHeightProportional, bounds.Height, availableHeight, measure.Height);
+				var width = ResolveDimension(isWidthProportional, bounds.Width, availableWidth, measure.Width, child);
+				var height = ResolveDimension(isHeightProportional, bounds.Height, availableHeight, measure.Height, child);
 
 				measuredHeight = Math.Max(measuredHeight, bounds.Top + height);
 				measuredWidth = Math.Max(measuredWidth, bounds.Left + width);
@@ -80,8 +80,8 @@ namespace Microsoft.Maui.Layouts
 				bool isWidthProportional = HasFlag(flags, AbsoluteLayoutFlags.WidthProportional);
 				bool isHeightProportional = HasFlag(flags, AbsoluteLayoutFlags.HeightProportional);
 
-				destination.Width = ResolveDimension(isWidthProportional, destination.Width, availableWidth, child.DesiredSize.Width);
-				destination.Height = ResolveDimension(isHeightProportional, destination.Height, availableHeight, child.DesiredSize.Height);
+				destination.Width = ResolveDimension(isWidthProportional, destination.Width, availableWidth, child.DesiredSize.Width, child);
+				destination.Height = ResolveDimension(isHeightProportional, destination.Height, availableHeight, child.DesiredSize.Height, child);
 
 				if (HasFlag(flags, AbsoluteLayoutFlags.XProportional))
 				{
@@ -108,7 +108,7 @@ namespace Microsoft.Maui.Layouts
 			return (a & b) == b;
 		}
 
-		static double ResolveDimension(bool isProportional, double fromBounds, double available, double measured)
+		static double ResolveDimension(bool isProportional, double fromBounds, double available, double measured, IView? child = null)
 		{
 			// By default, we use the absolute value from LayoutBounds
 			var value = fromBounds;
@@ -121,6 +121,15 @@ namespace Microsoft.Maui.Layouts
 			}
 			else if (value == AutoSize)
 			{
+#if __IOS__ || MACCATALYST
+				// Special handling for shapes on iOS/Mac platforms when using AutoSize
+				if (child is IShapeView)
+				{
+					// When a shape has AutoSize, force it to zero instead of using the measured value
+					// This fixes the issue where shapes retain their previous size when returning to AutoSize
+					return 0;
+				}
+#endif
 				// No absolute or proportional value specified, so we use the measured value
 				value = measured;
 			}
