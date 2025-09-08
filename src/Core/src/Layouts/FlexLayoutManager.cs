@@ -34,6 +34,7 @@ namespace Microsoft.Maui.Layouts
 					throw new Exception("something is deeply wrong");
 
 				frame = frame.Offset(left, top);
+
 				child.Arrange(frame);
 			}
 
@@ -60,8 +61,8 @@ namespace Microsoft.Maui.Layouts
 				}
 
 				var frame = FlexLayout.GetFlexFrame(child);
-				measuredHeight = Math.Max(measuredHeight, frame.Bottom);
-				measuredWidth = Math.Max(measuredWidth, frame.Right);
+				measuredHeight = Math.Max(measuredHeight, frame.Height);
+				measuredWidth = Math.Max(measuredWidth, frame.Width);
 			}
 
 			var finalHeight = LayoutManager.ResolveConstraints(heightConstraint, FlexLayout.Height, measuredHeight + padding.VerticalThickness,
