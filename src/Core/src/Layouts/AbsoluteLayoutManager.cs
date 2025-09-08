@@ -127,7 +127,7 @@ namespace Microsoft.Maui.Layouts
 				{
 					// When a shape has AutoSize, force it to zero instead of using the measured value
 					// This fixes the issue where shapes retain their previous size when returning to AutoSize
-					return 0;
+					return AutoSize;
 				}
 #endif
 				// No absolute or proportional value specified, so we use the measured value
