@@ -108,7 +108,7 @@ namespace Microsoft.Maui.Layouts
 			return (a & b) == b;
 		}
 
-		static double ResolveDimension(bool isProportional, double fromBounds, double available, double measured, IView? child = null)
+		static double ResolveDimension(bool isProportional, double fromBounds, double available, double measured)
 		{
 			// By default, we use the absolute value from LayoutBounds
 			var value = fromBounds;
