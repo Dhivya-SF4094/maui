@@ -1,12 +1,13 @@
+using System;
 using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
 
 namespace Microsoft.Maui.TestCases.Tests.Issues;
 
-public class Issue_31496 : _IssuesUITest
+public class Issue31496 : _IssuesUITest
 {
-    public Issue_31496(TestDevice testDevice) : base(testDevice)
+    public Issue31496(TestDevice testDevice) : base(testDevice)
     {
     }
     public override string Issue => "BoxView in AbsoluteLayout does not return to default AutoSize";

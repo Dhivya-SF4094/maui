@@ -18,6 +18,13 @@ public class Issue31496 : ContentPage
 			BackgroundColor = Colors.LightGray
 		};
 
+		var label = new Label
+		{
+			Text = "The test passes if a BoxView is not visible in view.",
+		};
+		AbsoluteLayout.SetLayoutBounds(label, new Rect(0.5, 0.80, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+		AbsoluteLayout.SetLayoutFlags(label, AbsoluteLayoutFlags.PositionProportional);
+
 		boxView = new BoxView
 		{
 			Color = Colors.Green
@@ -44,6 +51,7 @@ public class Issue31496 : ContentPage
 		resetBoundsButton.Clicked += OnResetBoundsClicked;
 
 		absoluteLayout.Children.Add(boxView);
+		absoluteLayout.Children.Add(label);
 		absoluteLayout.Children.Add(changeBoundsButton);
 		absoluteLayout.Children.Add(resetBoundsButton);
 
