@@ -283,7 +283,7 @@ namespace Microsoft.Maui.Controls.Shapes
 			// Only apply stroke inset if there is an actual stroke. 
 			// For shapes with no stroke shrinking the bounds by StrokeThickness was
 			// effectively collapsing very small heights into a barely visible line.
-			if (Stroke != null && StrokeThickness > 0)
+			if (Stroke is not null && StrokeThickness > 0)
 			{
 				viewBounds.X += StrokeThickness / 2;
 				viewBounds.Y += StrokeThickness / 2;
