@@ -3,13 +3,13 @@ using Microsoft.Maui.Layouts;
 
 namespace Maui.Controls.Sample.Issues;
 
-[Issue(IssueTracker.Github, 31610, "Rectangle renders as thin line instead of filled shape for small height values", PlatformAffected.Android)]
-public class Issue31610 : ContentPage
+[Issue(IssueTracker.Github, 31330, "Rectangle renders as thin line instead of filled shape for small height values", PlatformAffected.Android)]
+public class Issue31330 : ContentPage
 {
     AbsoluteLayout absoluteLayout;
     Grid grid;
 
-    public Issue31610()
+    public Issue31330()
     {
         grid = new Grid { BackgroundColor = Colors.LightGray };
         absoluteLayout = new AbsoluteLayout();
@@ -20,7 +20,7 @@ public class Issue31610 : ContentPage
             Text = "Add Rectangle",
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Start,
-            AutomationId = "Issue31610Button"
+            AutomationId = "Issue31330Button"
         };
         button.Clicked += OnAddRectangleClicked;
 
