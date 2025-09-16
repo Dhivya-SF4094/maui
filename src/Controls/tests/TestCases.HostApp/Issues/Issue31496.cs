@@ -57,12 +57,13 @@ public class Issue31496 : ContentPage
 
 		Content = absoluteLayout;
 	}
-	private void OnChangeBoundsClicked(object sender, EventArgs e)
+
+	void OnChangeBoundsClicked(object sender, EventArgs e)
 	{
 		AbsoluteLayout.SetLayoutBounds(boxView, new Rect(50, 50, 100, 100));
 	}
 
-	private void OnResetBoundsClicked(object sender, EventArgs e)
+	void OnResetBoundsClicked(object sender, EventArgs e)
 	{
 		AbsoluteLayout.SetLayoutBounds(boxView, defaultBounds);
 	}
