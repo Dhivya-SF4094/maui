@@ -13,10 +13,9 @@ public class Issue31330 : _IssuesUITest
 
     [Test]
     [Category(UITestCategories.Shape)]
-    public void FixRectangleRenderingForSmallHeight()
+    public void UpdateSizeOnlyWhenStrokeExists()
     {
-        App.WaitForElement("Issue31330Button");
-        App.Tap("Issue31330Button");
+        App.WaitForElement("Issue31330BoxView");
         VerifyScreenshot();
     }
 }
