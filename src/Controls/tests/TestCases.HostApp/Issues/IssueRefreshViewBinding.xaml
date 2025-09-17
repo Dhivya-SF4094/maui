@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui.Controls.Sample.Issues.IssueRefreshViewBinding">
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto,Auto,*,Auto" x:Name="grid">
+            <Label Grid.Row="0" Text="RefreshView IsRefreshing Binding Test" FontSize="18" HorizontalOptions="Center" />
+            <Label Grid.Row="1" Text="The RefreshView should show refresh indicator when IsRefreshing is bound to True" Margin="10" />
+            <RefreshView x:Name="refreshView" Grid.Row="2" IsRefreshing="{Binding IsRefreshing, Mode=TwoWay}" AutomationId="TestRefreshView">
+                <ScrollView>
+                    <StackLayout Padding="10">
+                        <Label Text="Item 1" AutomationId="Item1" />
+                        <Label Text="Item 2" AutomationId="Item2" />
+                        <Label Text="Item 3" AutomationId="Item3" />
+                        <Label Text="Item 4" AutomationId="Item4" />
+                        <Label Text="Item 5" AutomationId="Item5" />
+                    </StackLayout>
+                </ScrollView>
+            </RefreshView>
+            <Button x:Name="ToggleButton" AutomationId="ToggleButton" Grid.Row="3" Text="Toggle IsRefreshing" Clicked="OnToggleClicked" />
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
