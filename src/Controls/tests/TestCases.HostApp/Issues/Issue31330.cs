@@ -1,5 +1,4 @@
 using Microsoft.Maui.Controls.Shapes;
-using Microsoft.Maui.Layouts;
 
 namespace Maui.Controls.Sample.Issues;
 
