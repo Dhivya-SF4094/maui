@@ -22,12 +22,17 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		List<View> _oldViews;
 		CarouselViewOnGlobalLayoutListener _carouselViewLayoutListener;
 
+		float _initialTouchX;
+		float _initialTouchY;
+		float _touchSlop;
+
 		protected CarouselView Carousel => ItemsView as CarouselView;
 
 		public MauiCarouselRecyclerView(Context context, Func<IItemsLayout> getItemsLayout, Func<ItemsViewAdapter<CarouselView, IItemsViewSource>> getAdapter) : base(context, getItemsLayout, getAdapter)
 		{
 			_oldViews = new List<View>();
 			_carouselViewLoopManager = new CarouselViewLoopManager();
+			_touchSlop = ViewConfiguration.Get(context).ScaledTouchSlop;
 		}
 
 		public bool IsSwipeEnabled { get; set; }
@@ -36,6 +41,34 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		{
 			if (!IsSwipeEnabled)
 				return false;
+
+			if (!IsHorizontal)
+				return base.OnInterceptTouchEvent(ev);
+
+			switch (ev.Action)
+			{
+				case MotionEventActions.Down:
+					_initialTouchX = ev.GetX();
+					_initialTouchY = ev.GetY();
+					break;
+
+				case MotionEventActions.Move:
+					float deltaX = ev.GetX() - _initialTouchX;
+					float deltaY = ev.GetY() - _initialTouchY;
+
+					if (Math.Abs(deltaX) < _touchSlop && Math.Abs(deltaY) < _touchSlop)
+						break;
+
+					if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
+					{
+						return false;
+					}
+					break;
+
+				case MotionEventActions.Cancel:
+				case MotionEventActions.Up:
+					break;
+			}
 
 			return base.OnInterceptTouchEvent(ev);
 		}
