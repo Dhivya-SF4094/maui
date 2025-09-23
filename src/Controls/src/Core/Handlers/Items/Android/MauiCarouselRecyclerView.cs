@@ -24,7 +24,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 		float _initialTouchX;
 		float _initialTouchY;
-		float _touchSlop;
 
 		protected CarouselView Carousel => ItemsView as CarouselView;
 
@@ -32,7 +31,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		{
 			_oldViews = new List<View>();
 			_carouselViewLoopManager = new CarouselViewLoopManager();
-			_touchSlop = ViewConfiguration.Get(context).ScaledTouchSlop;
 		}
 
 		public bool IsSwipeEnabled { get; set; }
@@ -41,9 +39,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		{
 			if (!IsSwipeEnabled)
 				return false;
-
-			if (!IsHorizontal)
-				return base.OnInterceptTouchEvent(ev);
 
 			switch (ev.Action)
 			{
@@ -55,13 +50,37 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				case MotionEventActions.Move:
 					float deltaX = ev.GetX() - _initialTouchX;
 					float deltaY = ev.GetY() - _initialTouchY;
-
-					if (Math.Abs(deltaX) < _touchSlop && Math.Abs(deltaY) < _touchSlop)
-						break;
-
-					if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
+					if (IsHorizontal)
 					{
-						return false;
+						// Horizontal carousel - Vertical child → let child handle vertical swipes
+						if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
+							return false;
+
+						if (Math.Abs(deltaX) > Math.Abs(deltaY) * 1.5f)
+						{
+							var child = FindScrollableChildAt((int)_initialTouchX, (int)_initialTouchY);
+							if (child != null)
+							{
+								// Let child CollectionView handle vertical swipe
+								return false;
+							}
+						}
+					}
+					else
+					{
+						// Vertical carousel - Horizontal child → let child handle horizontal swipes
+						if (Math.Abs(deltaX) > Math.Abs(deltaY) * 1.5f)
+							return false;
+
+						if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
+						{
+							var child = FindScrollableChildAt((int)_initialTouchX, (int)_initialTouchY);
+							if (child != null)
+							{
+								// Let child CollectionView handle vertical swipe
+								return false;
+							}
+						}
 					}
 					break;
 
@@ -73,6 +92,61 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			return base.OnInterceptTouchEvent(ev);
 		}
 
+		Android.Views.View FindScrollableChildAt(int x, int y)
+		{
+			for (int i = 0; i < ChildCount; i++)
+			{
+				var child = GetChildAt(i);
+				var target = FindScrollableInViewGroup(child, x, y);
+				if (target != null)
+					return target;
+			}
+			return null;
+		}
+
+		Android.Views.View FindScrollableInViewGroup(Android.Views.View view, int x, int y)
+		{
+			int[] location = new int[2];
+			view.GetLocationOnScreen(location);
+
+			var rect = new Android.Graphics.Rect(
+				location[0],
+				location[1],
+				location[0] + view.Width,
+				location[1] + view.Height
+			);
+
+			int[] parentLoc = new int[2];
+			GetLocationOnScreen(parentLoc);
+			int screenX = parentLoc[0] + x;
+			int screenY = parentLoc[1] + y;
+
+			if (rect.Contains(screenX, screenY))
+			{
+				if (IsScrollableView(view))
+					return view;
+
+				if (view is Android.Views.ViewGroup vg)
+				{
+					for (int i = 0; i < vg.ChildCount; i++)
+					{
+						var child = vg.GetChildAt(i);
+						var scrollable = FindScrollableInViewGroup(child, x, y);
+						if (scrollable != null)
+							return scrollable;
+					}
+				}
+			}
+
+			return null;
+		}
+
+		bool IsScrollableView(Android.Views.View view)
+		{
+			return view is AndroidX.RecyclerView.Widget.RecyclerView ||
+				   view is Android.Widget.ScrollView ||
+				   view is AndroidX.Core.Widget.NestedScrollView;
+		}
 		protected virtual bool IsHorizontal => (Carousel?.ItemsLayout)?.Orientation == ItemsLayoutOrientation.Horizontal;
 
 		protected override int DetermineTargetPosition(ScrollToRequestEventArgs args)
@@ -346,7 +420,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 		void UpdateItemDecoration()
 		{
-			if (_itemDecoration != null)
+			if (_itemDecoration is not null)
 				RemoveItemDecoration(_itemDecoration);
 			_itemDecoration = CreateSpacingDecoration(ItemsLayout);
 			AddItemDecoration(_itemDecoration);
