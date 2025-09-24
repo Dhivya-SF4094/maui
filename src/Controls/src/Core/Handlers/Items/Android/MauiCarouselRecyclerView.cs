@@ -50,37 +50,10 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				case MotionEventActions.Move:
 					float deltaX = ev.GetX() - _initialTouchX;
 					float deltaY = ev.GetY() - _initialTouchY;
-					if (IsHorizontal)
-					{
-						// Horizontal carousel - Vertical child → let child handle vertical swipes
-						if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
-							return false;
 
-						if (Math.Abs(deltaX) > Math.Abs(deltaY) * 1.5f)
-						{
-							var child = FindScrollableChildAt((int)_initialTouchX, (int)_initialTouchY);
-							if (child != null)
-							{
-								// Let child CollectionView handle vertical swipe
-								return false;
-							}
-						}
-					}
-					else
+					if (ShouldDelegateToChild(deltaX, deltaY, (int)_initialTouchX, (int)_initialTouchY))
 					{
-						// Vertical carousel - Horizontal child → let child handle horizontal swipes
-						if (Math.Abs(deltaX) > Math.Abs(deltaY) * 1.5f)
-							return false;
-
-						if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
-						{
-							var child = FindScrollableChildAt((int)_initialTouchX, (int)_initialTouchY);
-							if (child != null)
-							{
-								// Let child CollectionView handle vertical swipe
-								return false;
-							}
-						}
+						return false;
 					}
 					break;
 
@@ -92,6 +65,40 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			return base.OnInterceptTouchEvent(ev);
 		}
 
+		bool ShouldDelegateToChild(float deltaX, float deltaY, int startX, int startY)
+		{
+			if (IsHorizontal)
+			{
+				// If vertical swipe dominates → pass to child
+				if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
+				{
+					return FindScrollableChildAt(startX, startY) != null;
+				}
+
+				// If horizontal swipe dominates → check if child wants it
+				if (Math.Abs(deltaX) > Math.Abs(deltaY) * 1.5f)
+				{
+					return FindScrollableChildAt(startX, startY) != null;
+				}
+			}
+			else
+			{
+				// Vertical Carousel
+				// If horizontal swipe dominates → pass to child
+				if (Math.Abs(deltaX) > Math.Abs(deltaY) * 1.5f)
+				{
+					return FindScrollableChildAt(startX, startY) != null;
+				}
+
+				// If vertical swipe dominates → check if child wants it
+				if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
+				{
+					return FindScrollableChildAt(startX, startY) != null;
+				}
+			}
+			return false;
+		}
+
 		Android.Views.View FindScrollableChildAt(int x, int y)
 		{
 			for (int i = 0; i < ChildCount; i++)
@@ -99,7 +106,9 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				var child = GetChildAt(i);
 				var target = FindScrollableInViewGroup(child, x, y);
 				if (target != null)
+				{
 					return target;
+				}
 			}
 			return null;
 		}
@@ -124,7 +133,9 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			if (rect.Contains(screenX, screenY))
 			{
 				if (IsScrollableView(view))
+				{
 					return view;
+				}
 
 				if (view is Android.Views.ViewGroup vg)
 				{
@@ -133,20 +144,22 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 						var child = vg.GetChildAt(i);
 						var scrollable = FindScrollableInViewGroup(child, x, y);
 						if (scrollable != null)
+						{
 							return scrollable;
+						}
 					}
 				}
 			}
-
 			return null;
 		}
 
 		bool IsScrollableView(Android.Views.View view)
 		{
-			return view is AndroidX.RecyclerView.Widget.RecyclerView ||
+			return view is RecyclerView ||
 				   view is Android.Widget.ScrollView ||
 				   view is AndroidX.Core.Widget.NestedScrollView;
 		}
+
 		protected virtual bool IsHorizontal => (Carousel?.ItemsLayout)?.Orientation == ItemsLayoutOrientation.Horizontal;
 
 		protected override int DetermineTargetPosition(ScrollToRequestEventArgs args)
