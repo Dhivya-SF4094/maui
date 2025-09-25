@@ -67,97 +67,10 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 		bool ShouldDelegateToChild(float deltaX, float deltaY, int startX, int startY)
 		{
-			if (IsHorizontal)
-			{
-				// If vertical swipe dominates → pass to child
-				if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
-				{
-					return FindScrollableChildAt(startX, startY) != null;
-				}
+			float absDeltaX = Math.Abs(deltaX);
+			float absDeltaY = Math.Abs(deltaY);
 
-				// If horizontal swipe dominates → check if child wants it
-				if (Math.Abs(deltaX) > Math.Abs(deltaY) * 1.5f)
-				{
-					return FindScrollableChildAt(startX, startY) != null;
-				}
-			}
-			else
-			{
-				// Vertical Carousel
-				// If horizontal swipe dominates → pass to child
-				if (Math.Abs(deltaX) > Math.Abs(deltaY) * 1.5f)
-				{
-					return FindScrollableChildAt(startX, startY) != null;
-				}
-
-				// If vertical swipe dominates → check if child wants it
-				if (Math.Abs(deltaY) > Math.Abs(deltaX) * 1.5f)
-				{
-					return FindScrollableChildAt(startX, startY) != null;
-				}
-			}
-			return false;
-		}
-
-		Android.Views.View FindScrollableChildAt(int x, int y)
-		{
-			for (int i = 0; i < ChildCount; i++)
-			{
-				var child = GetChildAt(i);
-				var target = FindScrollableInViewGroup(child, x, y);
-				if (target != null)
-				{
-					return target;
-				}
-			}
-			return null;
-		}
-
-		Android.Views.View FindScrollableInViewGroup(Android.Views.View view, int x, int y)
-		{
-			int[] location = new int[2];
-			view.GetLocationOnScreen(location);
-
-			var rect = new Android.Graphics.Rect(
-				location[0],
-				location[1],
-				location[0] + view.Width,
-				location[1] + view.Height
-			);
-
-			int[] parentLoc = new int[2];
-			GetLocationOnScreen(parentLoc);
-			int screenX = parentLoc[0] + x;
-			int screenY = parentLoc[1] + y;
-
-			if (rect.Contains(screenX, screenY))
-			{
-				if (IsScrollableView(view))
-				{
-					return view;
-				}
-
-				if (view is Android.Views.ViewGroup vg)
-				{
-					for (int i = 0; i < vg.ChildCount; i++)
-					{
-						var child = vg.GetChildAt(i);
-						var scrollable = FindScrollableInViewGroup(child, x, y);
-						if (scrollable != null)
-						{
-							return scrollable;
-						}
-					}
-				}
-			}
-			return null;
-		}
-
-		bool IsScrollableView(Android.Views.View view)
-		{
-			return view is RecyclerView ||
-				   view is Android.Widget.ScrollView ||
-				   view is AndroidX.Core.Widget.NestedScrollView;
+			return IsHorizontal ? absDeltaY > absDeltaX : absDeltaX > absDeltaY;
 		}
 
 		protected virtual bool IsHorizontal => (Carousel?.ItemsLayout)?.Orientation == ItemsLayoutOrientation.Horizontal;
