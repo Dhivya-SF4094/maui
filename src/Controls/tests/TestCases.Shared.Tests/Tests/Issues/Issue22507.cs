@@ -1,3 +1,4 @@
+#if TEST_FAILS_ON_CATALYST // App.SwipeRightToLeft does not scroll to next item in Mac catalyst.
 using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
@@ -30,3 +31,4 @@ public class Issue22507 : _IssuesUITest
         App.WaitForElement("Item 20");
     }
 }
+#endif
