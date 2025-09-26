@@ -59,6 +59,10 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 				case MotionEventActions.Cancel:
 				case MotionEventActions.Up:
+					// Reset initial touch values at the end of the gesture
+					// to prevent old values from being used if we don't get a Down event
+					_initialTouchX = 0;
+					_initialTouchY = 0;
 					break;
 			}
 
