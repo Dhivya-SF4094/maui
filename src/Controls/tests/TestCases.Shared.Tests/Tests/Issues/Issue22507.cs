@@ -19,16 +19,14 @@ public class Issue22507 : _IssuesUITest
         App.WaitForElement("Issue22507Label");
 
         App.ScrollDown("Issue22507CollectionView");
-        App.WaitForElement("Item P");
-        // Step 2: Swipe horizontally to navigate to the next CarouselView item (Page 2)
+        // Swipe horizontally to navigate to the next CarouselView item (Page 2)
         App.SwipeRightToLeft();
-
-        // Wait for Page 2 to load
-        // Step 3: Scroll to the bottom of the CollectionView on page 2
+        // wait for page 2
+        App.WaitForElement("Item 1");
         for (int i = 0; i < 2; i++)
         {
             App.ScrollDown("Issue22507CollectionView", ScrollStrategy.Gesture, 0.99, swipeSpeed: 900);
         }
-        App.WaitForElement("Item 15");
+        App.WaitForElement("Item 20");
     }
 }

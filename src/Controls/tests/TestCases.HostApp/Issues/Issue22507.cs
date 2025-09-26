@@ -10,18 +10,19 @@ public class Issue22507 : ContentPage
     public Issue22507()
     {
         ItemsList = new ObservableCollection<Issue22507Model>
-            {
-                new Issue22507Model("Page 1", new []
-                {
-                    "Item A", "Item B", "Item C", "Item D", "Item E", "Item F", "Item G", "Item H",
-                    "Item I", "Item J", "Item K", "Item L", "Item M", "Item N", "Item O", "Item P"
-                }),
-                new Issue22507Model("Page 2", new []
-                {
-                    "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8",
-                    "Item 9", "Item 10", "Item 11", "Item 12", "Item 13", "Item 14", "Item 15"
-                }),
-            };
+        {
+            new Issue22507Model(
+            "Page 1",
+             Enumerable.Range('A', 20)
+             .Select(c => $"Item {(char)c}")
+             .ToArray()),
+
+            new Issue22507Model(
+            "Page 2",
+            Enumerable.Range(1, 20)
+            .Select(i => $"Item {i}")
+            .ToArray())
+        };
         Grid mainGrid = new Grid
         {
             RowDefinitions =
