@@ -51,7 +51,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 					float deltaX = ev.GetX() - _initialTouchX;
 					float deltaY = ev.GetY() - _initialTouchY;
 
-					if (ShouldDelegateToChild(deltaX, deltaY, (int)_initialTouchX, (int)_initialTouchY))
+					if (ShouldDelegateToChild(deltaX, deltaY))
 					{
 						return false;
 					}
@@ -69,7 +69,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			return base.OnInterceptTouchEvent(ev);
 		}
 
-		bool ShouldDelegateToChild(float deltaX, float deltaY, int startX, int startY)
+		bool ShouldDelegateToChild(float deltaX, float deltaY)
 		{
 			float absDeltaX = Math.Abs(deltaX);
 			float absDeltaY = Math.Abs(deltaY);
