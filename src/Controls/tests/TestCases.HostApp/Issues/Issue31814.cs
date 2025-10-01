@@ -47,10 +47,12 @@ public class Issue31814 : ContentPage
         };
 
         collectionView.RemainingItemsThresholdReached += CollectionView_RemainingItemsThresholdReached;
-        var stack = new VerticalStackLayout();
-        stack.Children.Add(label);
-        stack.Children.Add(collectionView);
-        Content = stack;
+        Grid grid = new Grid();
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Star });
+        grid.Add(label, 0, 0);
+        grid.Add(collectionView, 0, 1);
+        Content = grid;
     }
 
     void CollectionView_RemainingItemsThresholdReached(object sender, EventArgs e)
