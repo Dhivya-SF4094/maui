@@ -717,10 +717,6 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			}
 
 			_searchController = new UISearchController(_resultsRenderer?.ViewController);
-			// do not hide navigation bar when searching
-#if IOS
-			_searchController.HidesNavigationBarDuringPresentation = false;
-#endif
 			var visibility = SearchHandler.SearchBoxVisibility;
 			if (visibility != SearchBoxVisibility.Hidden)
 			{
@@ -803,6 +799,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		void SearchButtonClicked(object sender, EventArgs e)
 		{
 			((ISearchHandlerController)SearchHandler).QueryConfirmed();
+			_searchController.Active = false;
 		}
 
 		void SetSearchBarIcon(UISearchBar searchBar, ImageSource source, UISearchBarIcon icon)
