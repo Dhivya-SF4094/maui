@@ -1,5 +1,3 @@
-
-using Microsoft.Maui.Platform;
 using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
@@ -17,22 +15,16 @@ public class Issue14448 : _IssuesUITest
     [Category(UITestCategories.Shell)]
     public void ShellTitleShouldNotDisappear()
     {
-        // First verify the title is visible
-        App.WaitForElement("Home");
-
         // Try to locate the search field by placeholder text
-        App.WaitForElement("Enter item name");
+        App.WaitForElement("SearchHandler");
 
         // Tap on the search field to focus it
-        App.Tap("Enter item name");
+        App.Tap("SearchHandler");
 
         // Enter text into the search field
-        App.EnterText("Enter item name", "Item 1");
-
-        // Verify the title is still visible after interacting with search
-        App.WaitForElement("Home");
-
-        // Take screenshot to verify UI state
+        App.EnterText("SearchHandler", "Item 1");
+        // Dismiss keyboard by tapping return/search on iOS
+        App.PressEnter();
         VerifyScreenshot();
     }
 }

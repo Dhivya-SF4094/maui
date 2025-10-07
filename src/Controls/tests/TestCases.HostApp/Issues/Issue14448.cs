@@ -1,6 +1,3 @@
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
-
 namespace Maui.Controls.Sample.Issues;
 
 [Issue(IssueTracker.Github, 14448, "maui title bar disappears and does not re-appear on iOS when using shell.searchhandler", PlatformAffected.iOS)]
@@ -14,6 +11,7 @@ public class Issue14448 : Shell
             Title = "Home",
             Content = new Issue14448Page()
         };
+        FlyoutBehavior = FlyoutBehavior.Flyout;
 
         // Add to root of the Shell
         Items.Add(shellContent);
@@ -29,7 +27,7 @@ public class Issue14448Page : ContentPage
         // Create search handler
         var searchHandler = new SearchHandler
         {
-            Placeholder = "Enter item name",
+            Placeholder = "SearchHandler",
             ShowsResults = false,
             BackgroundColor = Colors.White,
             TextColor = Colors.Black,
