@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MauiClient.Models"
+             xmlns:viewmodels="clr-namespace:MauiClient.ViewModels"
+             x:Class="MauiClient.Pages.MasterPage"
+             x:DataType="viewmodels:MasterViewModel"
+             Title="Master Page"
+             >
+    <CollectionView 
+                    ItemsSource="{Binding Monkeys}"
+                    SelectionMode="Single"
+                    SelectionChanged="OnSelectionChanged"
+                    >
+
+        <CollectionView.ItemsLayout>
+            <LinearItemsLayout Orientation="Vertical"/>
+        </CollectionView.ItemsLayout>
+
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="models:Monkey" >
+                <VerticalStackLayout>
+                    <Label Text="{Binding Name}" />
+                </VerticalStackLayout>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+
+    </CollectionView>
+
+</ContentPage>

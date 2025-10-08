@@ -3,13 +3,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="Maui.Controls.Sample.SandboxShell"
     xmlns:local="clr-namespace:Maui.Controls.Sample"
+  xmlns:mauicontent="clr-namespace:MauiClient.Pages"
     x:Name="shell">
     <TabBar Shell.TabBarForegroundColor="Green"
         Shell.TabBarUnselectedColor="Red">
         <Tab Title="MainPage1" Icon="groceries.png">
             <ShellContent Icon="groceries.png"
             Title="Home"
-            ContentTemplate="{DataTemplate local:MainPage}"
+            ContentTemplate="{DataTemplate mauicontent:MasterPage}"
             Route="MainPage" />
         </Tab>
         <Tab Title="MainPage2" Icon="dotnet_bot.png">
