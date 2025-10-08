@@ -717,6 +717,9 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			}
 
 			_searchController = new UISearchController(_resultsRenderer?.ViewController);
+#if MACCATALYST
+			_searchController.HidesNavigationBarDuringPresentation = true;
+#endif
 			var visibility = SearchHandler.SearchBoxVisibility;
 			if (visibility != SearchBoxVisibility.Hidden)
 			{
