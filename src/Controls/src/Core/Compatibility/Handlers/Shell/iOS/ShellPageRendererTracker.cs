@@ -717,9 +717,6 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			}
 
 			_searchController = new UISearchController(_resultsRenderer?.ViewController);
-#if MACCATALYST
-			_searchController.HidesNavigationBarDuringPresentation = true;
-#endif
 			var visibility = SearchHandler.SearchBoxVisibility;
 			if (visibility != SearchBoxVisibility.Hidden)
 			{
@@ -792,7 +789,6 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			{
 				NavigationItem.TitleView = null;
 			}
-			_searchController.SearchBar.OnEditingStopped -= OnEditingCompleted;
 			_searchController.SetSearchResultsUpdater(null);
 			_searchController.Dispose();
 			_searchController = null;
@@ -926,6 +922,10 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 
 				if (NavigationItem?.TitleView is TitleViewContainer tvc)
 					tvc.Disconnect();
+			}
+			if (_searchController is not null)
+			{
+				_searchController.SearchBar.OnEditingStopped -= OnEditingCompleted;
 			}
 
 			_context = null;
