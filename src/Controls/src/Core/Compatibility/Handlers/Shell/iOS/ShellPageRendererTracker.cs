@@ -767,7 +767,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			UpdateAutomationId();
 		}
 
-		private void OnEditingCompleted(object sender, EventArgs e)
+		void OnEditingCompleted(object sender, EventArgs e)
 		{
 			_searchController.Active = false;
 		}
@@ -923,6 +923,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 				if (NavigationItem?.TitleView is TitleViewContainer tvc)
 					tvc.Disconnect();
 			}
+
 			if (_searchController is not null)
 			{
 				_searchController.SearchBar.OnEditingStopped -= OnEditingCompleted;
