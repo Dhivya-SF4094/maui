@@ -532,17 +532,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				UpdateItemSpacing();
 			}
 		}
-		// protected override void OnSizeChanged(int w, int h, int oldw, int oldh)
-		// {
-		// 	base.OnSizeChanged(w, h, oldw, oldh);
-
-		// 	// Force the adapter to rebind all visible views to ensure they use the correct width
-		// 	if (ItemsViewAdapter is not null && ItemsViewAdapter.ItemCount > 0)
-		// 	{
-		// 		ItemsViewAdapter.NotifyDataSetChanged();
-		// 	}
-
-		// }
 
 		protected override void OnLayout(bool changed, int l, int t, int r, int b)
 		{
@@ -555,35 +544,28 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			// have cached pixel sizes from the previous orientation/width. Clear those caches
 			// so they will re-measure with the new constraints. This avoids calling
 			// NotifyDataSetChanged() which is expensive and will recreate all view holders.
-			try
+
+			if (Width != _lastMeasuredWidth && ItemsViewAdapter != null && ItemsViewAdapter.ItemCount > 0)
 			{
-				if (Width != _lastMeasuredWidth && ItemsViewAdapter != null && ItemsViewAdapter.ItemCount > 0)
+				_lastMeasuredWidth = Width;
+				// Iterate visible child views and clear their cached measurements
+				for (int i = 0; i < ChildCount; i++)
 				{
-					_lastMeasuredWidth = Width;
-					// Iterate visible child views and clear their cached measurements
-					for (int i = 0; i < ChildCount; i++)
+					var child = GetChildAt(i);
+					if (child == null)
+						continue;
+					var holder = GetChildViewHolder(child) as TemplatedItemViewHolder;
+					if (holder != null)
 					{
-						var child = GetChildAt(i);
-						if (child == null)
-							continue;
-						var holder = GetChildViewHolder(child) as TemplatedItemViewHolder;
-						if (holder != null)
-						{
-							holder.ClearCachedMeasure();
-						}
+						holder.ClearCachedMeasure();
 					}
 				}
+				// After a direct (non-animated) scroll operation, we may need to make adjustments
+				// to align the target item; if an adjustment is pending, execute it here.
+				// (Deliberately checking the private member here rather than the property accessor; the accessor will
+				// create a new ScrollHelper if needed, and there's no reason to do that until a Scroll is requested.)
+				_scrollHelper?.AdjustScroll();
 			}
-			catch
-			{
-				// Best effort: don't crash layout on any unexpected failure
-			}
-
-			// After a direct (non-animated) scroll operation, we may need to make adjustments
-			// to align the target item; if an adjustment is pending, execute it here.
-			// (Deliberately checking the private member here rather than the property accessor; the accessor will
-			// create a new ScrollHelper if needed, and there's no reason to do that until a Scroll is requested.)
-			_scrollHelper?.AdjustScroll();
 		}
 
 		protected override void Dispose(bool disposing)

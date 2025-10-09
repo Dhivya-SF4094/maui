@@ -1,10 +1,8 @@
 ﻿#nullable disable
 using System;
 using Android.Content;
-using Microsoft.Maui;
 using Android.Views;
 using Microsoft.Maui.Graphics;
-using Microsoft.Maui.Platform;
 using AView = Android.Views.View;
 
 namespace Microsoft.Maui.Controls.Handlers.Items
@@ -234,7 +232,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		{
 			if (this.IsAlive())
 			{
-				this.RequestLayout();
+				PlatformInterop.RequestLayoutIfNeeded(this);
 			}
 			else if (sender is VisualElement ve)
 			{
