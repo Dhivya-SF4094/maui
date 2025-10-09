@@ -13,7 +13,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		where TItemsViewSource : IItemsViewSource
 	{
 		Size? _size;
-		int _sizeOrientation = -1;
 
 		// I'm storing this here because in the children I'm using a weakreference and
 		// I don't want this action to get GC'd
@@ -24,23 +23,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			Func<View, Context, ItemContentView> createItemContentView = null) : base(itemsView, createItemContentView)
 		{
 			_reportMeasure = SetStaticSize;
-			_retrieveStaticSize = () =>
-			{
-				// Only return the cached size if the device orientation hasn't changed
-				try
-				{
-					var currentOrientation = ItemsView?.FindMauiContext()?.Context?.Resources != null
-						? (int)ItemsView.FindMauiContext().Context.Resources.Configuration.Orientation
-						: -1;
-					if (_size is not null && currentOrientation == _sizeOrientation)
-						return _size;
-				}
-				catch
-				{
-					// ignore and fall through to return null
-				}
-				return null;
-			};
+			_retrieveStaticSize = () => _size ?? null;
 
 			UpdateHasHeader();
 			UpdateHasFooter();
@@ -184,16 +167,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		void SetStaticSize(Size size)
 		{
 			_size = size;
-			try
-			{
-				_sizeOrientation = ItemsView?.FindMauiContext()?.Context?.Resources != null
-					? (int)ItemsView.FindMauiContext().Context.Resources.Configuration.Orientation
-					: -1;
-			}
-			catch
-			{
-				_sizeOrientation = -1;
-			}
 		}
 	}
 }

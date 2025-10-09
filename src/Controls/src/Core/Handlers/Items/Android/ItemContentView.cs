@@ -12,7 +12,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 	public class ItemContentView : ViewGroup
 	{
 		Size? _pixelSize;
-		int _cachedOrientation = -1;
 		WeakReference _reportMeasure;
 		WeakReference _retrieveStaticSize;
 		int _previousPixelWidth = -1;
@@ -28,15 +27,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 		public ItemContentView(Context context) : base(context)
 		{
-			//Capture the current orientation so we can detect changes locally
-			try
-			{
-				_cachedOrientation = context?.Resources != null ? (int)context.Resources.Configuration.Orientation : -1;
-			}
-			catch
-			{
-				_cachedOrientation = -1;
-			}
 		}
 
 		internal void ClickOn() => CallOnClick();
@@ -127,24 +117,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 		protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
-			// Detect orientation change at the view level and clear cached pixel size so
-			// the view will re-measure using the new constraints. This avoids relying
-			// on adapter-level notifications and handles cases where some cells may
-			// still have stale cached sizes after a rotation.
-			try
-			{
-				var currentOrientation = Context?.Resources != null ? (int)Context.Resources.Configuration.Orientation : -1;
-				if (_cachedOrientation != -1 && currentOrientation != _cachedOrientation)
-				{
-					_pixelSize = null;
-				}
-				_cachedOrientation = currentOrientation;
-			}
-			catch
-			{
-				// ignore any platform query failures and continue measuring
-			}
-
 			if (Content == null)
 			{
 				SetMeasuredDimension(0, 0);
