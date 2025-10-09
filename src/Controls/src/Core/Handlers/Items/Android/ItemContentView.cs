@@ -1,8 +1,10 @@
 ﻿#nullable disable
 using System;
 using Android.Content;
+using Microsoft.Maui;
 using Android.Views;
 using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Platform;
 using AView = Android.Views.View;
 
 namespace Microsoft.Maui.Controls.Handlers.Items
@@ -10,6 +12,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 	public class ItemContentView : ViewGroup
 	{
 		Size? _pixelSize;
+		int _cachedOrientation = -1;
 		WeakReference _reportMeasure;
 		WeakReference _retrieveStaticSize;
 		int _previousPixelWidth = -1;
@@ -25,6 +28,15 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 		public ItemContentView(Context context) : base(context)
 		{
+			//Capture the current orientation so we can detect changes locally
+			try
+			{
+				_cachedOrientation = context?.Resources != null ? (int)context.Resources.Configuration.Orientation : -1;
+			}
+			catch
+			{
+				_cachedOrientation = -1;
+			}
 		}
 
 		internal void ClickOn() => CallOnClick();
@@ -73,6 +85,27 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			_previousPixelHeight = -1;
 		}
 
+		// Clear cached pixel size and request a layout pass so the view will re-measure
+		internal void ClearCachedMeasure()
+		{
+			_pixelSize = null;
+			_previousPixelWidth = -1;
+			_previousPixelHeight = -1;
+
+			// Request a layout so the new size is applied
+			try
+			{
+				// Best-effort: request a layout pass. In some environments PlatformInterop
+				// provides a smarter request when already in a layout pass; RequestLayout
+				// is sufficient for our purposes here.
+				this.RequestLayout();
+			}
+			catch
+			{
+				// best-effort
+			}
+		}
+
 		internal void HandleItemSizingStrategy(Action<Size> reportMeasure, Size? size)
 		{
 			_reportMeasure = new WeakReference(reportMeasure);
@@ -94,6 +127,24 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 		protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
+			// Detect orientation change at the view level and clear cached pixel size so
+			// the view will re-measure using the new constraints. This avoids relying
+			// on adapter-level notifications and handles cases where some cells may
+			// still have stale cached sizes after a rotation.
+			try
+			{
+				var currentOrientation = Context?.Resources != null ? (int)Context.Resources.Configuration.Orientation : -1;
+				if (_cachedOrientation != -1 && currentOrientation != _cachedOrientation)
+				{
+					_pixelSize = null;
+				}
+				_cachedOrientation = currentOrientation;
+			}
+			catch
+			{
+				// ignore any platform query failures and continue measuring
+			}
+
 			if (Content == null)
 			{
 				SetMeasuredDimension(0, 0);
@@ -211,7 +262,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 		{
 			if (this.IsAlive())
 			{
-				PlatformInterop.RequestLayoutIfNeeded(this);
+				this.RequestLayout();
 			}
 			else if (sender is VisualElement ve)
 			{

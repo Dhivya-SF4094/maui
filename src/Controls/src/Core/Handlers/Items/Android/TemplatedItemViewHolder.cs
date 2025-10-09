@@ -44,6 +44,12 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			itemsView.RemoveLogicalChild(View);
 		}
 
+		// Clear any cached measurement on the hosted ItemContentView so it will re-measure
+		internal void ClearCachedMeasure()
+		{
+			_itemContentView?.ClearCachedMeasure();
+		}
+
 		public void Bind(object itemBindingContext, ItemsView itemsView,
 			Action<Size> reportMeasure = null, Size? size = null)
 		{

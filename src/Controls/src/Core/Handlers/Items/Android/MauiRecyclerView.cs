@@ -43,6 +43,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 		ItemTouchHelper _itemTouchHelper;
 		SimpleItemTouchHelperCallback _itemTouchHelperCallback;
+		int _lastMeasuredWidth = -1;
 		WeakNotifyPropertyChangedProxy _layoutPropertyChangedProxy;
 		PropertyChangedEventHandler _layoutPropertyChanged;
 
@@ -531,6 +532,17 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				UpdateItemSpacing();
 			}
 		}
+		// protected override void OnSizeChanged(int w, int h, int oldw, int oldh)
+		// {
+		// 	base.OnSizeChanged(w, h, oldw, oldh);
+
+		// 	// Force the adapter to rebind all visible views to ensure they use the correct width
+		// 	if (ItemsViewAdapter is not null && ItemsViewAdapter.ItemCount > 0)
+		// 	{
+		// 		ItemsViewAdapter.NotifyDataSetChanged();
+		// 	}
+
+		// }
 
 		protected override void OnLayout(bool changed, int l, int t, int r, int b)
 		{
@@ -538,6 +550,34 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 #pragma warning disable CS0618 // Obsolete
 			AViewCompat.SetClipBounds(this, new ARect(0, 0, Width, Height));
 #pragma warning restore CS0618 // Obsolete
+
+			// If the width changed since the last layout pass, some visible item views may still
+			// have cached pixel sizes from the previous orientation/width. Clear those caches
+			// so they will re-measure with the new constraints. This avoids calling
+			// NotifyDataSetChanged() which is expensive and will recreate all view holders.
+			try
+			{
+				if (Width != _lastMeasuredWidth && ItemsViewAdapter != null && ItemsViewAdapter.ItemCount > 0)
+				{
+					_lastMeasuredWidth = Width;
+					// Iterate visible child views and clear their cached measurements
+					for (int i = 0; i < ChildCount; i++)
+					{
+						var child = GetChildAt(i);
+						if (child == null)
+							continue;
+						var holder = GetChildViewHolder(child) as TemplatedItemViewHolder;
+						if (holder != null)
+						{
+							holder.ClearCachedMeasure();
+						}
+					}
+				}
+			}
+			catch
+			{
+				// Best effort: don't crash layout on any unexpected failure
+			}
 
 			// After a direct (non-animated) scroll operation, we may need to make adjustments
 			// to align the target item; if an adjustment is pending, execute it here.
