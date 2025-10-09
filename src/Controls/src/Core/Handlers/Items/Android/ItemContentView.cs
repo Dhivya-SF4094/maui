@@ -80,18 +80,11 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			_previousPixelWidth = -1;
 			_previousPixelHeight = -1;
 
-			// Request a layout so the new size is applied
-			try
-			{
-				// Best-effort: request a layout pass. In some environments PlatformInterop
-				// provides a smarter request when already in a layout pass; RequestLayout
-				// is sufficient for our purposes here.
-				this.RequestLayout();
-			}
-			catch
-			{
-				// best-effort
-			}
+
+			// Best-effort: request a layout pass. In some environments PlatformInterop
+			// provides a smarter request when already in a layout pass; RequestLayout
+			// is sufficient for our purposes here.
+			this.RequestLayout();
 		}
 
 		internal void HandleItemSizingStrategy(Action<Size> reportMeasure, Size? size)
