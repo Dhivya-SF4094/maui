@@ -11,6 +11,14 @@ namespace Microsoft.Maui.Handlers
 			VirtualView?.Background != null ||
 			base.NeedsContainer;
 
+		public override void PlatformArrange(Rect rect)
+		{
+			base.PlatformArrange(rect);
+
+			// Invalidate the shape when bounds change to ensure proper redrawing
+			PlatformView?.InvalidateShape(VirtualView);
+		}
+
 		public static void MapShape(IShapeViewHandler handler, IShapeView shapeView)
 		{
 			handler.PlatformView?.UpdateShape(shapeView);
