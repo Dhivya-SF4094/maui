@@ -2,4 +2,36 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui.Controls.Sample.MainPage"
              xmlns:local="clr-namespace:Maui.Controls.Sample">
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="30,0" VerticalOptions="Center">
+
+            <Label x:Name="WelcomeLabel"
+                   Text="CharacterSpacing SearchBar Test"
+                   FontSize="18"
+                   HorizontalOptions="Center" />
+
+            <Label Text="SearchBar with CharacterSpacing=5 and placeholder:" />
+            <SearchBar Placeholder="Type here to search..."
+                       CharacterSpacing="5"
+                       BackgroundColor="LightGray"
+                       x:Name="TestSearchBar" />
+
+            <Label Text="SearchBar with CharacterSpacing=10 and placeholder:" />
+            <SearchBar Placeholder="Another test placeholder"
+                       CharacterSpacing="10"
+                       BackgroundColor="LightBlue"
+                       x:Name="TestSearchBar2" />
+
+            <Label Text="Normal SearchBar (no CharacterSpacing):" />
+            <SearchBar Placeholder="Normal placeholder text"
+                       BackgroundColor="LightYellow"
+                       x:Name="NormalSearchBar" />
+
+            <Button x:Name="TestButton"
+                    Text="Test CharacterSpacing"
+                    Clicked="OnTestButtonClicked"
+                    HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

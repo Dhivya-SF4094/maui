@@ -129,5 +129,24 @@ namespace Microsoft.Maui.DeviceTests
 
 			return Colors.Transparent;
 		}
+
+		double GetNativeCharacterSpacing(SearchBarHandler searchBarHandler)
+		{
+			var platformSearchBar = GetNativeSearchBar(searchBarHandler);
+			return platformSearchBar.CharacterSpacing;
+		}
+
+		double GetNativePlaceholderCharacterSpacing(SearchBarHandler searchBarHandler)
+		{
+			var platformSearchBar = GetNativeSearchBar(searchBarHandler);
+			var textBox = platformSearchBar.GetFirstDescendant<TextBox>();
+
+			if (textBox is not null)
+			{
+				return textBox.CharacterSpacing;
+			}
+
+			return 0;
+		}
 	}
 }
