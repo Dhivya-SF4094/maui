@@ -201,7 +201,13 @@ namespace Microsoft.Maui.Controls
 		void OnNavigationViewSizeChanged(object sender, SizeChangedEventArgs e)
 		{
 			if (_navigationView != null)
+			{
+				if (CurrentPage is not null && (e.PreviousSize.Width != e.NewSize.Width || e.PreviousSize.Height != e.NewSize.Height))
+				{
+					CurrentPage.InvalidateMeasure();
+				}
 				this.Arrange(_navigationView);
+			}
 		}
 
 		void SetupNavigationView()
