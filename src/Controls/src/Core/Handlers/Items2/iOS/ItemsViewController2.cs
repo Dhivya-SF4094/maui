@@ -314,7 +314,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 				}
 			}
 
-			if (_emptyViewDisplayed)
+			if (_emptyViewDisplayed && _emptyUIView != null)
 			{
 				AlignEmptyView();
 			}
@@ -514,40 +514,23 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 
 		void AlignEmptyView()
 		{
-			if (_emptyUIView == null)
+			// Update FlowDirection on the EmptyView
+			if (_emptyViewFormsElement != null)
 			{
-				return;
-			}
-
-			bool isRtl;
-
-			if (OperatingSystem.IsIOSVersionAtLeast(10) || OperatingSystem.IsTvOSVersionAtLeast(10))
-				isRtl = CollectionView.EffectiveUserInterfaceLayoutDirection == UIUserInterfaceLayoutDirection.RightToLeft;
-			else
-				isRtl = CollectionView.SemanticContentAttribute == UISemanticContentAttribute.ForceRightToLeft;
-
-			if (isRtl)
-			{
-				if (_emptyUIView.Transform.A == -1)
+				// Case 1: EmptyView is a View or created from a DataTemplate (has a Forms element)
+				_emptyViewFormsElement.FlowDirection = ItemsView.FlowDirection;
+				if (_emptyViewFormsElement.Handler?.PlatformView is UIView emptyView)
 				{
-					return;
-				}
-
-				FlipEmptyView();
-			}
-			else
-			{
-				if (_emptyUIView.Transform.A == -1)
-				{
-					FlipEmptyView();
+					emptyView.UpdateFlowDirection(_emptyViewFormsElement);
 				}
 			}
-		}
-
-		void FlipEmptyView()
-		{
-			// Flip the empty view 180 degrees around the X axis 
-			_emptyUIView.Transform = CGAffineTransform.Scale(_emptyUIView.Transform, -1, 1);
+			else if (_emptyUIView is UILabel label)
+			{
+				// For UILabel, also update text alignment based on FlowDirection
+				label.TextAlignment = ItemsView.FlowDirection == FlowDirection.RightToLeft
+					? UITextAlignment.Right
+					: UITextAlignment.Left;
+			}
 		}
 
 		void ShowEmptyView()
