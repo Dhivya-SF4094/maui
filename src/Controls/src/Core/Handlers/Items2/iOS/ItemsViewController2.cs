@@ -527,9 +527,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			else if (_emptyUIView is UILabel label)
 			{
 				// For UILabel, also update text alignment based on FlowDirection
-				label.TextAlignment = ItemsView.FlowDirection == FlowDirection.RightToLeft
-					? UITextAlignment.Right
-					: UITextAlignment.Left;
+				label.TextAlignment = UITextAlignment.Center;
 			}
 		}
 
