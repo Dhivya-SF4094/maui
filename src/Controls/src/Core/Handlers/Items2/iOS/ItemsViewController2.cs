@@ -514,11 +514,9 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 
 		void AlignEmptyView()
 		{
-			// Update FlowDirection on the EmptyView
 			if (_emptyViewFormsElement != null)
 			{
-				// Case 1: EmptyView is a View or created from a DataTemplate (has a Forms element)
-				_emptyViewFormsElement.FlowDirection = ItemsView.FlowDirection;
+				// Update flow direction for EmptyView 
 				if (_emptyViewFormsElement.Handler?.PlatformView is UIView emptyView)
 				{
 					emptyView.UpdateFlowDirection(_emptyViewFormsElement);
@@ -526,7 +524,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			}
 			else if (_emptyUIView is UILabel label)
 			{
-				// For UILabel, also update text alignment based on FlowDirection
+				// For UILabel, always set to center for better UX
 				label.TextAlignment = UITextAlignment.Center;
 			}
 		}
