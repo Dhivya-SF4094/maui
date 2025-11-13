@@ -84,6 +84,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			{
 				case DefaultCell2 defaultCell:
 					UpdateDefaultSupplementaryView(defaultCell, elementKind);
+					defaultCell.Label.UpdateFlowDirection(ItemsView);
 					break;
 				case TemplatedCell2 templatedCell:
 					UpdateTemplatedSupplementaryView(templatedCell, elementKind);
@@ -254,6 +255,38 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 					{
 						collectionView.CollectionViewLayout.InvalidateLayout();
 						return;
+					}
+				}
+			}
+		}
+
+		public override void UpdateFlowDirection()
+		{
+			base.UpdateFlowDirection();
+
+			if (ItemsView.Header != null || ItemsView.HeaderTemplate != null)
+			{
+				var visibleHeaders = CollectionView.GetVisibleSupplementaryViews(UICollectionElementKindSectionKey.Header);
+				foreach (var header in visibleHeaders)
+				{
+					if (header is DefaultCell2 defaultHeaderCell)
+					{
+						// header string
+						defaultHeaderCell.Label.UpdateFlowDirection(ItemsView);
+					}
+				}
+			}
+
+			// Update flow direction for footers (string, View, or templated)
+			if (ItemsView.Footer != null || ItemsView.FooterTemplate != null)
+			{
+				var visibleFooters = CollectionView.GetVisibleSupplementaryViews(UICollectionElementKindSectionKey.Footer);
+				foreach (var footer in visibleFooters)
+				{
+					if (footer is DefaultCell2 defaultFooterCell)
+					{
+						// footer string
+						defaultFooterCell.Label.UpdateFlowDirection(ItemsView);
 					}
 				}
 			}
