@@ -514,7 +514,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 
 		void AlignEmptyView()
 		{
-			if (_emptyViewFormsElement != null)
+			if (_emptyViewFormsElement is not null)
 			{
 				// Update flow direction for EmptyView 
 				if (_emptyViewFormsElement.Handler?.PlatformView is UIView emptyView)
