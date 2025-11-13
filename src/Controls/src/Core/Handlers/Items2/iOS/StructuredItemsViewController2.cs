@@ -271,8 +271,17 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 				{
 					if (header is DefaultCell2 defaultHeaderCell)
 					{
-						// header string
+						// String-based header
 						defaultHeaderCell.Label.UpdateFlowDirection(ItemsView);
+					}
+					else if (header is TemplatedCell2 templatedHeaderCell && ItemsView.ItemTemplate is null)
+					{
+						// View or templated header
+						if (templatedHeaderCell.PlatformHandler?.VirtualView is VisualElement ve &&
+						 ve.Handler?.PlatformView is UIView view)
+						{
+							view.UpdateFlowDirection(ve);
+						}
 					}
 				}
 			}
@@ -285,8 +294,17 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 				{
 					if (footer is DefaultCell2 defaultFooterCell)
 					{
-						// footer string
+						// String-based footer
 						defaultFooterCell.Label.UpdateFlowDirection(ItemsView);
+					}
+					else if (footer is TemplatedCell2 templatedFooterCell && ItemsView.ItemTemplate is null)
+					{
+						// View or templated footer
+						if (templatedFooterCell.PlatformHandler?.VirtualView is VisualElement ve &&
+						 ve.Handler?.PlatformView is UIView view)
+						{
+							view.UpdateFlowDirection(ve);
+						}
 					}
 				}
 			}

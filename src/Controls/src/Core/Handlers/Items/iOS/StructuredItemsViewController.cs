@@ -227,5 +227,55 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			var size = base.GetSize();
 			return new Size(size.Value.Width, size.Value.Height + (_headerUIView?.Frame.Height ?? 0) + (_footerUIView?.Frame.Height ?? 0));
 		}
+
+		public override void UpdateFlowDirection()
+		{
+			base.UpdateFlowDirection();
+
+			if (ItemsView.Header != null || ItemsView.HeaderTemplate != null)
+			{
+				var visibleHeaders = CollectionView.GetVisibleSupplementaryViews(UICollectionElementKindSectionKey.Header);
+				foreach (var header in visibleHeaders)
+				{
+					if (header is DefaultCell defaultHeaderCell)
+					{
+						// String-based header
+						defaultHeaderCell.Label.UpdateFlowDirection(ItemsView);
+					}
+					else if (header is TemplatedCell templatedHeaderCell && ItemsView.ItemTemplate is null)
+					{
+						// View or templated header
+						if (templatedHeaderCell.PlatformHandler?.VirtualView is VisualElement ve &&
+						 ve.Handler?.PlatformView is UIView view)
+						{
+							view.UpdateFlowDirection(ve);
+						}
+					}
+				}
+			}
+
+			// Update flow direction for footers (string, View, or templated)
+			if (ItemsView.Footer != null || ItemsView.FooterTemplate != null)
+			{
+				var visibleFooters = CollectionView.GetVisibleSupplementaryViews(UICollectionElementKindSectionKey.Footer);
+				foreach (var footer in visibleFooters)
+				{
+					if (footer is DefaultCell defaultFooterCell)
+					{
+						// String-based footer
+						defaultFooterCell.Label.UpdateFlowDirection(ItemsView);
+					}
+					else if (footer is TemplatedCell templatedFooterCell && ItemsView.ItemTemplate is null)
+					{
+						// View or templated footer
+						if (templatedFooterCell.PlatformHandler?.VirtualView is VisualElement ve &&
+						 ve.Handler?.PlatformView is UIView view)
+						{
+							view.UpdateFlowDirection(ve);
+						}
+					}
+				}
+			}
+		}
 	}
 }
