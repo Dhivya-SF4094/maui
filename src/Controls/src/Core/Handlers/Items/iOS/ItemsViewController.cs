@@ -454,7 +454,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				}
 			}
 
-			if (_emptyViewDisplayed && _emptyUIView != null)
+			if (_emptyViewDisplayed)
 			{
 				AlignEmptyView();
 			}
