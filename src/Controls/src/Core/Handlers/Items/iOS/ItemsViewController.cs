@@ -431,25 +431,25 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 			if (ItemsView.Handler.PlatformView is UIView itemsView)
 			{
 				itemsView.UpdateFlowDirection(ItemsView);
-
-				foreach (var child in ItemsView.LogicalChildrenInternal)
+				if (ItemsView.ItemTemplate is not null)
 				{
-					if (child is VisualElement ve && ve.Handler?.PlatformView is UIView view)
+					foreach (var child in ItemsView.LogicalChildrenInternal)
 					{
-						view.UpdateFlowDirection(ve);
-						// initially flow direction is not set for EmptyView  template from here.
-						//  but for futher it is updated for template.
-
-						// For emptyView, both initially and further updates are made here.
+						if (child is VisualElement ve && ve.Handler?.PlatformView is UIView view)
+						{
+							view.UpdateFlowDirection(ve);
+						}
 					}
 				}
-
-				// Update the default cell's flow direction
-				if (CollectionView?.VisibleCells is UICollectionViewCell[] visibleCells)
+				else
 				{
-					foreach (var cell in visibleCells.OfType<DefaultCell>())
+					// Update the default cell's flow direction
+					if (CollectionView?.VisibleCells is UICollectionViewCell[] visibleCells)
 					{
-						cell.Label.UpdateFlowDirection(ItemsView);
+						foreach (var cell in visibleCells.OfType<DefaultCell>())
+						{
+							cell.Label.UpdateFlowDirection(ItemsView);
+						}
 					}
 				}
 			}
