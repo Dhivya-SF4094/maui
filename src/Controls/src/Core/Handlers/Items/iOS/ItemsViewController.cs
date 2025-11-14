@@ -443,7 +443,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 				}
 				else
 				{
-					// Update the default cell's flow direction
+					// If we don't have an ItemTemplate, then we need to update the default cell's flow direction
 					if (CollectionView?.VisibleCells is UICollectionViewCell[] visibleCells)
 					{
 						foreach (var cell in visibleCells.OfType<DefaultCell>())
