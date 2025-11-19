@@ -84,6 +84,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			{
 				case DefaultCell2 defaultCell:
 					UpdateDefaultSupplementaryView(defaultCell, elementKind);
+					defaultCell.Label.UpdateFlowDirection(ItemsView);
 					break;
 				case TemplatedCell2 templatedCell:
 					UpdateTemplatedSupplementaryView(templatedCell, elementKind);
@@ -124,8 +125,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			cell.Tag = elementKind == UICollectionElementKindSectionKey.Header
 				? HeaderTag
 				: FooterTag;
-
-			UpdateFlowDirection();
 		}
 
 		void UpdateTemplatedSupplementaryView(TemplatedCell2 cell, NSString elementKind)
