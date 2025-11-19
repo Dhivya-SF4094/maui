@@ -21,21 +21,39 @@ public class HeaderFooterFlowDirection : ContentPage
 
         CollectionView2 headerFooterView = new CollectionView2
         {
-            EmptyView = new Label
+            EmptyView = new Grid
             {
-                Text = "No items to display"
+                Children =
+                {
+                    new Label
+                    {
+                    Text = "No items to display"
+                    }
+                }
             },
-            Header = new Label
+            Header = new Grid
             {
-                Text = "Header View",
+                Children =
+                {
+                    new Label
+                    {
+                    Text = "Header View",
+                    }
+                }
             },
-            Footer = new Label
+            Footer = new Grid
             {
-                Text = "Footer View"
+                Children =
+                {
+                    new Label
+                    {
+                    Text = "Footer View"
+                    }
+                }
             }
         };
         headerFooterView.FlowDirection = FlowDirection.LeftToRight;
-        Grid.SetRow(headerFooterView, 1);
+        Grid.SetRow(headerFooterView, 2);
         CollectionView2 headerFooterStringView = new CollectionView2
         {
             EmptyView = "No items to display",
@@ -44,11 +62,17 @@ public class HeaderFooterFlowDirection : ContentPage
             Background = Colors.Gray
         };
         headerFooterStringView.FlowDirection = FlowDirection.LeftToRight;
-        Grid.SetRow(headerFooterStringView, 2);
+        Grid.SetRow(headerFooterStringView, 1);
 
         CollectionView2 headerFooterTemplateView = new CollectionView2
         {
-            EmptyView = "No items to display",
+            EmptyViewTemplate = new DataTemplate(() =>
+            {
+                return new Label
+                {
+                    Text = "No items to display"
+                };
+            }),
             HeaderTemplate = new DataTemplate(() =>
             {
                 return new Label
@@ -93,8 +117,6 @@ public class HeaderFooterFlowDirection : ContentPage
         grid.Children.Add(headerFooterStringView);
         grid.Children.Add(headerFooterView);
         grid.Children.Add(headerFooterTemplateView);
-
-
         Content = grid;
     }
 }
