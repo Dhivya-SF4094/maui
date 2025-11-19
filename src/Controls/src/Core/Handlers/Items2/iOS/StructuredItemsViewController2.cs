@@ -264,48 +264,40 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 		{
 			base.UpdateFlowDirection();
 
-			if (ItemsView.Header != null || ItemsView.HeaderTemplate != null)
-			{
-				var visibleHeaders = CollectionView.GetVisibleSupplementaryViews(UICollectionElementKindSectionKey.Header);
-				foreach (var header in visibleHeaders)
-				{
-					if (header is DefaultCell2 defaultHeaderCell)
-					{
-						// String-based header
-						defaultHeaderCell.Label.UpdateFlowDirection(ItemsView);
-					}
-					else if (header is TemplatedCell2 templatedHeaderCell && ItemsView.ItemTemplate is null)
-					{
-						// View or templated header
-						if (templatedHeaderCell.PlatformHandler?.VirtualView is VisualElement ve &&
-						 ve.Handler?.PlatformView is UIView view)
-						{
-							view.UpdateFlowDirection(ve);
-						}
-					}
-				}
-			}
+			UpdateSupplementaryViewsFlowDirection(
+				ItemsView.Header,
+				ItemsView.HeaderTemplate,
+				UICollectionElementKindSectionKey.Header
+			);
 
-			// Update flow direction for footers (string, View, or templated)
-			if (ItemsView.Footer != null || ItemsView.FooterTemplate != null)
+			UpdateSupplementaryViewsFlowDirection(
+				ItemsView.Footer,
+				ItemsView.FooterTemplate,
+				UICollectionElementKindSectionKey.Footer
+			);
+		}
+
+		void UpdateSupplementaryViewsFlowDirection(object content, DataTemplate template, NSString elementKind)
+		{
+			if (content is null && template is null)
+				return;
+
+			var visibleViews = CollectionView.GetVisibleSupplementaryViews(elementKind);
+
+			foreach (var view in visibleViews)
 			{
-				var visibleFooters = CollectionView.GetVisibleSupplementaryViews(UICollectionElementKindSectionKey.Footer);
-				foreach (var footer in visibleFooters)
+				if (view is DefaultCell2 defaultCell)
 				{
-					if (footer is DefaultCell2 defaultFooterCell)
-					{
-						// String-based footer
-						defaultFooterCell.Label.UpdateFlowDirection(ItemsView);
-					}
-					else if (footer is TemplatedCell2 templatedFooterCell && ItemsView.ItemTemplate is null)
-					{
-						// View or templated footer
-						if (templatedFooterCell.PlatformHandler?.VirtualView is VisualElement ve &&
-						 ve.Handler?.PlatformView is UIView view)
-						{
-							view.UpdateFlowDirection(ve);
-						}
-					}
+					// String-based header/footer
+					defaultCell.Label.UpdateFlowDirection(ItemsView);
+				}
+				else if (view is TemplatedCell2 templatedCell &&
+					ItemsView.ItemTemplate is null &&
+					templatedCell.PlatformHandler?.VirtualView is VisualElement ve &&
+					ve.Handler?.PlatformView is UIView uiView)
+				{
+					// View or templated header/footer
+					uiView.UpdateFlowDirection(ve);
 				}
 			}
 		}
