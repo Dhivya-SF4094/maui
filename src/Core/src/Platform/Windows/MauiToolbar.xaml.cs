@@ -85,6 +85,19 @@ namespace Microsoft.Maui.Platform
 			if (brush != null)
 			{
 				title.Foreground = brush;
+				// Also set as a resource to prevent theme overrides
+				title.Resources["TextControlForeground"] = brush;
+				title.Resources["TextControlForegroundPointerOver"] = brush;
+				title.Resources["TextControlForegroundFocused"] = brush;
+				title.Resources["TextControlForegroundDisabled"] = brush;
+			}
+			else
+			{
+				title.ClearValue(TextBlock.ForegroundProperty);
+				title.Resources.Remove("TextControlForeground");
+				title.Resources.Remove("TextControlForegroundPointerOver");
+				title.Resources.Remove("TextControlForegroundFocused");
+				title.Resources.Remove("TextControlForegroundDisabled");
 			}
 
 			_menuBarForeground = brush;
