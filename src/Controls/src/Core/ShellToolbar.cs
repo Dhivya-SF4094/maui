@@ -40,8 +40,6 @@ namespace Microsoft.Maui.Controls
 				}
 				else if (p.Is(Shell.TitleProperty))
 					UpdateTitle();
-				else if (p.Is(Shell.TitleColorProperty))
-					UpdateShellTitleColor();
 			};
 
 			shell.HandlerChanged += (_, __) => ApplyChanges();
@@ -103,7 +101,6 @@ namespace Microsoft.Maui.Controls
 			ToolbarItems = _toolbarTracker.ToolbarItems;
 
 			UpdateTitle();
-			UpdateShellTitleColor();
 
 			Func<bool> getDefaultNavBarIsVisible = () =>
 			{
@@ -192,17 +189,6 @@ namespace Microsoft.Maui.Controls
 			else
 			{
 				Title = String.Empty;
-			}
-		}
-
-		void UpdateShellTitleColor()
-		{
-			// Apply Shell's TitleColor to the toolbar when Shell.TitleColor is set
-			// This handles the case where Shell itself (not ShellContent/ShellSection) has a TitleColor
-			var titleColor = Shell.GetTitleColor(_shell);
-			if (titleColor != null)
-			{
-				BarTextColor = titleColor;
 			}
 		}
 	}
