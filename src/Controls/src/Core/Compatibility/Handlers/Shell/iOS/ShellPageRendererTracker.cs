@@ -522,17 +522,10 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 					// because the navigation bar's tint color is not automatically inherited
 					if (OperatingSystem.IsIOSVersionAtLeast(26) || OperatingSystem.IsMacCatalystVersionAtLeast(26))
 					{
-						var shell = _context?.Shell;
-						if (shell is null)
+						var navigationBar = ViewController?.NavigationController?.NavigationBar;
+						if (navigationBar?.TintColor is not null)
 						{
-							return;
-						}
-
-						// Get the foreground color from Shell
-						var foregroundColor = Shell.GetForegroundColor(shell);
-						if (foregroundColor is not null)
-						{
-							NavigationItem.LeftBarButtonItem.TintColor = foregroundColor.ToPlatform();
+							NavigationItem.LeftBarButtonItem.TintColor = navigationBar.TintColor;
 						}
 					}
 				}
