@@ -935,6 +935,8 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			}
 
 			_searchController = new UISearchController(_resultsRenderer?.ViewController);
+			// Prevent the nav bar from hiding and avoid background dim which can accentuate gaps
+			_searchController.HidesNavigationBarDuringPresentation = false;
 			var visibility = SearchHandler.SearchBoxVisibility;
 			if (visibility != SearchBoxVisibility.Hidden)
 			{
