@@ -181,6 +181,13 @@ namespace Microsoft.Maui.Controls.Platform
 				}
 
 				_visualElement.BindingContext = dataContext;
+				
+				// Establish logical parent relationship first
+				itemsView?.AddLogicalChild(_visualElement);
+				
+				// Make sure properties (including inherited styles) are available when the handler is created
+				PropertyPropagationExtensions.PropagatePropertyChanged(null, _visualElement, itemsView);
+				
 				_handler = _visualElement.ToHandler(mauiContext);
 
 				// We need to set IsPlatformStateConsistent explicitly; otherwise, it won't be set until the renderer's Loaded 
@@ -208,8 +215,6 @@ namespace Microsoft.Maui.Controls.Platform
 			{
 				Content = new ContentLayoutPanel(_handler.VirtualView);
 			}
-
-			itemsView?.AddLogicalChild(_visualElement);
 
 			if (itemsView is SelectableItemsView selectableItemsView && selectableItemsView.SelectionMode is not SelectionMode.None)
 			{
