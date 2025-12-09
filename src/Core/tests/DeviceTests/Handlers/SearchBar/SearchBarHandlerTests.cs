@@ -325,6 +325,39 @@ namespace Microsoft.Maui.DeviceTests
 			});
 		}
 
+		[Fact(DisplayName = "CharacterSpacing Initializes Correctly")]
+		public async Task CharacterSpacingInitializesCorrectly()
+		{
+			var xplatCharacterSpacing = 4;
+
+			var searchBar = new SearchBarStub()
+			{
+				CharacterSpacing = xplatCharacterSpacing,
+				Text = "Test Text"
+			};
+
+			await ValidatePropertyInitValue(searchBar, () => searchBar.CharacterSpacing, GetNativeCharacterSpacing, xplatCharacterSpacing);
+		}
+
+		[Fact(DisplayName = "Placeholder CharacterSpacing Initializes Correctly")]
+		public async Task PlaceholderCharacterSpacingInitializesCorrectly()
+		{
+			var xplatCharacterSpacing = 5;
+
+			var searchBar = new SearchBarStub()
+			{
+				CharacterSpacing = xplatCharacterSpacing,
+				Placeholder = "Search here..."
+			};
+
+			// Need to attach to ensure AutoSuggestBox internal TextBox is created
+			await AttachAndRun(searchBar, async (searchBarHandler) =>
+			{
+				await AssertEventually(() => searchBarHandler.PlatformView.IsLoaded());
+				await ValidatePropertyInitValue(searchBar, () => searchBar.CharacterSpacing, GetNativePlaceholderCharacterSpacing, xplatCharacterSpacing);
+			});
+		}
+
 		// TODO: JD - re-enable these tests for windows. Seems they were disabled because there is no implementation of "GetNativeKeyboard" in the .Windows test file
 #if !WINDOWS
 		[Theory]
