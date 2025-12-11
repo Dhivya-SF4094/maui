@@ -71,7 +71,6 @@ public static partial class AppHostBuilderExtensions
 		handlersCollection.AddHandler<CarouselView, CarouselViewHandler>();
 #endif
 		handlersCollection.AddHandler<Application, ApplicationHandler>();
-		handlersCollection.AddHandler<ActivityIndicator, ActivityIndicatorHandler>();
 		handlersCollection.AddHandler<BoxView, BoxViewHandler>();
 		handlersCollection.AddHandler<Button, ButtonHandler>();
 		handlersCollection.AddHandler<DatePicker, DatePickerHandler>();
@@ -91,13 +90,18 @@ public static partial class AppHostBuilderExtensions
 		{
 			handlersCollection.AddHandler<Slider, MaterialSliderHandler>();
 			handlersCollection.AddHandler<Switch, MaterialSwitchHandler>();
+			handlersCollection.AddHandler<ActivityIndicator, MaterialActivityIndicatorHandler>();
 		}
 		else
 		{
 			handlersCollection.AddHandler<Slider, SliderHandler>();
 			handlersCollection.AddHandler<Switch, SwitchHandler>();
+					handlersCollection.AddHandler<ActivityIndicator, ActivityIndicatorHandler>();
+
 		}
 #else
+		handlersCollection.AddHandler<ActivityIndicator, ActivityIndicatorHandler>();
+
 		handlersCollection.AddHandler(typeof(Slider), typeof(SliderHandler));
 		handlersCollection.AddHandler<Switch, SwitchHandler>();
 #endif
