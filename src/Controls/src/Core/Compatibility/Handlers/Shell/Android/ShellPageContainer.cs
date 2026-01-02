@@ -1,5 +1,6 @@
 #nullable disable
 using Android.Content;
+using Android.Util;
 using Android.Views;
 using AndroidX.Core.Content;
 using Microsoft.Maui.Controls.Handlers.Compatibility;
@@ -14,6 +15,8 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 	{
 		static int? DarkBackground;
 		static int? LightBackground;
+		static int? Material3DarkBackground;
+		static int? Material3LightBackground;
 
 
 		public IViewHandler Child { get; set; }
@@ -27,10 +30,29 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			if (child.VirtualView.Background == null)
 			{
 				int color;
-				if (ShellRenderer.IsDarkTheme)
-					color = DarkBackground ??= ContextCompat.GetColor(context, AColorRes.BackgroundDark);
+				if (RuntimeFeature.IsMaterial3Enabled)
+				{
+					// Use Material 3 colorSurface with separate caching for light and dark themes
+					if (ShellRenderer.IsDarkTheme)
+					{
+						color = Material3DarkBackground ??= ResolveColorSurface(context);
+					}
+					else
+					{
+						color = Material3LightBackground ??= ResolveColorSurface(context);
+					}
+				}
 				else
-					color = LightBackground ??= ContextCompat.GetColor(context, AColorRes.BackgroundLight);
+				{
+					if (ShellRenderer.IsDarkTheme)
+					{
+						color = DarkBackground ??= ContextCompat.GetColor(context, AColorRes.BackgroundDark);
+					}
+					else
+					{
+						color = LightBackground ??= ContextCompat.GetColor(context, AColorRes.BackgroundLight);
+					}
+				}
 
 				child.PlatformView.SetBackgroundColor(new AColor(color));
 			}
@@ -56,6 +78,13 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			}
 			else
 				SetMeasuredDimension(0, 0);
+		}
+
+		static int ResolveColorSurface(Context context)
+		{
+			var typedValue = new TypedValue();
+			context.Theme.ResolveAttribute(Resource.Attribute.colorSurface, typedValue, true);
+			return typedValue.Data;
 		}
 	}
 }
