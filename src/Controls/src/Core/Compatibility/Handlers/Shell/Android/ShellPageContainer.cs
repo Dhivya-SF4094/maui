@@ -35,11 +35,11 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 					// Use Material 3 colorSurface with separate caching for light and dark themes
 					if (ShellRenderer.IsDarkTheme)
 					{
-						color = Material3DarkBackground ??= ResolveColorSurface(context);
+						color = Material3DarkBackground ??= ContextExtensions.ResolveColorSurface(context);
 					}
 					else
 					{
-						color = Material3LightBackground ??= ResolveColorSurface(context);
+						color = Material3LightBackground ??= ContextExtensions.ResolveColorSurface(context);
 					}
 				}
 				else
@@ -78,13 +78,6 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			}
 			else
 				SetMeasuredDimension(0, 0);
-		}
-
-		static int ResolveColorSurface(Context context)
-		{
-			var typedValue = new TypedValue();
-			context.Theme.ResolveAttribute(Resource.Attribute.colorSurface, typedValue, true);
-			return typedValue.Data;
 		}
 	}
 }
