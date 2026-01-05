@@ -196,10 +196,10 @@ namespace Microsoft.Maui.Platform
 			}
 		}
 
-		internal static int ResolveColorSurface(Context context)
+		internal static int ResolveColorSurface(Context context, int resID)
 		{
 			var typedValue = new TypedValue();
-			context?.Theme?.ResolveAttribute(Resource.Attribute.colorSurface, typedValue, true);
+			context?.Theme?.ResolveAttribute(resID, typedValue, true);
 			return typedValue.Data;
 		}
 
