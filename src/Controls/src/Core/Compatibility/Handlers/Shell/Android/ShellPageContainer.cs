@@ -39,7 +39,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 
 		int GetMaterial3Background(Context context)
 		{
-			return ContextExtensions.ResolveColorSurface(context, Resource.Attribute.colorSurface);
+			return ContextExtensions.ResolveMaterial3ColorSurface(context, Resource.Attribute.colorSurface);
 		}
 
 		int GetResourceBackground(Context context, bool isDark)

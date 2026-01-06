@@ -196,11 +196,22 @@ namespace Microsoft.Maui.Platform
 			}
 		}
 
-		internal static int ResolveColorSurface(Context context, int resID)
+		internal static int ResolveMaterial3ColorSurface(Context context, int resID)
 		{
 			var typedValue = new TypedValue();
 			context?.Theme?.ResolveAttribute(resID, typedValue, true);
 			return typedValue.Data;
+		}
+
+		internal static bool IsDarkTheme(this Context? context)
+		{
+			context ??= global::Android.App.Application.Context;
+
+			var configuration = context?.Resources?.Configuration;
+			if (configuration == null)
+				return false;
+
+			return (configuration.UiMode & UiMode.NightMask) == UiMode.NightYes;
 		}
 
 		internal static int GetDisabledThemeAttrColor(this Context context, int attr)

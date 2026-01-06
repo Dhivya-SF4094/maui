@@ -34,7 +34,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		}
 
 		static ColorStateList GetDefaultTabColorList(Context context) =>
-			ShellRenderer.IsDarkTheme ?
+		context.IsDarkTheme() ?
 			_defaultListDark ??= MakeDefaultColorStateList(context)
 			: _defaultListLight ??= MakeDefaultColorStateList(context);
 
@@ -82,7 +82,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			AColor newColor;
 
 			if (color == null)
-				newColor = ShellRenderer.DefaultBottomNavigationViewBackgroundColor.ToPlatform();
+				newColor = ShellRenderer.GetDefaultBottomNavigationViewBackgroundColor(_shellContext.AndroidContext).ToPlatform();
 			else
 				newColor = color.ToPlatform();
 
@@ -131,7 +131,9 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 				return null;
 
 			var baseCSL = AppCompatResources.GetColorStateList(context, mTypedValue.ResourceId);
-			var colorPrimary = (ShellRenderer.IsDarkTheme) ? AColor.White : ShellRenderer.DefaultBackgroundColor.ToPlatform();
+
+			// Get the actual background color from context
+			var colorPrimary = ShellRenderer.GetDefaultBackgroundColor(context).ToPlatform();
 			int defaultColor = baseCSL.DefaultColor;
 			var disabledcolor = baseCSL.GetColorForState(new[] { -R.Attribute.StateEnabled }, AColor.Gray);
 

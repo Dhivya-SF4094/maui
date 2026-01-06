@@ -28,7 +28,6 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 		public static IPropertyMapper<Shell, ShellRenderer> Mapper = new PropertyMapper<Shell, ShellRenderer>(ViewHandler.ElementMapper);
 		public static CommandMapper<Shell, ShellRenderer> CommandMapper = new CommandMapper<Shell, ShellRenderer>(ViewHandler.ElementCommandMapper);
 
-
 		#region IShellContext
 
 		Context IShellContext.AndroidContext => AndroidContext;
@@ -92,19 +91,50 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 
 
 		// These are the primary colors in our styles.xml file
-		public static Color DefaultBackgroundColor => ResolveThemeColor(RuntimeFeature.IsMaterial3Enabled ? Color.FromArgb("#FEF7FF") : Color.FromArgb("#2c3e50"), RuntimeFeature.IsMaterial3Enabled ? Color.FromArgb("#141218") : Color.FromArgb("#1B3147"));
+		// public static Color DefaultBackgroundColor => GetDefaultBackgroundColor(global::Android.App.Application.Context);
 
-		public static Color DefaultForegroundColor => ResolveThemeColor(RuntimeFeature.IsMaterial3Enabled ? Color.FromArgb("#1D1B20") : Colors.White, RuntimeFeature.IsMaterial3Enabled ? Color.FromArgb("#E6E0E9") : Colors.White);
+		// public static Color DefaultForegroundColor => GetDefaultForegroundColor(global::Android.App.Application.Context);
 
-		public static Color DefaultTitleColor => ResolveThemeColor(RuntimeFeature.IsMaterial3Enabled ? Color.FromArgb("#1D1B20") : Colors.White, RuntimeFeature.IsMaterial3Enabled ? Color.FromArgb("#E6E0E9") : Colors.White);
+		// public static Color DefaultTitleColor => GetDefaultTitleColor(global::Android.App.Application.Context);
 
-		public static readonly Color DefaultUnselectedColor = RuntimeFeature.IsMaterial3Enabled ? Color.FromRgba(255, 255, 255, 180) : Color.FromRgba(255, 255, 255, 180);
+		// public static readonly Color DefaultUnselectedColor = GetDefaultUnselectedColor(global::Android.App.Application.Context);
+		// internal static Color DefaultBottomNavigationViewBackgroundColor => GetDefaultBottomNavigationViewBackgroundColor(global::Android.App.Application.Context);
 
-		internal static Color DefaultBottomNavigationViewBackgroundColor => ResolveThemeColor(RuntimeFeature.IsMaterial3Enabled ? Color.FromArgb("#FFFBFE") : Colors.White, RuntimeFeature.IsMaterial3Enabled ? Color.FromArgb("#1D1B20") : Color.FromArgb("#1B3147"));
+		internal static Color GetDefaultBackgroundColor(Context context)
+		{
+			return RuntimeFeature.IsMaterial3Enabled
+			  ? Color.FromUint((uint)ContextExtensions.ResolveMaterial3ColorSurface(context, Resource.Attribute.colorSurface))
+			  : (Application.Current?.RequestedTheme == AppTheme.Dark ? Color.FromArgb("#1B3147") : Color.FromArgb("#2c3e50"));
+		}
+
+		internal static Color GetDefaultForegroundColor(Context context)
+		{
+			return RuntimeFeature.IsMaterial3Enabled
+				? Color.FromUint((uint)ContextExtensions.ResolveMaterial3ColorSurface(context, Resource.Attribute.colorOnSurface))
+				: Colors.White;
+		}
+
+		internal static Color GetDefaultTitleColor(Context context)
+		{
+			return GetDefaultForegroundColor(context);
+		}
+
+		internal static Color GetDefaultUnselectedColor(Context context)
+		{
+			return RuntimeFeature.IsMaterial3Enabled
+			   ? Color.FromUint((uint)ContextExtensions.ResolveMaterial3ColorSurface(context, Resource.Attribute.colorOnSurfaceVariant))
+			   : Color.FromRgba(255, 255, 255, 180);
+		}
+
+		internal static Color GetDefaultBottomNavigationViewBackgroundColor(Context context)
+		{
+			return RuntimeFeature.IsMaterial3Enabled
+			   ? Color.FromUint((uint)ContextExtensions.ResolveMaterial3ColorSurface(context, Resource.Attribute.colorSurfaceContainer))
+			   : (Application.Current?.RequestedTheme == AppTheme.Dark ? Color.FromArgb("#1B3147") : Colors.White);
+		}
 
 		internal static bool IsDarkTheme => Application.Current?.RequestedTheme == AppTheme.Dark;
 
-		static Color ResolveThemeColor(Color light, Color dark) => IsDarkTheme ? dark : light;
 		IShellFlyoutRenderer _flyoutView;
 		FrameLayout _frameLayout;
 		IMauiContext _mauiContext;
@@ -121,8 +151,6 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 		{
 			AndroidContext = context;
 		}
-
-
 
 		protected Context AndroidContext { get; private set; }
 		protected Shell Element { get; private set; }
