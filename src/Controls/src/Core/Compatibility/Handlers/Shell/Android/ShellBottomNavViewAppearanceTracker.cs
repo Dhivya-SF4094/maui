@@ -34,7 +34,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		}
 
 		static ColorStateList GetDefaultTabColorList(Context context) =>
-		context.IsDarkTheme() ?
+		ShellRenderer.IsDarkTheme ?
 			_defaultListDark ??= MakeDefaultColorStateList(context)
 			: _defaultListLight ??= MakeDefaultColorStateList(context);
 

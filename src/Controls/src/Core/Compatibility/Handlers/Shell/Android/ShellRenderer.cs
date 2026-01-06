@@ -28,6 +28,7 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 		public static IPropertyMapper<Shell, ShellRenderer> Mapper = new PropertyMapper<Shell, ShellRenderer>(ViewHandler.ElementMapper);
 		public static CommandMapper<Shell, ShellRenderer> CommandMapper = new CommandMapper<Shell, ShellRenderer>(ViewHandler.ElementCommandMapper);
 
+		static Context Appcontext => global::Android.App.Application.Context;
 		#region IShellContext
 
 		Context IShellContext.AndroidContext => AndroidContext;
@@ -91,20 +92,20 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 
 
 		// These are the primary colors in our styles.xml file
-		// public static Color DefaultBackgroundColor => GetDefaultBackgroundColor(global::Android.App.Application.Context);
+		public static Color DefaultBackgroundColor => GetDefaultBackgroundColor(Appcontext);
 
-		// public static Color DefaultForegroundColor => GetDefaultForegroundColor(global::Android.App.Application.Context);
+		public static Color DefaultForegroundColor => GetDefaultForegroundColor(Appcontext);
 
-		// public static Color DefaultTitleColor => GetDefaultTitleColor(global::Android.App.Application.Context);
-
-		// public static readonly Color DefaultUnselectedColor = GetDefaultUnselectedColor(global::Android.App.Application.Context);
-		// internal static Color DefaultBottomNavigationViewBackgroundColor => GetDefaultBottomNavigationViewBackgroundColor(global::Android.App.Application.Context);
+		public static Color DefaultTitleColor => GetDefaultTitleColor(Appcontext);
+		public static readonly Color DefaultUnselectedColor = GetDefaultUnselectedColor(Appcontext);
+		internal static Color DefaultBottomNavigationViewBackgroundColor => GetDefaultBottomNavigationViewBackgroundColor(Appcontext);
 
 		internal static Color GetDefaultBackgroundColor(Context context)
 		{
 			return RuntimeFeature.IsMaterial3Enabled
-			  ? Color.FromUint((uint)ContextExtensions.ResolveMaterial3ColorSurface(context, Resource.Attribute.colorSurface))
-			  : (Application.Current?.RequestedTheme == AppTheme.Dark ? Color.FromArgb("#1B3147") : Color.FromArgb("#2c3e50"));
+				? Color.FromUint((uint)ContextExtensions.ResolveMaterial3ColorSurface(context, Resource.Attribute.colorSurface))
+				: IsDarkTheme ? Color.FromUint((uint)ContextExtensions.ResolveColorSurface(context, Resource.Attribute.colorPrimaryDark))
+							  : Color.FromUint((uint)ContextExtensions.ResolveColorSurface(context, Resource.Attribute.colorPrimary));
 		}
 
 		internal static Color GetDefaultForegroundColor(Context context)
@@ -130,7 +131,8 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 		{
 			return RuntimeFeature.IsMaterial3Enabled
 			   ? Color.FromUint((uint)ContextExtensions.ResolveMaterial3ColorSurface(context, Resource.Attribute.colorSurfaceContainer))
-			   : (Application.Current?.RequestedTheme == AppTheme.Dark ? Color.FromArgb("#1B3147") : Colors.White);
+			   : IsDarkTheme ? Color.FromUint((uint)ContextExtensions.ResolveColorSurface(context, Resource.Attribute.colorPrimaryDark))
+							 : Colors.White;
 		}
 
 		internal static bool IsDarkTheme => Application.Current?.RequestedTheme == AppTheme.Dark;

@@ -203,15 +203,11 @@ namespace Microsoft.Maui.Platform
 			return typedValue.Data;
 		}
 
-		internal static bool IsDarkTheme(this Context? context)
+		internal static uint ResolveColorSurface(Context context, int colorID)
 		{
-			context ??= global::Android.App.Application.Context;
-
-			var configuration = context?.Resources?.Configuration;
-			if (configuration == null)
-				return false;
-
-			return (configuration.UiMode & UiMode.NightMask) == UiMode.NightYes;
+			var typedValue = new TypedValue();
+			context?.Theme?.ResolveAttribute(colorID, typedValue, true);
+			return (uint)typedValue.Data;
 		}
 
 		internal static int GetDisabledThemeAttrColor(this Context context, int attr)
