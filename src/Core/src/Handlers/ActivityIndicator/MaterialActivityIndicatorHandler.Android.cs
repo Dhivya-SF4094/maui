@@ -32,7 +32,7 @@ internal class MaterialActivityIndicatorHandler : ViewHandler<IActivityIndicator
 
     protected override MaterialActivityIndicator CreatePlatformView()
     {
-        return new MaterialActivityIndicator(Context)
+        return new MaterialActivityIndicator(MauiMaterialContextThemeWrapper.Create(Context))
         {
             Indeterminate = true
         };
