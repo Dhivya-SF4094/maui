@@ -21,6 +21,7 @@ namespace Microsoft.Maui.Platform
 				return activityIndicator.Visibility.ToPlatformVisibility();
 			}
 		}
+
 		public static void UpdateColor(this ProgressBar progressBar, IActivityIndicator activityIndicator)
 		{
 			var color = activityIndicator.Color;
