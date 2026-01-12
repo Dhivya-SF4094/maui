@@ -2,7 +2,6 @@ using System;
 using Android.Content;
 using Android.Runtime;
 using Android.Util;
-using Android.Views;
 using Google.Android.Material.ProgressIndicator;
 
 namespace Microsoft.Maui.Platform;
@@ -10,12 +9,14 @@ namespace Microsoft.Maui.Platform;
 internal partial class MaterialActivityIndicator : CircularProgressIndicator
 {
     public MaterialActivityIndicator(Context context)
-     : base(MauiMaterialContextThemeWrapper.Create(context))
+     : base(context)
     {
     }
+
     protected MaterialActivityIndicator(nint javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
     {
     }
+
     public MaterialActivityIndicator(Context context, IAttributeSet? attrs) : base(MauiMaterialContextThemeWrapper.Create(context), attrs)
     {
     }
