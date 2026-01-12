@@ -21,26 +21,6 @@ namespace Microsoft.Maui.Platform
 				return activityIndicator.Visibility.ToPlatformVisibility();
 			}
 		}
-
-		internal static void UpdateIsRunning(this MaterialActivityIndicator progressBar, IActivityIndicator activityIndicator)
-		{
-			progressBar.Visibility = GetActivityIndicatorVisibility(activityIndicator);
-		}
-
-		internal static void UpdateColor(this MaterialActivityIndicator progressBar, IActivityIndicator activityIndicator)
-		{
-			var color = activityIndicator.Color;
-
-			if (color is not null)
-			{
-				progressBar.IndeterminateDrawable?.SetColorFilter(color.ToPlatform(), FilterMode.SrcIn);
-			}
-			else
-			{
-				progressBar.IndeterminateDrawable?.ClearColorFilter();
-			}
-		}
-
 		public static void UpdateColor(this ProgressBar progressBar, IActivityIndicator activityIndicator)
 		{
 			var color = activityIndicator.Color;
