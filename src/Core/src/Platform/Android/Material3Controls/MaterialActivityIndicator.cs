@@ -21,8 +21,9 @@ internal partial class MaterialActivityIndicator : CircularProgressIndicator
     {
     }
 
-    public MaterialActivityIndicator(Context context, IAttributeSet? attrs, int defStyleAttr) : base(MauiMaterialContextThemeWrapper.Create(context), attrs, defStyleAttr)
+    public MaterialActivityIndicator(Context context, IAttributeSet? attrs, int defStyleAttr) : base(context, attrs, defStyleAttr)
     {
+
     }
 
     protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
