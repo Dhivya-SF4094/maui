@@ -314,37 +314,29 @@ namespace Microsoft.Maui.Platform
 
 		internal static void UpdateHorizontalTextAlignment(this SearchBar searchBar, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
-			// Material 3 SearchBar: Update horizontal alignment for both collapsed and expanded states
+			var verticalGravity = virtualSearchBar.VerticalTextAlignment.ToVerticalGravityFlags();
+			var horizontalGravity = virtualSearchBar.HorizontalTextAlignment.ToHorizontalGravityFlags();
+			var combinedGravity = verticalGravity | horizontalGravity;
 
-			// 1. Update TextView in SearchBar (collapsed state)
-			var hintTextView = searchBar.GetFirstChildOfType<TextView>();
-			if (hintTextView != null)
+			// Update all TextViews in SearchBar (handles both text and hint)
+			var textViews = searchBar.GetChildrenOfType<TextView>();
+			foreach (var textView in textViews)
 			{
-				// Material 3 SearchBar needs Gravity set directly on TextView for proper alignment
-				var horizontalGravity = virtualSearchBar.HorizontalTextAlignment.ToHorizontalGravityFlags();
-				var verticalGravity = virtualSearchBar.VerticalTextAlignment.ToVerticalGravityFlags();
-				hintTextView.Gravity = verticalGravity | horizontalGravity;
-
-				// Also handle justification for Android 26+
-				if (OperatingSystem.IsAndroidVersionAtLeast(26))
+				// Set full width and gravity in Toolbar.LayoutParams (needed for alignment to be visible)
+				if (textView.LayoutParameters is AndroidX.AppCompat.Widget.Toolbar.LayoutParams toolbarParams)
 				{
-					hintTextView.JustificationMode = virtualSearchBar.HorizontalTextAlignment == TextAlignment.Justify
-						? JustificationMode.InterWord
-						: JustificationMode.None;
+					toolbarParams.Width = ViewGroup.LayoutParams.MatchParent;
+					toolbarParams.Gravity = (int)combinedGravity;
+					textView.LayoutParameters = toolbarParams; // Reassign to trigger layout update
 				}
+
+				// Use existing extension method for text alignment and justification
+				textView.UpdateHorizontalTextAlignment(virtualSearchBar);
 			}
 
-			// 2. Update EditText in SearchView (expanded state)
-			if (editText != null)
-			{
-				editText.UpdateHorizontalAlignment(virtualSearchBar.HorizontalTextAlignment);
-			}
+			// Update EditText in SearchView (expanded state)
+			editText?.UpdateHorizontalAlignment(virtualSearchBar.HorizontalTextAlignment);
 		}
-
-
-
-
-
 
 		internal static void UpdateMaxLength(this SearchBar searchBar, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
