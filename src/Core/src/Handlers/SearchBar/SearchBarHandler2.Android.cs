@@ -166,6 +166,7 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialS
     public static void MapTextColor(SearchBarHandler2 handler, ISearchBar searchBar)
     {
         handler.QueryEditor?.UpdateTextColor(searchBar);
+        handler.PlatformView?.UpdateTextColor(searchBar);
     }
 
     public static void MapIsTextPredictionEnabled(SearchBarHandler2 handler, ISearchBar searchBar)

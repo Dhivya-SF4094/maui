@@ -293,10 +293,26 @@ namespace Microsoft.Maui.Platform
 			}
 		}
 
+		internal static void UpdateTextColor(this SearchBar searchBar, ITextStyle entry)
+		{
+			// Update TextView in SearchBar (collapsed state)
+			var textView = searchBar.GetFirstChildOfType<TextView>();
+			if (textView is not null)
+			{
+				if (entry.TextColor is not null)
+				{
+					textView.SetTextColor(entry.TextColor.ToPlatform());
+				}
+				else if (TryGetDefaultStateColor(searchBar, AAttribute.TextColorPrimary, out var color))
+				{
+					textView.SetTextColor(color);
+				}
+			}
+
+		}
+
 		internal static void UpdateVerticalTextAlignment(this SearchBar searchBar, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
-			// Material 3 SearchBar: Update vertical alignment for both collapsed and expanded states
-
 			// Update TextView in SearchBar (collapsed state)
 			var hintTextView = searchBar.GetFirstChildOfType<TextView>();
 			if (hintTextView is not null)
@@ -405,29 +421,6 @@ namespace Microsoft.Maui.Platform
 					}
 				}
 			}
-		}
-
-		static ImageView? FindClearButtonInHierarchy(ViewGroup viewGroup)
-		{
-			// Recursively search for ImageView that looks like a clear/close button
-			for (int i = 0; i < viewGroup.ChildCount; i++)
-			{
-				var child = viewGroup.GetChildAt(i);
-
-				if (child is ImageView imageView && imageView.ContentDescription?.ToString()?.Contains("clear", StringComparison.OrdinalIgnoreCase) == true)
-				{
-					return imageView;
-				}
-
-				if (child is ViewGroup childGroup)
-				{
-					var result = FindClearButtonInHierarchy(childGroup);
-					if (result is not null)
-						return result;
-				}
-			}
-
-			return null;
 		}
 
 		static bool TryGetDefaultStateColor(SearchBar searchBar, int attribute, out Color color)

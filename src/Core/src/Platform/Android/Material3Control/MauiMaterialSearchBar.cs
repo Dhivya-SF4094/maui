@@ -168,10 +168,6 @@ internal class MauiMaterialSearchBar : MaterialSearchBar
         base.Dispose(disposing);
     }
 
-    /// <summary>
-    /// Listener for SearchView state transitions to track expanded/collapsed state.
-    /// Material 3 SearchView handles focus and keyboard management automatically.
-    /// </summary>
     class SearchViewTransitionListener : Java.Lang.Object, MaterialSearchView.ITransitionListener
     {
         readonly MauiMaterialSearchBar _materialSearchBar;
