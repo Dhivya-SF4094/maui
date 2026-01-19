@@ -11,14 +11,12 @@ using MaterialSearchView = Google.Android.Material.Search.SearchView;
 namespace Microsoft.Maui.Platform;
 
 // TODO: material3 - make it public in .net 11
-internal class MauiMaterialSearchBar : MaterialSearchBar
+internal class MauiMaterialSearchBar : MaterialSearchView
 {
-    MaterialSearchView? _searchView;
+    MaterialSearchBar? _anchorSearchBar;
     internal EditText? _queryEditor;
     bool _isExpanded;
-    bool _isAttachedToRoot;
 
-    public MaterialSearchView? MaterialSearchView => _searchView;
     public EditText? QueryEditor => _queryEditor;
     public bool IsExpanded => _isExpanded;
 
@@ -47,104 +45,88 @@ internal class MauiMaterialSearchBar : MaterialSearchBar
         if (context is null)
             return;
 
-        // Create the Material SearchView (expanded state overlay)
-        _searchView = new MaterialSearchView(context);
+        // Create a hidden anchor SearchBar for Material 3 SearchView
+        // SearchView requires an anchor bar for proper Material Design behavior
+        _anchorSearchBar = new MaterialSearchBar(context);
+        _anchorSearchBar.Visibility = ViewStates.Gone; // Hide the anchor bar
+        _anchorSearchBar.Hint = "Search";
 
-        // Set up the anchor relationship between this SearchBar and SearchView
-        // This tells SearchView where to animate from/to
-        _searchView.SetupWithSearchBar(this);
+        // Setup SearchView with the anchor SearchBar
+        // This establishes the relationship between SearchView and SearchBar
+        this.SetupWithSearchBar(_anchorSearchBar);
 
-        // Extract the EditText from SearchView for direct text manipulation
-        _queryEditor = _searchView.GetFirstChildOfType<EditText>();
+        // Extract the EditText from SearchView for direct text access
+        _queryEditor = this.GetFirstChildOfType<EditText>();
 
-        // Listen to SearchView transitions to track expanded/collapsed state
-        _searchView.AddTransitionListener(new SearchViewTransitionListener(this));
-
-        // Handle SearchBar click to expand SearchView
-        Click += OnSearchBarClicked;
-
-        _isExpanded = false;
-        _isAttachedToRoot = false;
-    }
-
-    void OnSearchBarClicked(object? sender, EventArgs e)
-    {
-        ExpandSearch();
-    }
-
-    void AttachSearchViewToRoot()
-    {
-        if (_isAttachedToRoot || _searchView is null)
-            return;
-
-        var context = Context;
-        if (context is null)
-            return;
-
-        var activity = context.GetActivity();
-        if (activity is null)
-            return;
-
-        var root = activity.FindViewById<ViewGroup>(global::Android.Resource.Id.Content);
-        if (root is null)
-            return;
-
-        // Check if SearchView is already in the hierarchy
-        if (_searchView.Parent is ViewGroup parent)
+        if (_queryEditor is not null)
         {
-            parent.RemoveView(_searchView);
+            _queryEditor.Hint = "Search";
         }
 
-        // Add SearchView to Activity root with full-screen layout
-        var layoutParams = new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MatchParent,
-            ViewGroup.LayoutParams.MatchParent);
+        // Listen to SearchView state transitions
+        this.AddTransitionListener(new SearchViewTransitionListener(this));
 
-        root.AddView(_searchView, layoutParams);
-        _isAttachedToRoot = true;
+        // Configure SearchView to be visible and interactive
+        this.Visibility = ViewStates.Visible;
+        this.Clickable = true;
+        this.Focusable = true;
+
+        _isExpanded = false;
     }
 
     protected override void OnAttachedToWindow()
     {
         base.OnAttachedToWindow();
 
-        // Attach SearchView to Activity root once we're in the window
-        AttachSearchViewToRoot();
+        // Add the hidden anchor SearchBar to the parent if not already added
+        if (_anchorSearchBar is not null && _anchorSearchBar.Parent is null)
+        {
+            if (Parent is ViewGroup parentView)
+            {
+                var layoutParams = new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MatchParent,
+                    ViewGroup.LayoutParams.WrapContent);
+
+                parentView.AddView(_anchorSearchBar, 0, layoutParams);
+            }
+        }
+
+        // Show the SearchView directly
+        Post(() =>
+        {
+            this.Show();
+            _isExpanded = true;
+        });
     }
 
     protected override void OnDetachedFromWindow()
     {
         base.OnDetachedFromWindow();
 
-        // Clean up SearchView from Activity root
-        if (_searchView?.Parent is ViewGroup parent)
+        // Remove anchor SearchBar from parent
+        if (_anchorSearchBar?.Parent is ViewGroup parent)
         {
-            parent.RemoveView(_searchView);
-            _isAttachedToRoot = false;
+            parent.RemoveView(_anchorSearchBar);
         }
     }
 
     public void ExpandSearch()
     {
-        if (_isExpanded || _searchView is null)
+        if (_isExpanded)
             return;
 
-        // Ensure SearchView is attached to Activity root
-        if (!_isAttachedToRoot)
-            AttachSearchViewToRoot();
-
-        // Material SearchView will animate and overlay the entire screen
-        _searchView.Show();
+        // Show this SearchView
+        this.Show();
         _isExpanded = true;
     }
 
     public void CollapseSearch()
     {
-        if (!_isExpanded || _searchView is null)
+        if (!_isExpanded)
             return;
 
-        // Material SearchView will animate away
-        _searchView.Hide();
+        // Hide this SearchView
+        this.Hide();
         _isExpanded = false;
     }
 
@@ -152,22 +134,26 @@ internal class MauiMaterialSearchBar : MaterialSearchBar
     {
         if (disposing)
         {
-            Click -= OnSearchBarClicked;
-
-            if (_searchView is not null)
+            if (_anchorSearchBar is not null)
             {
-                if (_searchView.Parent is ViewGroup parent)
+                if (_anchorSearchBar.Parent is ViewGroup parent)
                 {
-                    parent.RemoveView(_searchView);
+                    parent.RemoveView(_anchorSearchBar);
                 }
-                _searchView.Dispose();
-                _searchView = null;
+                _anchorSearchBar.Dispose();
+                _anchorSearchBar = null;
             }
+
+            _queryEditor = null;
         }
 
         base.Dispose(disposing);
     }
 
+    /// <summary>
+    /// Listener for SearchView state transitions to track expanded/collapsed state.
+    /// Material 3 SearchView handles focus and keyboard management automatically.
+    /// </summary>
     class SearchViewTransitionListener : Java.Lang.Object, MaterialSearchView.ITransitionListener
     {
         readonly MauiMaterialSearchBar _materialSearchBar;
@@ -180,7 +166,6 @@ internal class MauiMaterialSearchBar : MaterialSearchBar
         public void OnStateChanged(MaterialSearchView searchView, MaterialSearchView.TransitionState previousState, MaterialSearchView.TransitionState newState)
         {
             // Update expanded state based on SearchView transitions
-            // Material 3 automatically handles EditText focus and keyboard display
             if (newState == MaterialSearchView.TransitionState.Showing || newState == MaterialSearchView.TransitionState.Shown)
             {
                 _materialSearchBar._isExpanded = true;
