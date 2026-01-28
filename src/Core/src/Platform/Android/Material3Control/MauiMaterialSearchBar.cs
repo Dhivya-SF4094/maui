@@ -1,179 +1,151 @@
 using System;
-using Android.App;
 using Android.Content;
-using Android.Runtime;
-using Android.Util;
+using Android.Text;
 using Android.Views;
 using Android.Widget;
 using MaterialSearchBar = Google.Android.Material.Search.SearchBar;
-using MaterialSearchView = Google.Android.Material.Search.SearchView;
 
 namespace Microsoft.Maui.Platform;
 
-// TODO: material3 - make it public in .net 11
-internal class MauiMaterialSearchBar : MaterialSearchView
+internal class MauiMaterialSearchBar : MaterialSearchBar
 {
-    MaterialSearchBar? _anchorSearchBar;
-    internal EditText? _queryEditor;
-    bool _isExpanded;
+    internal TextView? _queryEditor;
+    ITextWatcher? _textWatcher;
+    const int CloseButtonMenuItemId = 999;
+    public event EventHandler? CloseButtonClicked;
 
-    public EditText? QueryEditor => _queryEditor;
-    public bool IsExpanded => _isExpanded;
-
-    public MauiMaterialSearchBar(Context context) : base(MauiMaterialContextThemeWrapper.Create(context))
+    public MauiMaterialSearchBar(Context context) : base(context)
     {
         Initialize();
-    }
-
-    public MauiMaterialSearchBar(Context context, IAttributeSet? attrs) : base(context, attrs)
-    {
-        Initialize();
-    }
-
-    public MauiMaterialSearchBar(Context context, IAttributeSet? attrs, int defStyleAttr) : base(context, attrs, defStyleAttr)
-    {
-        Initialize();
-    }
-
-    protected MauiMaterialSearchBar(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
-    {
     }
 
     void Initialize()
     {
-        var context = Context;
-        if (context is null)
-            return;
-
-        // Create a hidden anchor SearchBar for Material 3 SearchView
-        // SearchView requires an anchor bar for proper Material Design behavior
-        _anchorSearchBar = new MaterialSearchBar(context);
-        _anchorSearchBar.Visibility = ViewStates.Gone; // Hide the anchor bar
-        _anchorSearchBar.Hint = "Search";
-
-        // Setup SearchView with the anchor SearchBar
-        // This establishes the relationship between SearchView and SearchBar
-        this.SetupWithSearchBar(_anchorSearchBar);
-
-        // Extract the EditText from SearchView for direct text access
-        _queryEditor = this.GetFirstChildOfType<EditText>();
+        // Material SearchBar uses TextView internally
+        _queryEditor = this.GetFirstChildOfType<TextView>();
 
         if (_queryEditor is not null)
         {
-            _queryEditor.Hint = "Search";
+            // Make the TextView editable and focusable
+            _queryEditor.Focusable = true;
+            _queryEditor.FocusableInTouchMode = true;
+            _queryEditor.Clickable = true;
+            _queryEditor.LongClickable = true;
+
+            // Enable text selection and cursor
+            _queryEditor.SetTextIsSelectable(true);
+            _queryEditor.SetCursorVisible(true);
+
+            // Ensure it can receive input
+            _queryEditor.InputType = InputTypes.ClassText | InputTypes.TextVariationNormal;
+
+            // Show keyboard when the TextView receives focus
+            _queryEditor.ShowSoftInputOnFocus = true;
         }
 
-        // Listen to SearchView state transitions
-        this.AddTransitionListener(new SearchViewTransitionListener(this));
+        // Make the SearchBar itself clickable to pass focus to TextView
+        Focusable = true;
+        Clickable = true;
 
-        // Configure SearchView to be visible and interactive
-        this.Visibility = ViewStates.Visible;
-        this.Clickable = true;
-        this.Focusable = true;
-
-        _isExpanded = false;
+        // Add close button to menu
+        SetupCloseButton();
     }
 
-    protected override void OnAttachedToWindow()
+    public override bool OnTouchEvent(MotionEvent? e)
     {
-        base.OnAttachedToWindow();
-
-        // Add the hidden anchor SearchBar to the parent if not already added
-        if (_anchorSearchBar is not null && _anchorSearchBar.Parent is null)
+        // Forward touch events to the TextView to enable editing
+        if (e?.Action == MotionEventActions.Down && _queryEditor is not null)
         {
-            if (Parent is ViewGroup parentView)
-            {
-                var layoutParams = new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MatchParent,
-                    ViewGroup.LayoutParams.WrapContent);
+            _queryEditor.RequestFocus();
+            // Show the keyboard when the SearchBar is touched
+            _queryEditor.PostShowSoftInput();
+        }
+        return base.OnTouchEvent(e);
+    }
 
-                parentView.AddView(_anchorSearchBar, 0, layoutParams);
-            }
+    void SetupCloseButton()
+    {
+        // Add close icon to the menu
+        var menu = Menu;
+        if (menu is not null)
+        {
+            var closeItem = menu.Add(0, CloseButtonMenuItemId, 0, "");
+            closeItem?.SetIcon(Resource.Drawable.abc_ic_clear_material);
+            closeItem?.SetShowAsAction(ShowAsAction.Always);
+
+            // Initially hide the close button
+            UpdateCloseButtonVisibility(false);
         }
 
-        // Show the SearchView directly
-        Post(() =>
-        {
-            this.Show();
-            _isExpanded = true;
-        });
+        // Set menu item click listener
+        SetOnMenuItemClickListener(new MenuItemClickListener(this));
     }
 
-    protected override void OnDetachedFromWindow()
+    public void UpdateCloseButtonVisibility(bool hasText)
     {
-        base.OnDetachedFromWindow();
-
-        // Remove anchor SearchBar from parent
-        if (_anchorSearchBar?.Parent is ViewGroup parent)
-        {
-            parent.RemoveView(_anchorSearchBar);
-        }
+        var menu = Menu;
+        var closeItem = menu?.FindItem(CloseButtonMenuItemId);
+        closeItem?.SetVisible(hasText);
     }
 
-    public void ExpandSearch()
+    public void SetTextChangedListener(ITextWatcher? watcher)
     {
-        if (_isExpanded)
+        if (_queryEditor is null)
+        {
             return;
+        }
 
-        // Show this SearchView
-        this.Show();
-        _isExpanded = true;
-    }
+        if (_textWatcher is not null)
+        {
+            _queryEditor.RemoveTextChangedListener(_textWatcher);
+        }
 
-    public void CollapseSearch()
-    {
-        if (!_isExpanded)
-            return;
+        _textWatcher = watcher;
 
-        // Hide this SearchView
-        this.Hide();
-        _isExpanded = false;
+        if (_textWatcher is not null)
+        {
+            _queryEditor.AddTextChangedListener(_textWatcher);
+        }
     }
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            if (_anchorSearchBar is not null)
+            if (_textWatcher is not null && _queryEditor is not null)
             {
-                if (_anchorSearchBar.Parent is ViewGroup parent)
-                {
-                    parent.RemoveView(_anchorSearchBar);
-                }
-                _anchorSearchBar.Dispose();
-                _anchorSearchBar = null;
+                _queryEditor.RemoveTextChangedListener(_textWatcher);
             }
-
-            _queryEditor = null;
+            _textWatcher = null;
+            CloseButtonClicked = null;
         }
 
         base.Dispose(disposing);
     }
 
-    /// <summary>
-    /// Listener for SearchView state transitions to track expanded/collapsed state.
-    /// Material 3 SearchView handles focus and keyboard management automatically.
-    /// </summary>
-    class SearchViewTransitionListener : Java.Lang.Object, MaterialSearchView.ITransitionListener
+    class MenuItemClickListener : Java.Lang.Object, IOnMenuItemClickListener
     {
-        readonly MauiMaterialSearchBar _materialSearchBar;
+        readonly MauiMaterialSearchBar _searchBar;
 
-        public SearchViewTransitionListener(MauiMaterialSearchBar materialSearchBar)
+        public MenuItemClickListener(MauiMaterialSearchBar searchBar)
         {
-            _materialSearchBar = materialSearchBar;
+            _searchBar = searchBar;
         }
 
-        public void OnStateChanged(MaterialSearchView searchView, MaterialSearchView.TransitionState previousState, MaterialSearchView.TransitionState newState)
+        public bool OnMenuItemClick(IMenuItem? item)
         {
-            // Update expanded state based on SearchView transitions
-            if (newState == MaterialSearchView.TransitionState.Showing || newState == MaterialSearchView.TransitionState.Shown)
+            if (item?.ItemId == CloseButtonMenuItemId)
             {
-                _materialSearchBar._isExpanded = true;
+                // Clear the text
+                if (_searchBar._queryEditor is not null)
+                {
+                    _searchBar._queryEditor.Text = string.Empty;
+                }
+
+                _searchBar.CloseButtonClicked?.Invoke(_searchBar, EventArgs.Empty);
+                return true;
             }
-            else if (newState == MaterialSearchView.TransitionState.Hidden || newState == MaterialSearchView.TransitionState.Hiding)
-            {
-                _materialSearchBar._isExpanded = false;
-            }
+            return false;
         }
     }
 }
