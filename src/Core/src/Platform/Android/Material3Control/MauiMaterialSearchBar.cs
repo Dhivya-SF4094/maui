@@ -41,6 +41,11 @@ internal class MauiMaterialSearchBar : MaterialSearchBar
 
             // Show keyboard when the TextView receives focus
             _queryEditor.ShowSoftInputOnFocus = true;
+
+            // Ensure text doesn't ellipsize or get cut off
+            _queryEditor.Ellipsize = null;
+            _queryEditor.SetSingleLine(false);
+            _queryEditor.SetHorizontallyScrolling(false);
         }
 
         // Make the SearchBar itself clickable to pass focus to TextView
