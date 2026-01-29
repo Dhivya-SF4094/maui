@@ -1,6 +1,7 @@
 ﻿#nullable disable
 using System;
 using Microsoft.Maui.Controls.Compatibility;
+using Microsoft.Maui.Handlers;
 
 namespace Microsoft.Maui.Controls
 {
@@ -11,9 +12,22 @@ namespace Microsoft.Maui.Controls
 			// Adjust the mappings to preserve Controls.SearchBar legacy behaviors
 #if IOS
 			SearchBarHandler.Mapper.ReplaceMapping<SearchBar, ISearchBarHandler>(PlatformConfiguration.iOSSpecific.SearchBar.SearchBarStyleProperty.PropertyName, MapSearchBarStyle);
-#endif
+#elif ANDROID
+		if(RuntimeFeature.IsMaterial3Enabled)
+		{
+				// Material3 SearchBar handler mappings
+			SearchBarHandler2.Mapper.ReplaceMapping<SearchBar, SearchBarHandler2>(nameof(Text), MapText);
+			SearchBarHandler2.Mapper.ReplaceMapping<SearchBar, SearchBarHandler2>(nameof(TextTransform), MapText);
+		}
+		else
+		{
 			SearchBarHandler.Mapper.ReplaceMapping<SearchBar, ISearchBarHandler>(nameof(Text), MapText);
 			SearchBarHandler.Mapper.ReplaceMapping<SearchBar, ISearchBarHandler>(nameof(TextTransform), MapText);
+		}
+#else
+			SearchBarHandler.Mapper.ReplaceMapping<SearchBar, ISearchBarHandler>(nameof(Text), MapText);
+			SearchBarHandler.Mapper.ReplaceMapping<SearchBar, ISearchBarHandler>(nameof(TextTransform), MapText);
+#endif
 
 #if IOS || ANDROID
 			SearchBarHandler.Mapper.AppendToMapping(nameof(VisualElement.IsFocused), InputView.MapIsFocused);

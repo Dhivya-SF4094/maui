@@ -247,44 +247,7 @@ namespace Microsoft.Maui.Platform
 		// TODO: material3 - make it public in .net 11
 		internal static void UpdateText(this SearchBar searchBar, ISearchBar virtualSearchBar)
 		{
-			if (searchBar is not MauiMaterialSearchBar mauiSearchBar)
-			{
-				searchBar.Text = virtualSearchBar.Text;
-				return;
-			}
-
-			var textView = mauiSearchBar._queryEditor;
-			if (textView is null)
-			{
-				searchBar.Text = virtualSearchBar.Text;
-				return;
-			}
-
-			var newText = virtualSearchBar.Text ?? string.Empty;
-			var currentText = textView.Text ?? string.Empty;
-
-			// Only update if text actually changed to prevent cursor position reset
-			if (currentText != newText)
-			{
-				// Store the current cursor position
-				var editable = textView.EditableText;
-				var currentPosition = editable != null ? Selection.GetSelectionEnd(editable) : 0;
-
-				// Update the text with Editable buffer type to maintain proper cursor
-				textView.SetText(newText, TextView.BufferType.Editable);
-
-				// Ensure cursor remains visible after text update
-				textView.SetCursorVisible(true);
-
-				// Restore cursor position (or move to end if position is beyond text length)
-				var newEditable = textView.EditableText;
-				if (newEditable != null)
-				{
-					var newLength = newText.Length;
-					var newPosition = Math.Min(currentPosition, newLength);
-					Selection.SetSelection(newEditable, newPosition);
-				}
-			}
+			searchBar.Text = virtualSearchBar.Text;
 		}
 
 		internal static void UpdateHorizontalTextAlignment(this SearchBar searchBar, ISearchBar virtualSearchBar, EditText? editText = null)
@@ -314,11 +277,15 @@ namespace Microsoft.Maui.Platform
 		{
 			// Material3 SearchBar extends Toolbar - close button is a menu item
 			if (searchBar is not MauiMaterialSearchBar mauiSearchBar)
+			{
 				return;
+			}
 
 			var menu = mauiSearchBar.Menu;
-			if (menu == null)
+			if (menu is null)
+			{
 				return;
+			}
 
 			// CloseButtonMenuItemId is defined as 999 in MauiMaterialSearchBar
 			const int CloseButtonMenuItemId = 999;
@@ -376,8 +343,10 @@ namespace Microsoft.Maui.Platform
 		{
 			editText ??= searchBar.GetFirstChildOfType<EditText>();
 
-			if (editText == null)
+			if (editText is null)
+			{
 				return;
+			}
 
 			editText.SetInputType(virtualSearchBar);
 		}
@@ -397,12 +366,15 @@ namespace Microsoft.Maui.Platform
 			searchBar.SetInputType(virtualSearchBar);
 
 			if (searchBar is not MauiMaterialSearchBar mauiSearchBar)
+			{
 				return;
+			}
 
 			var textView = mauiSearchBar._queryEditor;
 			if (textView is not null)
+			{
 				textView.ImeOptions = virtualSearchBar.ReturnType.ToPlatform();
+			}
 		}
-
 	}
 }
