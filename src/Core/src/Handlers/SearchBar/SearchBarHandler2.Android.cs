@@ -91,7 +91,6 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialSearchBar
     {
         FocusListener.Handler = null;
         TextListener.Handler = null;
-
         _platformSearchView?.SetTextChangedListener(null);
 
         if (QueryEditor is TextView editor)
@@ -110,8 +109,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialSearchBar
 
     public static void MapIsEnabled(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView.Enabled = searchBar.IsEnabled;
-        handler.QueryEditor?.Enabled = searchBar.IsEnabled;
+        handler.PlatformView.UpdateIsEnabled(searchBar, handler.QueryEditor);
     }
 
     public static void MapText(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -121,25 +119,12 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialSearchBar
 
     public static void MapPlaceholder(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView?.Hint = searchBar.Placeholder;
+        handler.PlatformView?.UpdatePlaceholder(searchBar);
     }
 
     public static void MapPlaceholderColor(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        if (handler.QueryEditor is not null)
-        {
-            if (searchBar?.PlaceholderColor is Graphics.Color placeholderColor)
-            {
-                if (PlatformInterop.CreateEditTextColorStateList(handler.QueryEditor.HintTextColors, placeholderColor.ToPlatform()) is ColorStateList c)
-                {
-                    handler.QueryEditor.SetHintTextColor(c);
-                }
-            }
-            else if (DefaultPlaceholderTextColors is not null)
-            {
-                handler.QueryEditor.SetHintTextColor(DefaultPlaceholderTextColors);
-            }
-        }
+        handler.PlatformView?.UpdatePlaceholderColor(searchBar, DefaultPlaceholderTextColors, handler.QueryEditor);
     }
 
     internal static void MapFlowDirection(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -167,11 +152,8 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialSearchBar
 
     public static void MapFont(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        if (handler.QueryEditor is not null)
-        {
-            var fontManager = handler.GetRequiredService<IFontManager>();
-            handler.QueryEditor.UpdateFont(searchBar, fontManager);
-        }
+        var fontManager = handler.GetRequiredService<IFontManager>();
+        handler.QueryEditor?.UpdateFont(searchBar, fontManager);
     }
 
     public static void MapHorizontalTextAlignment(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -197,55 +179,22 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialSearchBar
 
     public static void MapIsTextPredictionEnabled(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        if (handler.QueryEditor is TextView editor)
-        {
-            if (searchBar.IsTextPredictionEnabled)
-            {
-                editor.InputType |= InputTypes.TextFlagAutoCorrect;
-            }
-            else
-            {
-                editor.InputType &= ~InputTypes.TextFlagAutoCorrect;
-            }
-        }
+        handler.PlatformView?.UpdateIsTextPredictionEnabled(searchBar, handler.QueryEditor);
     }
 
     public static void MapIsSpellCheckEnabled(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        if (handler.QueryEditor is TextView editor)
-        {
-            if (!searchBar.IsSpellCheckEnabled)
-            {
-                editor.InputType |= InputTypes.TextFlagNoSuggestions;
-            }
-            else
-            {
-                editor.InputType &= ~InputTypes.TextFlagNoSuggestions;
-            }
-        }
+        handler.PlatformView?.UpdateIsSpellCheckEnabled(searchBar, handler.QueryEditor);
     }
 
     public static void MapMaxLength(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        var currentText = handler.PlatformView?.Text?.ToString() ?? string.Empty;
-        var trimmedText = currentText.TrimToMaxLength(searchBar.MaxLength);
-
-        if (currentText != trimmedText && handler.PlatformView is not null)
-        {
-            handler.PlatformView.Text = trimmedText;
-        }
+        handler.PlatformView.UpdateMaxLength(searchBar, handler.QueryEditor);
     }
 
     public static void MapIsReadOnly(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        if (handler.QueryEditor is TextView editor)
-        {
-            bool isEditable = !searchBar.IsReadOnly;
-
-            editor.FocusableInTouchMode = isEditable;
-            editor.Focusable = isEditable;
-            editor.SetCursorVisible(isEditable);
-        }
+        handler.PlatformView?.UpdateIsReadOnly(searchBar, handler.QueryEditor);
     }
 
     public static void MapCancelButtonColor(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -255,16 +204,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialSearchBar
 
     internal static void MapSearchIconColor(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        // Material 3 SearchBar extends Toolbar - navigation icon is the search icon
-        if (handler.PlatformView?.NavigationIcon is Drawable navigationIcon && searchBar.SearchIconColor is not null)
-        {
-            var platformColor = searchBar.SearchIconColor.ToPlatform();
-            navigationIcon.SetColorFilter(platformColor, FilterMode.SrcAtop);
-        }
-        else if (handler.PlatformView?.NavigationIcon is Drawable icon)
-        {
-            icon.ClearColorFilter();
-        }
+        handler.PlatformView?.UpdateSearchIconColor(searchBar);
     }
 
     public static void MapKeyboard(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -354,5 +294,4 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialSearchBar
             }
         }
     }
-
 }

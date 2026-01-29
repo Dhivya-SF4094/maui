@@ -250,7 +250,7 @@ namespace Microsoft.Maui.Platform
 			searchBar.Text = virtualSearchBar.Text;
 		}
 
-		internal static void UpdateHorizontalTextAlignment(this SearchBar searchBar, ISearchBar virtualSearchBar, EditText? editText = null)
+		internal static void UpdateHorizontalTextAlignment(this SearchBar searchBar, ISearchBar virtualSearchBar)
 		{
 			var verticalGravity = virtualSearchBar.VerticalTextAlignment.ToVerticalGravityFlags();
 			var horizontalGravity = virtualSearchBar.HorizontalTextAlignment.ToHorizontalGravityFlags();
@@ -270,6 +270,129 @@ namespace Microsoft.Maui.Platform
 
 				// Use existing extension method for text alignment and justification
 				textView.UpdateHorizontalTextAlignment(virtualSearchBar);
+			}
+		}
+
+		internal static void UpdateIsSpellCheckEnabled(this SearchBar searchBar, ISearchBar virtualSearchBar, TextView? textView = null)
+		{
+			textView ??= searchBar.GetFirstChildOfType<TextView>();
+
+			if (textView is null)
+			{
+				return;
+			}
+
+			if (!virtualSearchBar.IsSpellCheckEnabled)
+			{
+				textView.InputType |= InputTypes.TextFlagNoSuggestions;
+			}
+			else
+			{
+				textView.InputType &= ~InputTypes.TextFlagNoSuggestions;
+			}
+		}
+
+		internal static void UpdatePlaceholder(this SearchBar searchBar, ISearchBar virtualSearchBar, TextView? textView = null)
+		{
+			textView ??= searchBar.GetFirstChildOfType<TextView>();
+			textView?.Hint = virtualSearchBar.Placeholder;
+		}
+
+		internal static void UpdatePlaceholderColor(this SearchBar searchBar, ISearchBar virtualSearchBar, ColorStateList? defaultPlaceholderColor, TextView? textView = null)
+		{
+			textView ??= searchBar.GetFirstChildOfType<TextView>();
+
+			if (textView is null)
+			{
+				return;
+			}
+
+			if (virtualSearchBar?.PlaceholderColor is Graphics.Color placeholderTextColor)
+			{
+				if (PlatformInterop.CreateEditTextColorStateList(textView.HintTextColors, placeholderTextColor.ToPlatform()) is ColorStateList c)
+				{
+					textView.SetHintTextColor(c);
+				}
+			}
+			else if (TryGetDefaultStateColor(searchBar, AAttribute.TextColorHint, out var color))
+			{
+				textView.SetHintTextColor(color);
+			}
+		}
+
+		internal static void UpdateMaxLength(this SearchBar searchBar, ISearchBar virtualSearchBar, TextView? textView = null)
+		{
+			textView ??= searchBar.GetFirstChildOfType<TextView>();
+			var currentText = searchBar.Text ?? string.Empty;
+			var trimmedText = currentText.TrimToMaxLength(virtualSearchBar.MaxLength);
+
+			if (currentText != trimmedText)
+			{
+				textView?.Text = trimmedText;
+			}
+		}
+
+		internal static void UpdateIsReadOnly(this SearchBar searchBar, ISearchBar virtualSearchBar, TextView? textView = null)
+		{
+			textView ??= searchBar.GetFirstChildOfType<TextView>();
+
+			if (textView is null)
+			{
+				return;
+			}
+
+			bool isEditable = !virtualSearchBar.IsReadOnly;
+
+			textView.FocusableInTouchMode = isEditable;
+			textView.Focusable = isEditable;
+			textView.SetCursorVisible(isEditable);
+		}
+
+		internal static void UpdateSearchIconColor(this SearchBar searchBar, ISearchBar virtualSearchBar)
+		{
+			// Material3 SearchBar extends Toolbar - navigation icon is the search icon
+			if (searchBar.NavigationIcon is Drawable navigationIcon)
+			{
+				if (virtualSearchBar.SearchIconColor is not null)
+				{
+					var platformColor = virtualSearchBar.SearchIconColor.ToPlatform();
+					navigationIcon.SetColorFilter(platformColor, FilterMode.SrcAtop);
+				}
+				else
+				{
+					navigationIcon.ClearColorFilter();
+				}
+			}
+		}
+
+		internal static void UpdateIsEnabled(this SearchBar searchBar, ISearchBar virtualSearchBar, TextView? textView = null)
+		{
+			textView ??= searchBar.GetFirstChildOfType<TextView>();
+
+			if (textView is null)
+			{
+				return;
+			}
+
+			textView.Enabled = virtualSearchBar.IsEnabled;
+		}
+
+		internal static void UpdateIsTextPredictionEnabled(this SearchBar searchBar, ISearchBar virtualSearchBar, TextView? textView = null)
+		{
+			textView ??= searchBar.GetFirstChildOfType<TextView>();
+
+			if (textView is null)
+			{
+				return;
+			}
+
+			if (virtualSearchBar.IsTextPredictionEnabled)
+			{
+				textView.InputType |= InputTypes.TextFlagAutoCorrect;
+			}
+			else
+			{
+				textView.InputType &= ~InputTypes.TextFlagAutoCorrect;
 			}
 		}
 
@@ -339,25 +462,21 @@ namespace Microsoft.Maui.Platform
 			searchBar.SetInputType(virtualSearchBar);
 		}
 
-		internal static void SetInputType(this SearchBar searchBar, ISearchBar virtualSearchBar, EditText? editText = null)
+		internal static void SetInputType(this SearchBar searchBar, ISearchBar virtualSearchBar, TextView? textView = null)
 		{
-			editText ??= searchBar.GetFirstChildOfType<EditText>();
+			textView ??= searchBar.GetFirstChildOfType<TextView>();
 
-			if (editText is null)
+			if (textView is null)
 			{
 				return;
 			}
 
-			editText.SetInputType(virtualSearchBar);
-		}
+			// Convert keyboard to InputTypes
+			var keyboard = virtualSearchBar.Keyboard;
 
-		internal static void UpdateReturnType(this Google.Android.Material.Search.SearchView materialSearchView, ISearchBar searchBar)
-		{
-			var editText = materialSearchView.GetFirstChildOfType<EditText>();
-			if (editText is not null)
+			if (keyboard == Keyboard.Numeric)
 			{
-				editText.SetInputType(searchBar);
-				editText.ImeOptions = searchBar.ReturnType.ToPlatform();
+				textView.KeyListener = LocalizedDigitsKeyListener.Create(textView.InputType);
 			}
 		}
 
@@ -371,6 +490,7 @@ namespace Microsoft.Maui.Platform
 			}
 
 			var textView = mauiSearchBar._queryEditor;
+
 			if (textView is not null)
 			{
 				textView.ImeOptions = virtualSearchBar.ReturnType.ToPlatform();
