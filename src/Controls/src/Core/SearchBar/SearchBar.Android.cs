@@ -12,5 +12,12 @@ namespace Microsoft.Maui.Controls
 		{
 			Platform.SearchViewExtensions.UpdateText(handler.PlatformView, searchBar);
 		}
+
+		// Material3 specific overload for SearchBarHandler2
+		internal static void MapText(SearchBarHandler2 handler, SearchBar searchBar)
+		{
+			// Use Controls layer extension that applies TextTransform
+			Platform.SearchViewExtensions.UpdateText(handler.PlatformView, searchBar);
+		}
 	}
 }

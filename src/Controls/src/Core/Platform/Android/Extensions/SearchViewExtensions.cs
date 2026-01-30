@@ -1,4 +1,6 @@
 ﻿#nullable disable
+using Android.Widget;
+using Google.Android.Material.TextField;
 using Microsoft.Maui.Controls.Internals;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
 
@@ -13,6 +15,24 @@ namespace Microsoft.Maui.Controls.Platform
 
 			if (oldQuery != newQuery)
 				searchView.SetQuery(newQuery, false);
+		}
+
+		// Material3 SearchBar - apply TextTransform and update text directly
+		internal static void UpdateText(this TextInputLayout textInputLayout, InputView inputView)
+		{
+			var editText = textInputLayout.GetFirstChildOfType<EditText>();
+			if (editText is null)
+			{
+				return;
+			}
+
+			var oldQuery = editText.Text?.ToString() ?? string.Empty;
+			var newQuery = TextTransformUtilities.GetTransformedText(inputView.Text, inputView.TextTransform);
+
+			if (oldQuery != newQuery)
+			{
+				editText.Text = newQuery;
+			}
 		}
 	}
 }
