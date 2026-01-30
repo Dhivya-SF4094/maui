@@ -58,8 +58,8 @@ internal class MauiMaterialSearchBar : MaterialSearchBar
 
     public override bool OnTouchEvent(MotionEvent? e)
     {
-        // Forward touch events to the TextView to enable editing
-        if (e?.Action == MotionEventActions.Down && _queryEditor is not null)
+        // Forward touch events to the TextView to enable editing only if enabled
+        if (e?.Action == MotionEventActions.Down && _queryEditor is not null && _queryEditor.Enabled)
         {
             _queryEditor.RequestFocus();
             // Show the keyboard when the SearchBar is touched
