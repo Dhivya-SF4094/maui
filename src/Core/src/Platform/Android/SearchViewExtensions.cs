@@ -489,6 +489,7 @@ namespace Microsoft.Maui.Platform
 			}
 
 			editText.SetInputType(searchBar);
+			editText.ImeOptions = (ImeAction)(int)searchBar.ReturnType.ToPlatform();
 		}
 	}
 }

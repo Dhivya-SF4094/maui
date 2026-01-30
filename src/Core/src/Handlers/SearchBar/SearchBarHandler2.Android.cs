@@ -69,6 +69,7 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
                 Handler = this
             };
             editText.AddTextChangedListener(_textWatcher);
+            editText.EditorAction += OnEditorAction;
         }
     }
 
@@ -77,6 +78,7 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
         if (QueryEditor is TextInputEditText editText && _textWatcher is not null)
         {
             editText.RemoveTextChangedListener(_textWatcher);
+            editText.EditorAction -= OnEditorAction;
             _textWatcher.Dispose();
             _textWatcher = null;
         }
@@ -202,6 +204,19 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
         if (args is FocusRequest request)
         {
             handler.QueryEditor?.Focus(request);
+        }
+    }
+
+    void OnEditorAction(object? sender, TextView.EditorActionEventArgs e)
+    {
+        if (e.ActionId == ImeAction.Search || e.ActionId == ImeAction.Done)
+        {
+            VirtualView?.SearchButtonPressed();
+            e.Handled = true;
+        }
+        else
+        {
+            e.Handled = false;
         }
     }
 }
