@@ -51,26 +51,6 @@ internal class MauiMaterialTextInputLayout : TextInputLayout
 
         base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
     }
-
-    class ClearButtonClickListener : Java.Lang.Object, View.IOnClickListener
-    {
-        readonly MauiMaterialTextInputLayout _layout;
-
-        public ClearButtonClickListener(MauiMaterialTextInputLayout layout)
-        {
-            _layout = layout;
-        }
-
-        void View.IOnClickListener.OnClick(View? v)
-        {
-            // Clear the text in the EditText
-            var editText = _layout.GetFirstChildOfType<TextInputEditText>();
-            if (editText is not null)
-            {
-                editText.Text = string.Empty;
-            }
-        }
-    }
 }
 
 // TODO: material3 - make it public in .net 11
@@ -98,6 +78,27 @@ internal class MauiMaterialTextInputEditText : TextInputEditText
         {
             heightMeasureSpec = MeasureSpec.MakeMeasureSpec(heightSize, MeasureSpecMode.Exactly);
         }
+
         base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+}
+
+class ClearButtonClickListener : Java.Lang.Object, View.IOnClickListener
+{
+    readonly MauiMaterialTextInputLayout _layout;
+
+    public ClearButtonClickListener(MauiMaterialTextInputLayout layout)
+    {
+        _layout = layout;
+    }
+
+    void View.IOnClickListener.OnClick(View? v)
+    {
+        // Clear the text in the EditText
+        var editText = _layout.GetFirstChildOfType<TextInputEditText>();
+        if (editText is not null)
+        {
+            editText.Text = string.Empty;
+        }
     }
 }

@@ -5,8 +5,11 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Text;
 using Android.Util;
+using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
+using Google.Android.Material.Search;
+using Google.Android.Material.TextField;
 using static Android.Content.Res.Resources;
 using AAttribute = Android.Resource.Attribute;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
@@ -258,6 +261,234 @@ namespace Microsoft.Maui.Platform
 			var safe = drawable.Mutate();
 			safe.SetTint(color);
 			imageView?.SetImageDrawable(safe);
+		// material3 searchbar extension methods
+		// TODO: material3 - make it public in .net 11
+		internal static void UpdateText(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+
+			if (editText is null)
+				return;
+
+			editText.Text = virtualSearchBar.Text;
+
+			// Update close button visibility based on whether text exists (Material2 behavior)
+			if (textInputLayout is MauiMaterialTextInputLayout materialLayout)
+			{
+				materialLayout.UpdateCloseButtonVisibility(!string.IsNullOrEmpty(virtualSearchBar.Text));
+			}
+		}
+
+		internal static void UpdatePlaceholder(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
+		{
+			// Set hint on the EditText for traditional placeholder behavior (not floating label)
+			var editText = textInputLayout.GetFirstChildOfType<EditText>();
+			if (editText is not null)
+			{
+				editText.Hint = virtualSearchBar.Placeholder;
+			}
+		}
+
+		internal static void UpdatePlaceholderColor(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
+		{
+			var hintTextView = textInputLayout.GetFirstChildOfType<TextView>();
+
+			if (hintTextView is null)
+			{
+				return;
+			}
+
+			if (virtualSearchBar?.PlaceholderColor is Graphics.Color placeholderTextColor)
+			{
+				if (PlatformInterop.CreateEditTextColorStateList(hintTextView.HintTextColors, placeholderTextColor.ToPlatform()) is ColorStateList c)
+				{
+					hintTextView.SetHintTextColor(c);
+				}
+			}
+			else if (TryGetDefaultStateColor(textInputLayout, AAttribute.TextColorHint, out var color))
+			{
+				hintTextView.SetHintTextColor(color);
+
+				var searchMagIconImage = textInputLayout.FindViewById<ImageView>(Resource.Id.search_mag_icon);
+				searchMagIconImage?.Drawable?.SetTint(color);
+			}
+		}
+
+		internal static void UpdateIsReadOnly(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+
+			if (editText is null)
+			{
+				return;
+			}
+
+			bool isReadOnly = !virtualSearchBar.IsReadOnly;
+
+			editText.FocusableInTouchMode = isReadOnly;
+			editText.Focusable = isReadOnly;
+			editText.SetCursorVisible(isReadOnly);
+		}
+
+		internal static void UpdateIsEnabled(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
+		{
+			textInputLayout.Enabled = virtualSearchBar.IsEnabled;
+
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			if (editText is not null)
+			{
+				editText.Enabled = virtualSearchBar.IsEnabled;
+
+				// Clear focus and hide keyboard when disabled
+				if (!virtualSearchBar.IsEnabled && editText.HasFocus)
+				{
+					editText.ClearFocus();
+				}
+			}
+		}
+
+		internal static void UpdateVerticalTextAlignment(this TextInputLayout textInputLayout, ISearchBar searchBar, EditText? editText)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+
+			if (editText is null)
+			{
+				return;
+			}
+
+			editText.UpdateVerticalAlignment(searchBar.VerticalTextAlignment, TextAlignment.Center.ToVerticalGravityFlags());
+		}
+
+		internal static void UpdateMaxLength(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
+		{
+			textInputLayout.UpdateMaxLength(virtualSearchBar.MaxLength, editText);
+		}
+
+		internal static void UpdateMaxLength(this TextInputLayout textInputLayout, int maxLength, EditText? editText)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			editText?.SetLengthFilter(maxLength);
+
+			var text = editText?.Text?.ToString() ?? string.Empty;
+			var trimmedText = text.TrimToMaxLength(maxLength);
+
+			if (text != trimmedText)
+			{
+				editText?.Text = trimmedText;
+			}
+		}
+
+		internal static void UpdateSearchIconColor(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
+		{
+			// For TextInputLayout, the search icon is the start icon
+			// Only set tint when color is specified to preserve default theme colors
+			if (virtualSearchBar.SearchIconColor is not null)
+			{
+				var color = virtualSearchBar.SearchIconColor.ToPlatform();
+				textInputLayout.SetStartIconTintList(ColorStateList.ValueOf(color));
+			}
+		}
+
+		internal static void UpdateCancelButtonColor(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
+		{
+			// For TextInputLayout, the cancel/clear button is the end icon
+			// Only set tint when color is specified to preserve default theme colors
+			if (virtualSearchBar.CancelButtonColor is not null)
+			{
+				var color = virtualSearchBar.CancelButtonColor.ToPlatform();
+				textInputLayout.SetEndIconTintList(ColorStateList.ValueOf(color));
+			}
+		}
+
+		static bool TryGetDefaultStateColor(TextInputLayout textInputLayout, int attribute, out Color color)
+		{
+			color = default;
+
+			if (!OperatingSystem.IsAndroidVersionAtLeast(23))
+			{
+				return false;
+			}
+
+			if (textInputLayout.Context?.Theme is not Theme theme)
+			{
+				return false;
+			}
+
+			int[] s_disabledState = [-AAttribute.StateEnabled];
+			int[] s_enabledState = [AAttribute.StateEnabled];
+
+			using var ta = theme.ObtainStyledAttributes([attribute]);
+			var cs = ta.GetColorStateList(0);
+			if (cs is null)
+			{
+				return false;
+			}
+
+			var state = textInputLayout.Enabled ? s_enabledState : s_disabledState;
+			color = new Color(cs.GetColorForState(state, Color.Black));
+			return true;
+		}
+
+		internal static void UpdateIsTextPredictionEnabled(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+
+			if (editText is null)
+			{
+				return;
+			}
+
+			if (!virtualSearchBar.IsSpellCheckEnabled)
+			{
+				editText.InputType |= InputTypes.TextFlagNoSuggestions;
+			}
+			else
+			{
+				editText.InputType &= ~InputTypes.TextFlagNoSuggestions;
+			}
+		}
+
+		internal static void UpdateIsSpellCheckEnabled(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+
+			if (editText is null)
+			{
+				return;
+			}
+
+			if (!virtualSearchBar.IsSpellCheckEnabled)
+			{
+				editText.InputType |= InputTypes.TextFlagNoSuggestions;
+			}
+			else
+			{
+				editText.InputType &= ~InputTypes.TextFlagNoSuggestions;
+			}
+		}
+
+		internal static void UpdateKeyboard(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+
+			if (editText is null)
+			{
+				return;
+			}
+
+			editText.SetInputType(virtualSearchBar);
+		}
+
+		internal static void UpdateReturnType(this TextInputLayout textInputLayout, ISearchBar searchBar, EditText? editText = null)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+
+			if (editText is null)
+			{
+				return;
+			}
+
+			editText.SetInputType(searchBar);
 		}
 	}
 }

@@ -64,7 +64,10 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
 
         if (QueryEditor is TextInputEditText editText)
         {
-            _textWatcher = new SearchBarTextWatcher(platformView);
+            _textWatcher = new SearchBarTextWatcher(platformView)
+            {
+                Handler = this
+            };
             editText.AddTextChangedListener(_textWatcher);
         }
     }
@@ -205,6 +208,9 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
 class SearchBarTextWatcher : Java.Lang.Object, ITextWatcher
 {
     readonly MauiMaterialTextInputLayout _layout;
+
+    public SearchBarHandler2? Handler { get; set; }
+
     public SearchBarTextWatcher(MauiMaterialTextInputLayout layout)
     {
         _layout = layout;
@@ -222,5 +228,10 @@ class SearchBarTextWatcher : Java.Lang.Object, ITextWatcher
 
     public void OnTextChanged(Java.Lang.ICharSequence? s, int start, int before, int count)
     {
+        if (Handler?.VirtualView is ISearchBar searchBar)
+        {
+            var newText = s?.ToString() ?? string.Empty;
+            searchBar.UpdateText(newText);
+        }
     }
 }

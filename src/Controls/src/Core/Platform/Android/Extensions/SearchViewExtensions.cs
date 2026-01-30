@@ -31,7 +31,15 @@ namespace Microsoft.Maui.Controls.Platform
 
 			if (oldQuery != newQuery)
 			{
+				// Preserve cursor position when applying text transform
+				var cursorPosition = editText.SelectionStart;
 				editText.Text = newQuery;
+
+				// Restore cursor position, ensuring it doesn't exceed new text length
+				if (cursorPosition >= 0 && cursorPosition <= newQuery?.Length)
+				{
+					editText.SetSelection(cursorPosition);
+				}
 			}
 		}
 	}
