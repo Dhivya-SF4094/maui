@@ -37,6 +37,8 @@ namespace Microsoft.Maui.Handlers
 			[nameof(ISearchBar.SearchIconColor)] = MapSearchIconColor,
 			[nameof(ISearchBar.Keyboard)] = MapKeyboard,
 			[nameof(ISearchBar.ReturnType)] = MapReturnType,
+			[nameof(ISearchBar.CursorPosition)] = MapCursorPosition,
+			[nameof(ISearchBar.SelectionLength)] = MapSelectionLength,
 #if ANDROID
 			[nameof(ISearchBar.FlowDirection)] = MapFlowDirection,
 #endif
