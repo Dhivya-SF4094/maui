@@ -1,3 +1,4 @@
+using System;
 using Android.Content;
 using Android.Content.Res;
 using Android.Views;
@@ -32,6 +33,12 @@ namespace Microsoft.Maui.Handlers
 
 			platformView.QueryTextChange += OnQueryTextChange;
 			platformView.QueryTextSubmit += OnQueryTextSubmit;
+
+			if (_platformSearchView is not null)
+			{
+				_platformSearchView.SelectionChanged += OnSelectionChanged;
+				//_platformSearchView.StartMonitoringSelection();
+			}
 		}
 
 		protected override void DisconnectHandler(SearchView platformView)
@@ -41,6 +48,12 @@ namespace Microsoft.Maui.Handlers
 
 			platformView.QueryTextChange -= OnQueryTextChange;
 			platformView.QueryTextSubmit -= OnQueryTextSubmit;
+
+			if (_platformSearchView is not null)
+			{
+				_platformSearchView.SelectionChanged -= OnSelectionChanged;
+				//	_platformSearchView.StopMonitoringSelection();
+			}
 		}
 
 		public static void MapBackground(ISearchBarHandler handler, ISearchBar searchBar)
@@ -67,6 +80,16 @@ namespace Microsoft.Maui.Handlers
 		public static void MapPlaceholderColor(ISearchBarHandler handler, ISearchBar searchBar)
 		{
 			handler.PlatformView?.UpdatePlaceholderColor(searchBar, DefaultPlaceholderTextColors, handler.QueryEditor);
+		}
+
+		internal static void MapCursorPosition(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.QueryEditor?.UpdateCursorPosition(searchBar);
+		}
+
+		internal static void MapSelectionLength(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.QueryEditor?.UpdateSelectionLength(searchBar);
 		}
 
 		internal static void MapFlowDirection(ISearchBarHandler handler, ISearchBar searchBar)
@@ -173,6 +196,21 @@ namespace Microsoft.Maui.Handlers
 		{
 			VirtualView.UpdateText(e.NewText);
 			e.Handled = true;
+		}
+
+		void OnSelectionChanged(object? sender, EventArgs e)
+		{
+			if (QueryEditor is null || VirtualView is null)
+				return;
+
+			var cursorPosition = QueryEditor.GetCursorPosition();
+			var selectedTextLength = QueryEditor.GetSelectedTextLength();
+
+			if (VirtualView.CursorPosition != cursorPosition)
+				VirtualView.CursorPosition = cursorPosition;
+
+			if (VirtualView.SelectionLength != selectedTextLength)
+				VirtualView.SelectionLength = selectedTextLength;
 		}
 
 		class FocusChangeListener : Java.Lang.Object, SearchView.IOnFocusChangeListener
