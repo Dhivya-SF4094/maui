@@ -290,6 +290,22 @@ namespace Microsoft.Maui.Platform
 			}
 		}
 
+		internal static void UpdateBackground(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
+		{
+			var background = virtualSearchBar.Background;
+
+			if (background is Microsoft.Maui.Graphics.SolidPaint solidPaint)
+			{
+				// For Material 3 filled TextInputLayout, set the box background color
+				textInputLayout.BoxBackgroundColor = solidPaint.Color.ToPlatform();
+			}
+			else
+			{
+				// For other background types, use the standard ViewExtensions approach
+				ViewExtensions.UpdateBackground(textInputLayout, virtualSearchBar);
+			}
+		}
+
 		internal static void UpdatePlaceholder(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
 		{
 			// Set hint on the EditText for traditional placeholder behavior (not floating label)

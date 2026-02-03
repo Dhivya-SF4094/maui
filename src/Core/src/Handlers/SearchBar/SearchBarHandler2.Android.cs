@@ -43,7 +43,6 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
             };
 
     public TextInputEditText? QueryEditor => PlatformView?.GetFirstChildOfType<TextInputEditText>();
-    FocusChangeListener? _focusListener;
 
     public SearchBarHandler2() : base(Mapper, CommandMapper)
     {
@@ -62,18 +61,14 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
         base.ConnectHandler(platformView);
         platformView.EditText?.TextChanged += OnTextChanged;
         platformView.EditText?.EditorAction += OnEditorAction;
-
-        // Add focus change listener to track IsFocused property
-        _focusListener = new FocusChangeListener { Handler = this };
-        platformView.EditText?.OnFocusChangeListener = _focusListener;
+        platformView.EditText?.FocusChange += OnFocusChange;
     }
 
     protected override void DisconnectHandler(MauiMaterialTextInputLayout platformView)
     {
         platformView.EditText?.TextChanged -= OnTextChanged;
         platformView.EditText?.EditorAction -= OnEditorAction;
-        platformView.EditText?.OnFocusChangeListener = null;
-        _focusListener = null;
+        platformView.EditText?.FocusChange -= OnFocusChange;
 
         base.DisconnectHandler(platformView);
     }
@@ -224,17 +219,12 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
             e.Handled = false;
         }
     }
-}
 
-class FocusChangeListener : Java.Lang.Object, View.IOnFocusChangeListener
-{
-    public SearchBarHandler2? Handler { get; set; }
-
-    public void OnFocusChange(View? v, bool hasFocus)
+    void OnFocusChange(object? sender, View.FocusChangeEventArgs e)
     {
-        if (Handler?.VirtualView is ISearchBar searchBar)
+        if (VirtualView is not null)
         {
-            searchBar.IsFocused = hasFocus;
+            VirtualView.IsFocused = e.HasFocus;
         }
     }
 }
