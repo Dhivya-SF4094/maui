@@ -268,14 +268,25 @@ namespace Microsoft.Maui.Platform
 			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
 
 			if (editText is null)
+			{
 				return;
+			}
 
-			editText.Text = virtualSearchBar.Text;
+			// Check if text is already the same to prevent unnecessary updates and TextWatcher loops
+			var currentText = editText.Text ?? string.Empty;
+			var newText = virtualSearchBar.Text ?? string.Empty;
+
+			if (currentText == newText)
+			{
+				return;
+			}
+
+			editText.Text = newText;
 
 			// Update close button visibility based on whether text exists (Material2 behavior)
 			if (textInputLayout is MauiMaterialTextInputLayout materialLayout)
 			{
-				materialLayout.UpdateCloseButtonVisibility(!string.IsNullOrEmpty(virtualSearchBar.Text));
+				materialLayout.UpdateCloseButtonVisibility(!string.IsNullOrEmpty(newText));
 			}
 		}
 
@@ -378,25 +389,57 @@ namespace Microsoft.Maui.Platform
 			}
 		}
 
+		internal static void UpdateFont(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, IFontManager fontManager, EditText? editText = null)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+
+			if (editText is null)
+			{
+				return;
+			}
+
+			editText.UpdateFont(virtualSearchBar, fontManager);
+		}
+
+		internal static void UpdateTextColor(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
+		{
+			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+
+			if (editText is null)
+			{
+				return;
+			}
+
+			editText.UpdateTextColor(virtualSearchBar);
+		}
+
 		internal static void UpdateSearchIconColor(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
 		{
 			// For TextInputLayout, the search icon is the start icon
-			// Only set tint when color is specified to preserve default theme colors
 			if (virtualSearchBar.SearchIconColor is not null)
 			{
 				var color = virtualSearchBar.SearchIconColor.ToPlatform();
 				textInputLayout.SetStartIconTintList(ColorStateList.ValueOf(color));
+			}
+			else if (TryGetDefaultStateColor(textInputLayout, AAttribute.TextColorPrimary, out var defaultColor))
+			{
+				// Restore default theme color
+				textInputLayout.SetStartIconTintList(ColorStateList.ValueOf(defaultColor));
 			}
 		}
 
 		internal static void UpdateCancelButtonColor(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
 		{
 			// For TextInputLayout, the cancel/clear button is the end icon
-			// Only set tint when color is specified to preserve default theme colors
 			if (virtualSearchBar.CancelButtonColor is not null)
 			{
 				var color = virtualSearchBar.CancelButtonColor.ToPlatform();
 				textInputLayout.SetEndIconTintList(ColorStateList.ValueOf(color));
+			}
+			else if (TryGetDefaultStateColor(textInputLayout, AAttribute.TextColorPrimary, out var defaultColor))
+			{
+				// Restore default theme color
+				textInputLayout.SetEndIconTintList(ColorStateList.ValueOf(defaultColor));
 			}
 		}
 

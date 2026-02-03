@@ -44,6 +44,7 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
 
     TextInputEditText? QueryEditor => PlatformView?.GetFirstChildOfType<TextInputEditText>();
     SearchBarTextWatcher? _textWatcher;
+    FocusChangeListener? _focusListener;
 
     public SearchBarHandler2() : base(Mapper, CommandMapper)
     {
@@ -70,6 +71,10 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
             };
             editText.AddTextChangedListener(_textWatcher);
             editText.EditorAction += OnEditorAction;
+
+            // Add focus change listener to track IsFocused property
+            _focusListener = new FocusChangeListener { Handler = this };
+            editText.OnFocusChangeListener = _focusListener;
         }
     }
 
@@ -81,6 +86,12 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
             editText.EditorAction -= OnEditorAction;
             _textWatcher.Dispose();
             _textWatcher = null;
+
+            if (_focusListener is not null)
+            {
+                editText.OnFocusChangeListener = null;
+                _focusListener = null;
+            }
         }
 
         base.DisconnectHandler(platformView);
@@ -99,7 +110,7 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
     public static void MapFont(SearchBarHandler2 handler, ISearchBar searchBar)
     {
         var fontManager = handler.GetRequiredService<IFontManager>();
-        handler.QueryEditor?.UpdateFont(searchBar, fontManager);
+        handler.PlatformView?.UpdateFont(searchBar, fontManager, handler.QueryEditor);
     }
 
     public static void MapHorizontalTextAlignment(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -149,8 +160,7 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
 
     public static void MapTextColor(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.QueryEditor?.UpdateTextColor(searchBar);
-        //  handler.PlatformView?.UpdateTextColor(searchBar);
+        handler.PlatformView?.UpdateTextColor(searchBar, handler.QueryEditor);
     }
 
     public static void MapCancelButtonColor(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -247,6 +257,19 @@ class SearchBarTextWatcher : Java.Lang.Object, ITextWatcher
         {
             var newText = s?.ToString() ?? string.Empty;
             searchBar.UpdateText(newText);
+        }
+    }
+}
+
+class FocusChangeListener : Java.Lang.Object, View.IOnFocusChangeListener
+{
+    public SearchBarHandler2? Handler { get; set; }
+
+    public void OnFocusChange(View? v, bool hasFocus)
+    {
+        if (Handler?.VirtualView is ISearchBar searchBar)
+        {
+            searchBar.IsFocused = hasFocus;
         }
     }
 }
