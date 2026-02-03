@@ -84,7 +84,6 @@ internal partial class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialT
         {
             editText.RemoveTextChangedListener(_textWatcher);
             editText.EditorAction -= OnEditorAction;
-            _textWatcher.Dispose();
             _textWatcher = null;
 
             if (_focusListener is not null)
