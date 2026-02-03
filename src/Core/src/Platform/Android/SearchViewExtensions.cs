@@ -265,7 +265,7 @@ namespace Microsoft.Maui.Platform
 		// TODO: material3 - make it public in .net 11
 		internal static void UpdateText(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			editText ??= textInputLayout.EditText;
 
 			if (editText is null)
 			{
@@ -293,16 +293,13 @@ namespace Microsoft.Maui.Platform
 		internal static void UpdatePlaceholder(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
 		{
 			// Set hint on the EditText for traditional placeholder behavior (not floating label)
-			var editText = textInputLayout.GetFirstChildOfType<EditText>();
-			if (editText is not null)
-			{
-				editText.Hint = virtualSearchBar.Placeholder;
-			}
+			var editText = textInputLayout.EditText;
+			editText?.Hint = virtualSearchBar.Placeholder;
 		}
 
 		internal static void UpdatePlaceholderColor(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar)
 		{
-			var hintTextView = textInputLayout.GetFirstChildOfType<TextView>();
+			var hintTextView = textInputLayout.EditText;
 
 			if (hintTextView is null)
 			{
@@ -325,27 +322,11 @@ namespace Microsoft.Maui.Platform
 			}
 		}
 
-		internal static void UpdateIsReadOnly(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
-		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
-
-			if (editText is null)
-			{
-				return;
-			}
-
-			bool isReadOnly = !virtualSearchBar.IsReadOnly;
-
-			editText.FocusableInTouchMode = isReadOnly;
-			editText.Focusable = isReadOnly;
-			editText.SetCursorVisible(isReadOnly);
-		}
-
 		internal static void UpdateIsEnabled(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
 			textInputLayout.Enabled = virtualSearchBar.IsEnabled;
 
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			editText ??= textInputLayout.EditText;
 			if (editText is not null)
 			{
 				editText.Enabled = virtualSearchBar.IsEnabled;
@@ -358,18 +339,6 @@ namespace Microsoft.Maui.Platform
 			}
 		}
 
-		internal static void UpdateVerticalTextAlignment(this TextInputLayout textInputLayout, ISearchBar searchBar, EditText? editText)
-		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
-
-			if (editText is null)
-			{
-				return;
-			}
-
-			editText.UpdateVerticalAlignment(searchBar.VerticalTextAlignment, TextAlignment.Center.ToVerticalGravityFlags());
-		}
-
 		internal static void UpdateMaxLength(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
 			textInputLayout.UpdateMaxLength(virtualSearchBar.MaxLength, editText);
@@ -377,7 +346,7 @@ namespace Microsoft.Maui.Platform
 
 		internal static void UpdateMaxLength(this TextInputLayout textInputLayout, int maxLength, EditText? editText)
 		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			editText ??= textInputLayout.EditText;
 			editText?.SetLengthFilter(maxLength);
 
 			var text = editText?.Text?.ToString() ?? string.Empty;
@@ -391,7 +360,7 @@ namespace Microsoft.Maui.Platform
 
 		internal static void UpdateFont(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, IFontManager fontManager, EditText? editText = null)
 		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			editText ??= textInputLayout.EditText;
 
 			if (editText is null)
 			{
@@ -403,7 +372,7 @@ namespace Microsoft.Maui.Platform
 
 		internal static void UpdateTextColor(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			editText ??= textInputLayout.EditText;
 
 			if (editText is null)
 			{
@@ -474,7 +443,7 @@ namespace Microsoft.Maui.Platform
 
 		internal static void UpdateIsTextPredictionEnabled(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			editText ??= textInputLayout.EditText;
 
 			if (editText is null)
 			{
@@ -493,7 +462,7 @@ namespace Microsoft.Maui.Platform
 
 		internal static void UpdateIsSpellCheckEnabled(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			editText ??= textInputLayout.EditText;
 
 			if (editText is null)
 			{
@@ -512,7 +481,7 @@ namespace Microsoft.Maui.Platform
 
 		internal static void UpdateKeyboard(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
 		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
+			editText ??= textInputLayout.EditText;
 
 			if (editText is null)
 			{
@@ -524,8 +493,7 @@ namespace Microsoft.Maui.Platform
 
 		internal static void UpdateReturnType(this TextInputLayout textInputLayout, ISearchBar searchBar, EditText? editText = null)
 		{
-			editText ??= textInputLayout.GetFirstChildOfType<EditText>();
-
+			editText ??= textInputLayout.EditText;
 			if (editText is null)
 			{
 				return;

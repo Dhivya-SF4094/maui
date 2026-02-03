@@ -42,8 +42,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
                 [nameof(ISearchBar.Focus)] = MapFocus
             };
 
-    TextInputEditText? QueryEditor => PlatformView?.GetFirstChildOfType<TextInputEditText>();
-    SearchBarTextWatcher? _textWatcher;
+    public TextInputEditText? QueryEditor => PlatformView?.GetFirstChildOfType<TextInputEditText>();
     FocusChangeListener? _focusListener;
 
     public SearchBarHandler2() : base(Mapper, CommandMapper)
@@ -54,7 +53,6 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
     {
         var layout = new MauiMaterialTextInputLayout(Context);
         layout.BoxBackgroundMode = TextInputLayout.BoxBackgroundFilled;
-
         layout.AddView(new MauiMaterialTextInputEditText(layout.Context!));
         return layout;
     }
@@ -62,36 +60,20 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
     protected override void ConnectHandler(MauiMaterialTextInputLayout platformView)
     {
         base.ConnectHandler(platformView);
+        platformView.EditText?.TextChanged += OnTextChanged;
+        platformView.EditText?.EditorAction += OnEditorAction;
 
-        if (QueryEditor is TextInputEditText editText)
-        {
-            _textWatcher = new SearchBarTextWatcher(platformView)
-            {
-                Handler = this
-            };
-            editText.AddTextChangedListener(_textWatcher);
-            editText.EditorAction += OnEditorAction;
-
-            // Add focus change listener to track IsFocused property
-            _focusListener = new FocusChangeListener { Handler = this };
-            editText.OnFocusChangeListener = _focusListener;
-        }
+        // Add focus change listener to track IsFocused property
+        _focusListener = new FocusChangeListener { Handler = this };
+        platformView.EditText?.OnFocusChangeListener = _focusListener;
     }
 
     protected override void DisconnectHandler(MauiMaterialTextInputLayout platformView)
     {
-        if (QueryEditor is TextInputEditText editText && _textWatcher is not null)
-        {
-            editText.RemoveTextChangedListener(_textWatcher);
-            editText.EditorAction -= OnEditorAction;
-            _textWatcher = null;
-
-            if (_focusListener is not null)
-            {
-                editText.OnFocusChangeListener = null;
-                _focusListener = null;
-            }
-        }
+        platformView.EditText?.TextChanged -= OnTextChanged;
+        platformView.EditText?.EditorAction -= OnEditorAction;
+        platformView.EditText?.OnFocusChangeListener = null;
+        _focusListener = null;
 
         base.DisconnectHandler(platformView);
     }
@@ -119,12 +101,12 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapVerticalTextAlignment(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView.UpdateVerticalTextAlignment(searchBar, handler.QueryEditor);
+        handler.QueryEditor?.UpdateVerticalTextAlignment(searchBar);
     }
 
     public static void MapIsReadOnly(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView?.UpdateIsReadOnly(searchBar);
+        handler.QueryEditor?.UpdateIsReadOnly(searchBar);
     }
 
     public static void MapIsTextPredictionEnabled(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -216,6 +198,20 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
         }
     }
 
+    void OnTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (VirtualView is null || sender is not EditText editText)
+        {
+            return;
+        }
+
+        var newText = editText.Text ?? string.Empty;
+        VirtualView.UpdateText(newText);
+
+        // Update clear button visibility based on text content
+        PlatformView?.UpdateCloseButtonVisibility(!string.IsNullOrEmpty(newText));
+    }
+
     void OnEditorAction(object? sender, TextView.EditorActionEventArgs e)
     {
         if (e.ActionId == ImeAction.Search || e.ActionId == ImeAction.Done)
@@ -226,36 +222,6 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
         else
         {
             e.Handled = false;
-        }
-    }
-}
-class SearchBarTextWatcher : Java.Lang.Object, ITextWatcher
-{
-    readonly MauiMaterialTextInputLayout _layout;
-
-    public SearchBarHandler2? Handler { get; set; }
-
-    public SearchBarTextWatcher(MauiMaterialTextInputLayout layout)
-    {
-        _layout = layout;
-    }
-
-    public void AfterTextChanged(IEditable? s)
-    {
-        // Update close button visibility based on whether text exists
-        _layout.UpdateCloseButtonVisibility(!string.IsNullOrEmpty(s?.ToString()));
-    }
-
-    public void BeforeTextChanged(Java.Lang.ICharSequence? s, int start, int count, int after)
-    {
-    }
-
-    public void OnTextChanged(Java.Lang.ICharSequence? s, int start, int before, int count)
-    {
-        if (Handler?.VirtualView is ISearchBar searchBar)
-        {
-            var newText = s?.ToString() ?? string.Empty;
-            searchBar.UpdateText(newText);
         }
     }
 }

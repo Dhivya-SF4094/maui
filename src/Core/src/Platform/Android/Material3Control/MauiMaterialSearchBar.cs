@@ -10,19 +10,15 @@ internal class MauiMaterialTextInputLayout : TextInputLayout
 {
     public MauiMaterialTextInputLayout(Context context) : base(context)
     {
-        // Disable floating label behavior for traditional placeholder
-        HintEnabled = false;
-        HintAnimationEnabled = false;
-
         // Set the search icon as the start/leading icon
         SetStartIconDrawable(Resource.Drawable.abc_ic_search_api_material);
-        StartIconContentDescription = "Search";
+        StartIconContentDescription = "Search icon";
 
         // Set the clear/cancel button as the end icon with custom behavior
         // Custom mode allows showing icon regardless of focus state (matching Material2)
         EndIconMode = EndIconCustom;
         SetEndIconDrawable(Resource.Drawable.abc_ic_clear_material);
-        EndIconContentDescription = "Clear";
+        EndIconContentDescription = "Clear icon";
 
         // Set up click listener for clear button
         SetEndIconOnClickListener(new ClearButtonClickListener(this));
@@ -96,9 +92,6 @@ class ClearButtonClickListener : Java.Lang.Object, View.IOnClickListener
     {
         // Clear the text in the EditText
         var editText = _layout.GetFirstChildOfType<TextInputEditText>();
-        if (editText is not null)
-        {
-            editText.Text = string.Empty;
-        }
+        editText?.Text = string.Empty;
     }
 }
