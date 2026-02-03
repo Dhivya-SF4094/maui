@@ -307,10 +307,15 @@ namespace Microsoft.Maui.Platform
 
 				textInputLayout.SetBoxBackgroundColorStateList(colorStateList);
 			}
-			else
+			else if (background is null)
 			{
-				// For other background types, use the standard ViewExtensions approach
-				ViewExtensions.UpdateBackground(textInputLayout, virtualSearchBar);
+				// Clear the custom background and restore Material 3 default
+				if (TryGetDefaultStateColor(textInputLayout, AAttribute.ColorBackground, out var defaultColor))
+				{
+					var colorInt = (int)defaultColor;
+					var colorStateList = ColorStateListExtensions.CreateEditText(colorInt, colorInt);
+					textInputLayout.SetBoxBackgroundColorStateList(colorStateList);
+				}
 			}
 		}
 
