@@ -163,7 +163,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapFlowDirection(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        if (searchBar.FlowDirection == FlowDirection.MatchParent && searchBar.Parent != null && searchBar.Parent is IView parentView)
+        if (searchBar.FlowDirection == FlowDirection.MatchParent && searchBar.Parent is not null && searchBar.Parent is IView parentView)
         {
             // When FlowDirection is MatchParent, respect the parent's FlowDirection
             if (handler.PlatformView is AView platformView)
@@ -182,7 +182,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapIsEnabled(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.QueryEditor?.UpdateIsEnabled(searchBar);
+        handler.PlatformView?.UpdateIsEnabled(searchBar, handler.QueryEditor);
     }
 
     public static void MapFocus(SearchBarHandler2 handler, ISearchBar searchBar, object? args)

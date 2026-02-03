@@ -1,6 +1,4 @@
 ﻿#nullable disable
-using Android.Widget;
-using Google.Android.Material.TextField;
 using Microsoft.Maui.Controls.Internals;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
 

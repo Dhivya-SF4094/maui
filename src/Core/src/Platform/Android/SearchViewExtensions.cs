@@ -296,8 +296,16 @@ namespace Microsoft.Maui.Platform
 
 			if (background is Microsoft.Maui.Graphics.SolidPaint solidPaint)
 			{
-				// For Material 3 filled TextInputLayout, set the box background color
-				textInputLayout.BoxBackgroundColor = solidPaint.Color.ToPlatform();
+				// For Material 3 filled TextInputLayout, use ColorStateList to maintain
+				// the same background color across all states (enabled, disabled, focused)
+				// This prevents Material Design from applying its default disabled state styling
+				var platformColor = solidPaint.Color.ToPlatform();
+				var colorInt = (int)platformColor;
+
+				// Use the same color for both enabled and disabled states
+				var colorStateList = ColorStateListExtensions.CreateEditText(colorInt, colorInt);
+
+				textInputLayout.SetBoxBackgroundColorStateList(colorStateList);
 			}
 			else
 			{
@@ -322,7 +330,7 @@ namespace Microsoft.Maui.Platform
 				return;
 			}
 
-			if (virtualSearchBar?.PlaceholderColor is Graphics.Color placeholderTextColor)
+			if (virtualSearchBar?.PlaceholderColor is Microsoft.Maui.Graphics.Color placeholderTextColor)
 			{
 				if (PlatformInterop.CreateEditTextColorStateList(hintTextView.HintTextColors, placeholderTextColor.ToPlatform()) is ColorStateList c)
 				{
@@ -372,18 +380,6 @@ namespace Microsoft.Maui.Platform
 			{
 				editText?.Text = trimmedText;
 			}
-		}
-
-		internal static void UpdateFont(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, IFontManager fontManager, EditText? editText = null)
-		{
-			editText ??= textInputLayout.EditText;
-
-			if (editText is null)
-			{
-				return;
-			}
-
-			editText.UpdateFont(virtualSearchBar, fontManager);
 		}
 
 		internal static void UpdateTextColor(this TextInputLayout textInputLayout, ISearchBar virtualSearchBar, EditText? editText = null)
@@ -466,7 +462,7 @@ namespace Microsoft.Maui.Platform
 				return;
 			}
 
-			if (!virtualSearchBar.IsSpellCheckEnabled)
+			if (!virtualSearchBar.IsTextPredictionEnabled)
 			{
 				editText.InputType |= InputTypes.TextFlagNoSuggestions;
 			}
