@@ -86,7 +86,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
     public static void MapFont(SearchBarHandler2 handler, ISearchBar searchBar)
     {
         var fontManager = handler.GetRequiredService<IFontManager>();
-        handler.PlatformView?.UpdateFont(searchBar, fontManager, handler.QueryEditor);
+        handler.QueryEditor?.UpdateFont(searchBar, fontManager);
     }
 
     public static void MapHorizontalTextAlignment(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -182,7 +182,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapIsEnabled(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView.UpdateIsEnabled(searchBar, handler.QueryEditor);
+        handler.QueryEditor?.UpdateIsEnabled(searchBar);
     }
 
     public static void MapFocus(SearchBarHandler2 handler, ISearchBar searchBar, object? args)
