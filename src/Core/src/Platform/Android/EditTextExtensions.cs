@@ -103,7 +103,7 @@ namespace Microsoft.Maui.Platform
 			editText.UpdateIsSpellCheckEnabled(editor as ITextInput);
 		}
 
-		private static void UpdateIsTextPredictionEnabled(this EditText editText, ITextInput textInput)
+		internal static void UpdateIsTextPredictionEnabled(this EditText editText, ITextInput textInput)
 		{
 			var keyboard = textInput.Keyboard;
 
@@ -116,7 +116,7 @@ namespace Microsoft.Maui.Platform
 				editText.InputType &= ~InputTypes.TextFlagAutoCorrect;
 		}
 
-		private static void UpdateIsSpellCheckEnabled(this EditText editText, ITextInput textInput)
+		internal static void UpdateIsSpellCheckEnabled(this EditText editText, ITextInput textInput)
 		{
 			// TextFlagNoSuggestions disables spellchecking (the red squiggly lines)
 			if (!textInput.IsSpellCheckEnabled)
