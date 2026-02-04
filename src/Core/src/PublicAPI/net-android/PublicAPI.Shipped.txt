@@ -3377,6 +3377,7 @@ static Microsoft.Maui.Platform.ScrollViewExtensions.UpdateContent(this Microsoft
 static Microsoft.Maui.Platform.SearchViewExtensions.UpdateCancelButtonColor(this AndroidX.AppCompat.Widget.SearchView! searchView, Microsoft.Maui.ISearchBar! searchBar) -> void
 static Microsoft.Maui.Platform.SearchViewExtensions.UpdateFont(this AndroidX.AppCompat.Widget.SearchView! searchView, Microsoft.Maui.ISearchBar! searchBar, Microsoft.Maui.IFontManager! fontManager, Android.Widget.EditText? editText = null) -> void
 static Microsoft.Maui.Platform.SearchViewExtensions.UpdateIsEnabled(this AndroidX.AppCompat.Widget.SearchView! searchView, Microsoft.Maui.ISearchBar! searchBar, Android.Widget.EditText? editText = null) -> void
+static Microsoft.Maui.Platform.SearchViewExtensions.UpdateIsReadOnly(this Android.Widget.EditText! editText, Microsoft.Maui.ISearchBar! searchBar) -> void
 static Microsoft.Maui.Platform.SearchViewExtensions.UpdateIsSpellCheckEnabled(this AndroidX.AppCompat.Widget.SearchView! searchView, Microsoft.Maui.ISearchBar! searchBar, Android.Widget.EditText? editText = null) -> void
 static Microsoft.Maui.Platform.SearchViewExtensions.UpdateIsTextPredictionEnabled(this AndroidX.AppCompat.Widget.SearchView! searchView, Microsoft.Maui.ISearchBar! searchBar, Android.Widget.EditText? editText = null) -> void
 static Microsoft.Maui.Platform.SearchViewExtensions.UpdateKeyboard(this AndroidX.AppCompat.Widget.SearchView! searchView, Microsoft.Maui.ISearchBar! searchBar) -> void

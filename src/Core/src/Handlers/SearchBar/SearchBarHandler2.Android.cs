@@ -148,7 +148,8 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapText(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView?.UpdateText(searchBar);
+        handler.QueryEditor?.UpdateText(searchBar);
+        handler.PlatformView?.UpdateCloseButtonVisibility(!string.IsNullOrEmpty(searchBar.Text));
     }
 
     public static void MapTextColor(SearchBarHandler2 handler, ISearchBar searchBar)
