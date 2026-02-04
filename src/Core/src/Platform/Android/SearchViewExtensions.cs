@@ -113,15 +113,6 @@ namespace Microsoft.Maui.Platform
 			}
 		}
 
-		public static void UpdateIsReadOnly(this EditText editText, ISearchBar searchBar)
-		{
-			bool isReadOnly = !searchBar.IsReadOnly;
-
-			editText.FocusableInTouchMode = isReadOnly;
-			editText.Focusable = isReadOnly;
-			editText.SetCursorVisible(isReadOnly);
-		}
-
 		public static void UpdateCancelButtonColor(this SearchView searchView, ISearchBar searchBar)
 		{
 			if (searchView.Resources == null)
@@ -265,9 +256,9 @@ namespace Microsoft.Maui.Platform
 
 		// material3 searchbar extension methods
 		// TODO: material3 - make it public in .net 11
-		internal static void UpdateText(this TextInputLayout textInputLayout, ISearchBar searchBar, EditText? editText = null)
+		internal static void UpdateText(this TextInputLayout textInputLayout, ISearchBar searchBar)
 		{
-			editText ??= textInputLayout.EditText;
+			var editText = textInputLayout.EditText;
 
 			if (editText is null)
 			{
@@ -378,34 +369,6 @@ namespace Microsoft.Maui.Platform
 			var state = textInputLayout.Enabled ? s_enabledState : s_disabledState;
 			color = new Color(cs.GetColorForState(state, Color.Black));
 			return true;
-		}
-
-		internal static void UpdateIsReadOnly(this TextInputLayout textInputLayout, ISearchBar searchBar, EditText? editText = null)
-		{
-			editText ??= textInputLayout.EditText;
-
-			if (editText is null)
-			{
-				return;
-			}
-
-			bool isReadOnly = !searchBar.IsReadOnly;
-
-			editText.FocusableInTouchMode = isReadOnly;
-			editText.Focusable = isReadOnly;
-			editText.SetCursorVisible(isReadOnly);
-		}
-
-		internal static void UpdateReturnType(this TextInputLayout textInputLayout, ISearchBar searchBar, EditText? editText = null)
-		{
-			editText ??= textInputLayout.EditText;
-			if (editText is null)
-			{
-				return;
-			}
-
-			editText.SetInputType(searchBar);
-			editText.ImeOptions = (ImeAction)(int)searchBar.ReturnType.ToPlatform();
 		}
 	}
 }

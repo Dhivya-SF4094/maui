@@ -118,7 +118,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapIsReadOnly(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView?.UpdateIsReadOnly(searchBar, handler.QueryEditor);
+        handler.PlatformView.EditText?.UpdateIsReadOnly(searchBar);
     }
 
     public static void MapIsTextPredictionEnabled(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -174,7 +174,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapReturnType(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView?.UpdateReturnType(searchBar);
+        handler.PlatformView?.EditText?.UpdateReturnType(searchBar);
     }
 
     public static void MapFlowDirection(SearchBarHandler2 handler, ISearchBar searchBar)

@@ -199,6 +199,15 @@ namespace Microsoft.Maui.Platform
 			editText.SetCursorVisible(isReadOnly);
 		}
 
+		internal static void UpdateIsReadOnly(this EditText editText, ISearchBar searchBar)
+		{
+			bool isEditable = !searchBar.IsReadOnly;
+
+			editText.FocusableInTouchMode = isEditable;
+			editText.Focusable = isEditable;
+			editText.SetCursorVisible(isEditable);
+		}
+
 		public static void UpdateClearButtonVisibility(this EditText editText, IEntry entry)
 		{
 			if (entry?.Handler is not EntryHandler entryHandler)
@@ -238,6 +247,15 @@ namespace Microsoft.Maui.Platform
 		public static void UpdateReturnType(this EditText editText, IEntry entry)
 		{
 			editText.ImeOptions = entry.ReturnType.ToPlatform();
+
+			// Restart the input on the current focused EditText
+			InputMethodManager? imm = (InputMethodManager?)editText.Context?.GetSystemService(Context.InputMethodService);
+			imm?.RestartInput(editText);
+		}
+
+		internal static void UpdateReturnType(this EditText editText, ISearchBar searchBar)
+		{
+			editText.ImeOptions = searchBar.ReturnType.ToPlatform();
 
 			// Restart the input on the current focused EditText
 			InputMethodManager? imm = (InputMethodManager?)editText.Context?.GetSystemService(Context.InputMethodService);
