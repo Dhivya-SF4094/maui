@@ -34,6 +34,8 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
         [nameof(ISearchBar.ReturnType)] = MapReturnType,
         [nameof(ISearchBar.FlowDirection)] = MapFlowDirection,
         [nameof(ISearchBar.IsEnabled)] = MapIsEnabled,
+        [nameof(ISearchBar.CursorPosition)] = MapCursorPosition,
+        [nameof(ISearchBar.SelectionLength)] = MapSelectionLength,
     };
 
     public static CommandMapper<ISearchBar, SearchBarHandler2> CommandMapper =
@@ -59,16 +61,31 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
     protected override void ConnectHandler(MauiMaterialTextInputLayout platformView)
     {
         base.ConnectHandler(platformView);
-        platformView.EditText?.TextChanged += OnTextChanged;
-        platformView.EditText?.EditorAction += OnEditorAction;
-        platformView.EditText?.FocusChange += OnFocusChange;
+        if (platformView.EditText is not null)
+        {
+            platformView.EditText.TextChanged += OnTextChanged;
+            platformView.EditText.EditorAction += OnEditorAction;
+            platformView.EditText.FocusChange += OnFocusChange;
+            if (platformView.EditText is MauiMaterialTextInputEditText editText)
+            {
+                editText.SelectionChanged += OnSelectionChanged;
+            }
+        }
     }
 
     protected override void DisconnectHandler(MauiMaterialTextInputLayout platformView)
     {
-        platformView.EditText?.TextChanged -= OnTextChanged;
-        platformView.EditText?.EditorAction -= OnEditorAction;
-        platformView.EditText?.FocusChange -= OnFocusChange;
+        if (platformView.EditText is not null)
+        {
+            platformView.EditText.TextChanged -= OnTextChanged;
+            platformView.EditText.EditorAction -= OnEditorAction;
+            platformView.EditText.FocusChange -= OnFocusChange;
+
+            if (platformView.EditText is MauiMaterialTextInputEditText editText)
+            {
+                editText.SelectionChanged -= OnSelectionChanged;
+            }
+        }
 
         base.DisconnectHandler(platformView);
     }
@@ -86,17 +103,17 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
     public static void MapFont(SearchBarHandler2 handler, ISearchBar searchBar)
     {
         var fontManager = handler.GetRequiredService<IFontManager>();
-        handler.PlatformView.EditText?.UpdateFont(searchBar, fontManager);
+        handler.PlatformView?.EditText?.UpdateFont(searchBar, fontManager);
     }
 
     public static void MapHorizontalTextAlignment(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView.EditText?.UpdateHorizontalTextAlignment(searchBar);
+        handler.PlatformView?.EditText?.UpdateHorizontalTextAlignment(searchBar);
     }
 
     public static void MapVerticalTextAlignment(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView.EditText?.UpdateVerticalTextAlignment(searchBar);
+        handler.PlatformView?.EditText?.UpdateVerticalTextAlignment(searchBar);
     }
 
     public static void MapIsReadOnly(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -136,7 +153,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapTextColor(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView.EditText?.UpdateTextColor(searchBar.TextColor);
+        handler.PlatformView?.EditText?.UpdateTextColor(searchBar.TextColor);
     }
 
     public static void MapCancelButtonColor(SearchBarHandler2 handler, ISearchBar searchBar)
@@ -170,7 +187,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
                 Microsoft.Maui.Platform.ViewExtensions.UpdateFlowDirection(platformView, parentView);
             }
 
-            if (handler.PlatformView.EditText is TextView textView)
+            if (handler.PlatformView?.EditText is TextView textView)
             {
                 Microsoft.Maui.Platform.TextViewExtensions.UpdateFlowDirection(textView, parentView);
             }
@@ -185,15 +202,25 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapIsEnabled(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.PlatformView.UpdateIsEnabled(searchBar);
+        handler.PlatformView?.UpdateIsEnabled(searchBar);
     }
 
     public static void MapFocus(SearchBarHandler2 handler, ISearchBar searchBar, object? args)
     {
         if (args is FocusRequest request)
         {
-            handler.PlatformView.EditText?.Focus(request);
+            handler.PlatformView?.EditText?.Focus(request);
         }
+    }
+
+    public static void MapCursorPosition(SearchBarHandler2 handler, ISearchBar searchBar)
+    {
+        handler.PlatformView?.EditText?.UpdateCursorPosition(searchBar);
+    }
+
+    public static void MapSelectionLength(SearchBarHandler2 handler, ISearchBar searchBar)
+    {
+        handler.PlatformView?.EditText?.UpdateSelectionLength(searchBar);
     }
 
     void OnTextChanged(object? sender, TextChangedEventArgs e)
@@ -223,11 +250,29 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
         }
     }
 
+    void OnSelectionChanged(object? sender, EventArgs e)
+    {
+        if (QueryEditor is null)
+        {
+            return;
+        }
+
+        var cursorPosition = QueryEditor.GetCursorPosition();
+        var selectionLength = QueryEditor.GetSelectedTextLength();
+
+        if (VirtualView.CursorPosition != cursorPosition)
+        {
+            VirtualView.CursorPosition = cursorPosition;
+        }
+
+        if (VirtualView.SelectionLength != selectionLength)
+        {
+            VirtualView.SelectionLength = selectionLength;
+        }
+    }
+
     void OnFocusChange(object? sender, View.FocusChangeEventArgs e)
     {
-        if (VirtualView is not null)
-        {
-            VirtualView.IsFocused = e.HasFocus;
-        }
+        VirtualView?.IsFocused = e.HasFocus;
     }
 }
