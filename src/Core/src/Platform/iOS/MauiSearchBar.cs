@@ -56,6 +56,8 @@ namespace Microsoft.Maui.Platform
 		internal event EventHandler? OnMovedToWindow;
 		[UnconditionalSuppressMessage("Memory", "MEM0001", Justification = "Proven safe in test: MemoryTests.HandlerDoesNotLeak")]
 		internal event EventHandler? EditingChanged;
+		[UnconditionalSuppressMessage("Memory", "MEM0001", Justification = "Proven safe in test: MemoryTests.HandlerDoesNotLeak")]
+		internal event EventHandler? SelectionChanged;
 
 		public override void WillMoveToWindow(UIWindow? window)
 		{
@@ -66,8 +68,14 @@ namespace Microsoft.Maui.Platform
 			if (editor != null)
 			{
 				editor.EditingChanged -= OnEditingChanged;
+
 				if (window != null)
+				{
 					editor.EditingChanged += OnEditingChanged;
+
+					// Observe selection changes using KVO
+					editor.AddObserver(this, new NSString("selectedTextRange"), NSKeyValueObservingOptions.New, IntPtr.Zero);
+				}
 			}
 
 			if (window != null)
@@ -78,6 +86,19 @@ namespace Microsoft.Maui.Platform
 		void OnEditingChanged(object? sender, EventArgs e)
 		{
 			EditingChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		public override void ObserveValue(NSString? keyPath, NSObject? ofObject, NSDictionary? change, IntPtr context)
+		{
+			if (keyPath?.ToString() == "selectedTextRange")
+			{
+				SelectionChanged?.Invoke(this, EventArgs.Empty);
+			}
+			else if (keyPath is not null)
+			{
+				// Call base only when keyPath is not null (base signature requires non-null)
+				base.ObserveValue(keyPath!, ofObject!, change!, context);
+			}
 		}
 
 		[UnconditionalSuppressMessage("Memory", "MEM0002", Justification = IUIViewLifeCycleEvents.UnconditionalSuppressMessage)]

@@ -1,2 +1,5 @@
 #nullable enable
+override Microsoft.Maui.Platform.MauiSearchBar.ObserveValue(Foundation.NSString? keyPath, Foundation.NSObject? ofObject, Foundation.NSDictionary? change, nint context) -> void
 override Microsoft.Maui.Platform.MauiView.DidUpdateFocus(UIKit.UIFocusUpdateContext! context, UIKit.UIFocusAnimationCoordinator! coordinator) -> void
+static Microsoft.Maui.Platform.SearchBarExtensions.UpdateCursorPosition(this UIKit.UITextField! textField, Microsoft.Maui.ISearchBar! searchBar) -> void
+static Microsoft.Maui.Platform.SearchBarExtensions.UpdateSelectionLength(this UIKit.UITextField! textField, Microsoft.Maui.ISearchBar! searchBar) -> void

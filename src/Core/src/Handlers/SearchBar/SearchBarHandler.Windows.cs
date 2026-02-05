@@ -127,6 +127,14 @@ namespace Microsoft.Maui.Handlers
 			handler.PlatformView?.UpdateReturnType(searchBar);
 		}
 
+		internal static void MapCursorPosition(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+		}
+
+		internal static void MapSelectionLength(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+		}
+
 		void OnLoaded(object sender, UI.Xaml.RoutedEventArgs e)
 		{
 			if (VirtualView != null)
