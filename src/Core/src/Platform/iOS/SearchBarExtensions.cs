@@ -205,22 +205,32 @@ namespace Microsoft.Maui.Platform
 		public static void UpdateCursorPosition(this UITextField textField, ISearchBar searchBar)
 		{
 			var selectedTextRange = textField.SelectedTextRange;
-			if (selectedTextRange == null)
+			if (selectedTextRange is null)
+			{
 				return;
+			}
+
 			if (textField.GetOffsetFromPosition(textField.BeginningOfDocument, selectedTextRange.Start) != searchBar.CursorPosition)
+			{
 				UpdateCursorSelection(textField, searchBar);
+			}
 		}
 
 		public static void UpdateSelectionLength(this UITextField textField, ISearchBar searchBar)
 		{
 			var selectedTextRange = textField.SelectedTextRange;
-			if (selectedTextRange == null)
+			if (selectedTextRange is null)
+			{
 				return;
+			}
+
 			if (textField.GetOffsetFromPosition(selectedTextRange.Start, selectedTextRange.End) != searchBar.SelectionLength)
+			{
 				UpdateCursorSelection(textField, searchBar);
+			}
 		}
 
-		/* Updates both the ISearchBar.CursorPosition and ISearchBar.SelectionLength properties. */
+		// Updates both the ISearchBar.CursorPosition and ISearchBar.SelectionLength properties.
 		static void UpdateCursorSelection(this UITextField textField, ISearchBar searchBar)
 		{
 			if (searchBar.IsReadOnly)

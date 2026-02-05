@@ -37,7 +37,6 @@ namespace Microsoft.Maui.Handlers
 			if (_platformSearchView is not null)
 			{
 				_platformSearchView.SelectionChanged += OnSelectionChanged;
-				//_platformSearchView.StartMonitoringSelection();
 			}
 		}
 
@@ -52,7 +51,6 @@ namespace Microsoft.Maui.Handlers
 			if (_platformSearchView is not null)
 			{
 				_platformSearchView.SelectionChanged -= OnSelectionChanged;
-				//	_platformSearchView.StopMonitoringSelection();
 			}
 		}
 
@@ -207,10 +205,14 @@ namespace Microsoft.Maui.Handlers
 			var selectedTextLength = QueryEditor.GetSelectedTextLength();
 
 			if (VirtualView.CursorPosition != cursorPosition)
+			{
 				VirtualView.CursorPosition = cursorPosition;
+			}
 
 			if (VirtualView.SelectionLength != selectedTextLength)
+			{
 				VirtualView.SelectionLength = selectedTextLength;
+			}
 		}
 
 		class FocusChangeListener : Java.Lang.Object, SearchView.IOnFocusChangeListener

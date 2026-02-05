@@ -213,7 +213,9 @@ namespace Microsoft.Maui.Handlers
 				platformView.SelectionChanged -= OnSelectionChanged;
 
 				if (editor is not null)
+				{
 					editor.EditingChanged -= OnEditingChanged;
+				}
 			}
 
 			void OnMovedToWindow(object? sender, EventArgs e)
@@ -289,10 +291,14 @@ namespace Microsoft.Maui.Handlers
 					var selectedTextLength = textField.GetSelectedTextLength();
 
 					if (virtualView.CursorPosition != cursorPosition)
+					{
 						virtualView.CursorPosition = cursorPosition;
+					}
 
 					if (virtualView.SelectionLength != selectedTextLength)
+					{
 						virtualView.SelectionLength = selectedTextLength;
+					}
 				}
 			}
 		}

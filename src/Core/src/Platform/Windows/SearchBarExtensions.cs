@@ -29,19 +29,22 @@ namespace Microsoft.Maui.Platform
 		{
 			var queryTextBox = platformControl.GetFirstDescendant<TextBox>();
 
-			if (queryTextBox == null)
+			if (queryTextBox is null)
+			{
 				return;
+			}
 
 			queryTextBox.UpdateCursorPosition(searchBar);
-
 		}
 
 		internal static void UpdateSelectionLength(this AutoSuggestBox platformControl, ISearchBar searchBar)
 		{
 			var queryTextBox = platformControl.GetFirstDescendant<TextBox>();
 
-			if (queryTextBox == null)
+			if (queryTextBox is null)
+			{
 				return;
+			}
 
 			queryTextBox.UpdateSelectionLength(searchBar);
 		}

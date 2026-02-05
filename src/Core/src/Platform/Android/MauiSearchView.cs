@@ -42,7 +42,7 @@ namespace Microsoft.Maui.Platform
 			}
 
 			// Set up touch listener to detect cursor position changes
-			if (_queryEditor != null)
+			if (_queryEditor is not null)
 			{
 				_checkSelectionRunnable = new Java.Lang.Runnable(() => CheckSelectionChanged());
 				_queryEditor.Touch += OnQueryEditorTouch;
@@ -61,7 +61,7 @@ namespace Microsoft.Maui.Platform
 
 		internal void CheckSelectionChanged()
 		{
-			if (_queryEditor != null)
+			if (_queryEditor is not null)
 			{
 				int selStart = _queryEditor.SelectionStart;
 				int selEnd = _queryEditor.SelectionEnd;
@@ -77,7 +77,7 @@ namespace Microsoft.Maui.Platform
 
 		internal void StartMonitoringSelection()
 		{
-			if (_queryEditor != null)
+			if (_queryEditor is not null)
 			{
 				_queryEditor.Touch += OnQueryEditorTouch;
 			}
@@ -85,7 +85,7 @@ namespace Microsoft.Maui.Platform
 
 		internal void StopMonitoringSelection()
 		{
-			if (_queryEditor != null)
+			if (_queryEditor is not null)
 			{
 				_queryEditor.Touch -= OnQueryEditorTouch;
 				_queryEditor.RemoveCallbacks(_checkSelectionRunnable);

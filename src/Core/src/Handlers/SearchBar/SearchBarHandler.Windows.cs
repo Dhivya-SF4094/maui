@@ -39,8 +39,10 @@ namespace Microsoft.Maui.Handlers
 			if (_set)
 			{
 				var queryTextBox = platformView.GetFirstDescendant<TextBox>();
-				if (queryTextBox != null)
-					queryTextBox.SelectionChanged -= OnPlatformSelectionChanged;
+				if (queryTextBox is not null)
+				{
+					queryTextBox.SelectionChanged -= OnSelectionChanged;
+				}
 			}
 
 			_set = false;
@@ -156,8 +158,10 @@ namespace Microsoft.Maui.Handlers
 				if (!_set)
 				{
 					var queryTextBox = PlatformView?.GetFirstDescendant<TextBox>();
-					if (queryTextBox != null)
-						queryTextBox.SelectionChanged += OnPlatformSelectionChanged;
+					if (queryTextBox is not null)
+					{
+						queryTextBox.SelectionChanged += OnSelectionChanged;
+					}
 
 					_set = true;
 				}
@@ -212,19 +216,25 @@ namespace Microsoft.Maui.Handlers
 			UpdateIsFocused(false);
 		}
 
-		void OnPlatformSelectionChanged(object sender, UI.Xaml.RoutedEventArgs e)
+		void OnSelectionChanged(object sender, UI.Xaml.RoutedEventArgs e)
 		{
 			if (sender is not TextBox textBox)
+			{
 				return;
+			}
 
 			var cursorPosition = textBox.GetCursorPosition();
 			var selectedTextLength = textBox.SelectionLength;
 
 			if (VirtualView.CursorPosition != cursorPosition)
+			{
 				VirtualView.CursorPosition = cursorPosition;
+			}
 
 			if (VirtualView.SelectionLength != selectedTextLength)
+			{
 				VirtualView.SelectionLength = selectedTextLength;
+			}
 		}
 	}
 }
