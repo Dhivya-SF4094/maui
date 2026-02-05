@@ -25,6 +25,27 @@ namespace Microsoft.Maui.Platform
 			platformControl.IsEnabled = searchBar.IsEnabled;
 		}
 
+		internal static void UpdateCursorPosition(this AutoSuggestBox platformControl, ISearchBar searchBar)
+		{
+			var queryTextBox = platformControl.GetFirstDescendant<TextBox>();
+
+			if (queryTextBox == null)
+				return;
+
+			queryTextBox.UpdateCursorPosition(searchBar);
+
+		}
+
+		internal static void UpdateSelectionLength(this AutoSuggestBox platformControl, ISearchBar searchBar)
+		{
+			var queryTextBox = platformControl.GetFirstDescendant<TextBox>();
+
+			if (queryTextBox == null)
+				return;
+
+			queryTextBox.UpdateSelectionLength(searchBar);
+		}
+
 		public static void UpdateCharacterSpacing(this AutoSuggestBox platformControl, ISearchBar searchBar)
 		{
 			var characterSpacing = searchBar.CharacterSpacing.ToEm();
