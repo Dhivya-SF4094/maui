@@ -201,5 +201,70 @@ namespace Microsoft.Maui.Platform
 		{
 			uiSearchBar.ReturnKeyType = searchBar.ReturnType.ToPlatform();
 		}
+
+		public static void UpdateCursorPosition(this UITextField textField, ISearchBar searchBar)
+		{
+			var selectedTextRange = textField.SelectedTextRange;
+			if (selectedTextRange == null)
+				return;
+			if (textField.GetOffsetFromPosition(textField.BeginningOfDocument, selectedTextRange.Start) != searchBar.CursorPosition)
+				UpdateCursorSelection(textField, searchBar);
+		}
+
+		public static void UpdateSelectionLength(this UITextField textField, ISearchBar searchBar)
+		{
+			var selectedTextRange = textField.SelectedTextRange;
+			if (selectedTextRange == null)
+				return;
+			if (textField.GetOffsetFromPosition(selectedTextRange.Start, selectedTextRange.End) != searchBar.SelectionLength)
+				UpdateCursorSelection(textField, searchBar);
+		}
+
+		/* Updates both the ISearchBar.CursorPosition and ISearchBar.SelectionLength properties. */
+		static void UpdateCursorSelection(this UITextField textField, ISearchBar searchBar)
+		{
+			if (searchBar.IsReadOnly)
+			{
+				return;
+			}
+
+			void UpdateSelection()
+			{
+				if (textField is not null && textField.Handle != IntPtr.Zero)
+				{
+					UITextPosition start = GetSelectionStart(textField, searchBar, out int startOffset);
+					UITextPosition end = GetSelectionEnd(textField, searchBar, start, startOffset);
+					textField.SelectedTextRange = textField.GetTextRange(start, end);
+				}
+			}
+
+			if (searchBar.IsFocused)
+			{
+				CoreFoundation.DispatchQueue.MainQueue.DispatchAsync(UpdateSelection);
+			}
+			else
+			{
+				UpdateSelection();
+			}
+		}
+
+		static UITextPosition GetSelectionStart(this UITextField textField, ISearchBar searchBar, out int startOffset)
+		{
+			int cursorPosition = searchBar.CursorPosition;
+			int textLength = textField.Text?.Length ?? 0;
+
+			startOffset = Math.Max(0, Math.Min(textLength, cursorPosition));
+			return textField.GetPosition(textField.BeginningOfDocument, startOffset) ?? textField.BeginningOfDocument;
+		}
+
+		static UITextPosition GetSelectionEnd(UITextField textField, ISearchBar searchBar, UITextPosition start, int startOffset)
+		{
+			int selectionLength = searchBar.SelectionLength;
+
+			int textLength = textField.Text?.Length ?? 0;
+			int endOffset = Math.Max(startOffset, Math.Min(textLength, startOffset + selectionLength));
+			var end = textField.GetPosition(start, endOffset - startOffset);
+			return end ?? start;
+		}
 	}
 }
