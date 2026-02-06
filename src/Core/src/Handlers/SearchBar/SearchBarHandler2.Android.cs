@@ -39,10 +39,10 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
     };
 
     public static CommandMapper<ISearchBar, SearchBarHandler2> CommandMapper =
-            new(ViewCommandMapper)
-            {
-                [nameof(ISearchBar.Focus)] = MapFocus
-            };
+    new(ViewCommandMapper)
+    {
+        [nameof(ISearchBar.Focus)] = MapFocus
+    };
 
     public EditText? QueryEditor => PlatformView?.EditText;
 
