@@ -148,7 +148,7 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     public static void MapText(SearchBarHandler2 handler, ISearchBar searchBar)
     {
-        handler.QueryEditor?.UpdateText(searchBar);
+        handler.PlatformView?.EditText?.UpdateText(searchBar);
         handler.PlatformView?.UpdateCloseButtonVisibility(!string.IsNullOrEmpty(searchBar.Text));
     }
 
@@ -253,13 +253,13 @@ internal class SearchBarHandler2 : ViewHandler<ISearchBar, MauiMaterialTextInput
 
     void OnSelectionChanged(object? sender, EventArgs e)
     {
-        if (QueryEditor is null)
+        if (PlatformView.EditText is null)
         {
             return;
         }
 
-        var cursorPosition = QueryEditor.GetCursorPosition();
-        var selectionLength = QueryEditor.GetSelectedTextLength();
+        var cursorPosition = PlatformView.EditText.GetCursorPosition();
+        var selectionLength = PlatformView.EditText.GetSelectedTextLength();
 
         if (VirtualView.CursorPosition != cursorPosition)
         {

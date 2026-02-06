@@ -12,13 +12,11 @@ internal class MauiMaterialTextInputLayout : TextInputLayout
     {
         // Set the search icon as the start/leading icon
         SetStartIconDrawable(Resource.Drawable.abc_ic_search_api_material);
-        StartIconContentDescription = "Search icon";
 
         // Set the clear/cancel button as the end icon with custom behavior
         // Custom mode allows showing icon regardless of focus state (matching Material2)
         EndIconMode = EndIconCustom;
         SetEndIconDrawable(Resource.Drawable.abc_ic_clear_material);
-        EndIconContentDescription = "Clear icon";
 
         // Set up click listener for clear button
         SetEndIconOnClickListener(new ClearButtonClickListener(this));
