@@ -5,6 +5,8 @@ namespace Microsoft.Maui.Handlers
 {
 	public partial class SearchBarHandler : ViewHandler<ISearchBar, AutoSuggestBox>
 	{
+		bool _set;
+
 		public AutoSuggestBox? QueryEditor => null;
 
 		protected override AutoSuggestBox CreatePlatformView() => new AutoSuggestBox
@@ -33,6 +35,17 @@ namespace Microsoft.Maui.Handlers
 			platformView.TextChanged -= OnTextChanged;
 			platformView.GotFocus -= OnGotFocus;
 			platformView.LostFocus -= OnLostFocus;
+
+			if (_set)
+			{
+				var queryTextBox = platformView.GetFirstDescendant<TextBox>();
+				if (queryTextBox is not null)
+				{
+					queryTextBox.SelectionChanged -= OnSelectionChanged;
+				}
+			}
+
+			_set = false;
 		}
 
 		public static void MapBackground(ISearchBarHandler handler, ISearchBar searchBar)
@@ -43,6 +56,16 @@ namespace Microsoft.Maui.Handlers
 		public static void MapIsEnabled(ISearchBarHandler handler, ISearchBar searchBar)
 		{
 			handler.PlatformView?.UpdateIsEnabled(searchBar);
+		}
+
+		internal static void MapCursorPosition(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.PlatformView?.UpdateCursorPosition(searchBar);
+		}
+
+		internal static void MapSelectionLength(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.PlatformView?.UpdateSelectionLength(searchBar);
 		}
 
 		public static void MapText(ISearchBarHandler handler, ISearchBar searchBar)
@@ -131,6 +154,18 @@ namespace Microsoft.Maui.Handlers
 		{
 			if (VirtualView != null)
 			{
+				// Subscribe to SelectionChanged event on the inner TextBox
+				if (!_set)
+				{
+					var queryTextBox = PlatformView?.GetFirstDescendant<TextBox>();
+					if (queryTextBox is not null)
+					{
+						queryTextBox.SelectionChanged += OnSelectionChanged;
+					}
+
+					_set = true;
+				}
+
 				PlatformView?.UpdateTextColor(VirtualView);
 				PlatformView?.UpdatePlaceholderColor(VirtualView);
 				PlatformView?.UpdateHorizontalTextAlignment(VirtualView);
@@ -142,6 +177,8 @@ namespace Microsoft.Maui.Handlers
 				PlatformView?.UpdateSearchIconColor(VirtualView);
 				PlatformView?.UpdateKeyboard(VirtualView);
 				PlatformView?.UpdateReturnType(VirtualView);
+				PlatformView?.UpdateCursorPosition(VirtualView);
+				PlatformView?.UpdateSelectionLength(VirtualView);
 			}
 		}
 
@@ -177,6 +214,27 @@ namespace Microsoft.Maui.Handlers
 		void OnLostFocus(object sender, UI.Xaml.RoutedEventArgs e)
 		{
 			UpdateIsFocused(false);
+		}
+
+		void OnSelectionChanged(object sender, UI.Xaml.RoutedEventArgs e)
+		{
+			if (sender is not TextBox textBox || VirtualView is null)
+			{
+				return;
+			}
+
+			var cursorPosition = textBox.GetCursorPosition();
+			var selectedTextLength = textBox.SelectionLength;
+
+			if (VirtualView.CursorPosition != cursorPosition)
+			{
+				VirtualView.CursorPosition = cursorPosition;
+			}
+
+			if (VirtualView.SelectionLength != selectedTextLength)
+			{
+				VirtualView.SelectionLength = selectedTextLength;
+			}
 		}
 	}
 }

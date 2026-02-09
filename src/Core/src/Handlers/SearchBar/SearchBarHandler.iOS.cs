@@ -97,6 +97,16 @@ namespace Microsoft.Maui.Handlers
 			handler.QueryEditor?.UpdateCharacterSpacing(searchBar);
 		}
 
+		internal static void MapCursorPosition(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.QueryEditor?.UpdateCursorPosition(searchBar);
+		}
+
+		internal static void MapSelectionLength(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.QueryEditor?.UpdateSelectionLength(searchBar);
+		}
+
 		public static void MapFormatting(ISearchBarHandler handler, ISearchBar searchBar)
 		{
 			// Update all of the attributed text formatting properties
@@ -182,6 +192,7 @@ namespace Microsoft.Maui.Handlers
 				platformView.ShouldChangeTextInRange += ShouldChangeText;
 				platformView.OnEditingStarted += OnEditingStarted;
 				platformView.OnEditingStopped += OnEditingStopped;
+				platformView.SelectionChanged += OnSelectionChanged;
 
 				if (handler.QueryEditor is UITextField editor)
 					editor.EditingChanged += OnEditingChanged;
@@ -199,9 +210,12 @@ namespace Microsoft.Maui.Handlers
 				platformView.OnMovedToWindow -= OnMovedToWindow;
 				platformView.OnEditingStarted -= OnEditingStarted;
 				platformView.OnEditingStopped -= OnEditingStopped;
+				platformView.SelectionChanged -= OnSelectionChanged;
 
 				if (editor is not null)
+				{
 					editor.EditingChanged -= OnEditingChanged;
+				}
 			}
 
 			void OnMovedToWindow(object? sender, EventArgs e)
@@ -267,6 +281,25 @@ namespace Microsoft.Maui.Handlers
 			{
 				if (VirtualView is ISearchBar virtualView)
 					virtualView.IsFocused = false;
+			}
+
+			void OnSelectionChanged(object? sender, EventArgs e)
+			{
+				if (Handler?.QueryEditor is UITextField textField && VirtualView is ISearchBar virtualView)
+				{
+					var cursorPosition = textField.GetCursorPosition();
+					var selectedTextLength = textField.GetSelectedTextLength();
+
+					if (virtualView.CursorPosition != cursorPosition)
+					{
+						virtualView.CursorPosition = cursorPosition;
+					}
+
+					if (virtualView.SelectionLength != selectedTextLength)
+					{
+						virtualView.SelectionLength = selectedTextLength;
+					}
+				}
 			}
 		}
 	}

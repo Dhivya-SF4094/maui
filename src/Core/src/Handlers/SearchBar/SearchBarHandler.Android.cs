@@ -32,6 +32,12 @@ namespace Microsoft.Maui.Handlers
 
 			platformView.QueryTextChange += OnQueryTextChange;
 			platformView.QueryTextSubmit += OnQueryTextSubmit;
+
+			// Set up touch listener to detect cursor position changes
+			if (QueryEditor is not null)
+			{
+				QueryEditor.Touch += OnQueryEditorTouch;
+			}
 		}
 
 		protected override void DisconnectHandler(SearchView platformView)
@@ -41,6 +47,12 @@ namespace Microsoft.Maui.Handlers
 
 			platformView.QueryTextChange -= OnQueryTextChange;
 			platformView.QueryTextSubmit -= OnQueryTextSubmit;
+
+			// Remove touch listener
+			if (QueryEditor is not null)
+			{
+				QueryEditor.Touch -= OnQueryEditorTouch;
+			}
 		}
 
 		public static void MapBackground(ISearchBarHandler handler, ISearchBar searchBar)
@@ -163,6 +175,16 @@ namespace Microsoft.Maui.Handlers
 			handler.PlatformView?.UpdateReturnType(searchBar);
 		}
 
+		internal static void MapCursorPosition(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.QueryEditor?.UpdateCursorPosition(searchBar);
+		}
+
+		internal static void MapSelectionLength(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.QueryEditor?.UpdateSelectionLength(searchBar);
+		}
+
 		void OnQueryTextSubmit(object? sender, QueryTextSubmitEventArgs e)
 		{
 			VirtualView.SearchButtonPressed();
@@ -173,6 +195,39 @@ namespace Microsoft.Maui.Handlers
 		{
 			VirtualView.UpdateText(e.NewText);
 			e.Handled = true;
+
+			// Update cursor position and selection after text change
+			UpdateCursorAndSelection();
+		}
+
+		void OnQueryEditorTouch(object? sender, View.TouchEventArgs e)
+		{
+			// Don't handle the touch event, just monitor it
+			e.Handled = false;
+
+			// Post a delayed check for selection changes to avoid multiple rapid updates
+			QueryEditor?.PostDelayed(UpdateCursorAndSelection, 50);
+		}
+
+		void UpdateCursorAndSelection()
+		{
+			if (QueryEditor is null)
+			{
+				return;
+			}
+
+			var cursorPosition = QueryEditor.GetCursorPosition();
+			var selectedTextLength = QueryEditor.GetSelectedTextLength();
+
+			if (VirtualView.CursorPosition != cursorPosition)
+			{
+				VirtualView.CursorPosition = cursorPosition;
+			}
+
+			if (VirtualView.SelectionLength != selectedTextLength)
+			{
+				VirtualView.SelectionLength = selectedTextLength;
+			}
 		}
 
 		class FocusChangeListener : Java.Lang.Object, SearchView.IOnFocusChangeListener
