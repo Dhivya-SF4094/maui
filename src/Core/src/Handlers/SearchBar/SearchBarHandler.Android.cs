@@ -1,3 +1,4 @@
+using System;
 using Android.Content;
 using Android.Content.Res;
 using Android.Views;
@@ -33,10 +34,10 @@ namespace Microsoft.Maui.Handlers
 			platformView.QueryTextChange += OnQueryTextChange;
 			platformView.QueryTextSubmit += OnQueryTextSubmit;
 
-			// Set up touch listener to detect cursor position changes
-			if (QueryEditor is not null)
+			// Subscribe to SelectionChanged event from MauiSearchView
+			if (_platformSearchView is not null)
 			{
-				QueryEditor.Touch += OnQueryEditorTouch;
+				_platformSearchView.SelectionChanged += OnSelectionChanged;
 			}
 		}
 
@@ -48,10 +49,11 @@ namespace Microsoft.Maui.Handlers
 			platformView.QueryTextChange -= OnQueryTextChange;
 			platformView.QueryTextSubmit -= OnQueryTextSubmit;
 
-			// Remove touch listener
-			if (QueryEditor is not null)
+			// Unsubscribe from SelectionChanged event and disconnect monitor
+			if (_platformSearchView is not null)
 			{
-				QueryEditor.Touch -= OnQueryEditorTouch;
+				_platformSearchView.SelectionChanged -= OnSelectionChanged;
+				_platformSearchView.DisconnectSelectionMonitor();
 			}
 		}
 
@@ -195,21 +197,9 @@ namespace Microsoft.Maui.Handlers
 		{
 			VirtualView.UpdateText(e.NewText);
 			e.Handled = true;
-
-			// Update cursor position and selection after text change
-			UpdateCursorAndSelection();
 		}
 
-		void OnQueryEditorTouch(object? sender, View.TouchEventArgs e)
-		{
-			// Don't handle the touch event, just monitor it
-			e.Handled = false;
-
-			// Post a delayed check for selection changes to avoid multiple rapid updates
-			QueryEditor?.PostDelayed(UpdateCursorAndSelection, 50);
-		}
-
-		void UpdateCursorAndSelection()
+		void OnSelectionChanged(object? sender, EventArgs e)
 		{
 			if (QueryEditor is null)
 			{
