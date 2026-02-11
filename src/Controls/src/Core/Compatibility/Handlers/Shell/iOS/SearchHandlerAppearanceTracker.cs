@@ -43,12 +43,6 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			_uiSearchBar.ShowsCancelButton = false;
 			GetDefaultSearchBarColors(_uiSearchBar);
 			var uiTextField = searchBar.FindDescendantView<UITextField>();
-
-			// Capture default background color before any updates
-			if (uiTextField is not null)
-			{
-				_defaultBackgroundColor = uiTextField.BackgroundColor;
-			}
 			UpdateSearchBarColors();
 			UpdateSearchBarHorizontalTextAlignment(uiTextField);
 			UpdateSearchBarVerticalTextAlignment(uiTextField);
@@ -172,9 +166,8 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 
 				textField.Layer.CornerRadius = 10;
 				textField.ClipsToBounds = true;
-
-				UIColor backgroundColor = backGroundColor.ToPlatform();
-				textField.BackgroundColor = backgroundColor;
+				_defaultBackgroundColor = backGroundColor.ToPlatform();
+				textField.BackgroundColor = backGroundColor.ToPlatform();
 			}
 		}
 
