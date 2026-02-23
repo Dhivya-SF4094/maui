@@ -34,10 +34,10 @@ namespace Microsoft.Maui.Handlers
 			platformView.QueryTextChange += OnQueryTextChange;
 			platformView.QueryTextSubmit += OnQueryTextSubmit;
 
-			// Subscribe to SelectionChanged event from MauiSearchView
-			if (_platformSearchView is not null)
+			if (_platformSearchView?._queryEditor != null)
 			{
-				_platformSearchView.SelectionChanged += OnSelectionChanged;
+				_platformSearchView._queryEditor.SelectionChanged += OnSelectionChanged;
+				_platformSearchView._queryEditor.FocusChange += OnQueryEditorFocusChange;
 			}
 		}
 
@@ -49,11 +49,10 @@ namespace Microsoft.Maui.Handlers
 			platformView.QueryTextChange -= OnQueryTextChange;
 			platformView.QueryTextSubmit -= OnQueryTextSubmit;
 
-			// Unsubscribe from SelectionChanged event and disconnect monitor
-			if (_platformSearchView is not null)
+			if (_platformSearchView?._queryEditor != null)
 			{
-				_platformSearchView.SelectionChanged -= OnSelectionChanged;
-				_platformSearchView.DisconnectSelectionMonitor();
+				_platformSearchView._queryEditor.SelectionChanged -= OnSelectionChanged;
+				_platformSearchView._queryEditor.FocusChange -= OnQueryEditorFocusChange;
 			}
 		}
 
@@ -75,7 +74,7 @@ namespace Microsoft.Maui.Handlers
 
 		public static void MapPlaceholder(ISearchBarHandler handler, ISearchBar searchBar)
 		{
-			handler.PlatformView?.UpdatePlaceholder(searchBar);
+			handler.QueryEditor?.UpdatePlaceholder(searchBar);
 		}
 
 		public static void MapPlaceholderColor(ISearchBarHandler handler, ISearchBar searchBar)
@@ -196,7 +195,18 @@ namespace Microsoft.Maui.Handlers
 		void OnQueryTextChange(object? sender, QueryTextChangeEventArgs e)
 		{
 			VirtualView.UpdateText(e.NewText);
+
+			// Close button clears SearchView’s internal EditText directly,
+			// bypassing SetQuery. If the mapper skips SetQuery (Query already matches),
+			// SyncQueryToEditor won’t run and _queryEditor may retain stale text.
+			_platformSearchView?.SyncQueryToEditor();
 			e.Handled = true;
+		}
+
+		void OnQueryEditorFocusChange(object? sender, View.FocusChangeEventArgs e)
+		{
+			if (VirtualView is IView view)
+				view.IsFocused = e.HasFocus;
 		}
 
 		void OnSelectionChanged(object? sender, EventArgs e)
@@ -231,8 +241,7 @@ namespace Microsoft.Maui.Handlers
 
 				var virtualView = Handler.VirtualView;
 
-				if (virtualView != null)
-					virtualView.IsFocused = hasFocus;
+				virtualView?.IsFocused = hasFocus;
 			}
 		}
 	}

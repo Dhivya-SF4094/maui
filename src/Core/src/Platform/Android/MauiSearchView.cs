@@ -1,145 +1,123 @@
 ﻿using System;
 using Android.Content;
+using Android.Text;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
-using Java.IO;
+using Java.Lang;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
 
-namespace Microsoft.Maui.Platform
+namespace Microsoft.Maui.Platform;
+
+public class MauiSearchView : SearchView
 {
-	public class MauiSearchView : SearchView
+	internal MauiSearchViewEditText? _queryEditor;
+
+	public MauiSearchView(Context context) : base(context)
 	{
-		internal EditText? _queryEditor;
-		internal event EventHandler? SelectionChanged;
-		SelectionMonitor? _selectionMonitor;
-		bool _initialized;
+		Initialize();
+	}
 
-		public MauiSearchView(Context context) : base(context)
+	void Initialize()
+	{
+		SetIconifiedByDefault(false);
+		MaxWidth = int.MaxValue;
+
+		// Get the original EditText from SearchView
+		var originalEditText = this.GetFirstChildOfType<EditText>();
+
+		if (originalEditText?.Parent is ViewGroup parent && Context is not null)
 		{
-			SetIconifiedByDefault(false);
-			MaxWidth = int.MaxValue;
+			// Create our custom EditText that fires SelectionChanged
+			_queryEditor = new MauiSearchViewEditText(Context)
+			{
+				Id = originalEditText.Id,
+				LayoutParameters = originalEditText.LayoutParameters,
+				Text = originalEditText.Text,
+				Hint = originalEditText.Hint,
+			};
+
+			// Copy text appearance
+			_queryEditor.SetTextColor(originalEditText.TextColors);
+			_queryEditor.SetHintTextColor(originalEditText.HintTextColors);
+
+			// Transfer visual styling from original EditText
+			_queryEditor.Background = originalEditText.Background;
+			_queryEditor.SetPadding(
+			 originalEditText.PaddingLeft,
+			 originalEditText.PaddingTop,
+			 originalEditText.PaddingRight,
+			 originalEditText.PaddingBottom);
+			_queryEditor.SetSingleLine(true);
+
+			// Find index and replace
+			var index = parent.IndexOfChild(originalEditText);
+			parent.RemoveView(originalEditText);
+			parent.AddView(_queryEditor, index);
+
+			// Subscribe to editor events to sync with SearchView's internal state
+			_queryEditor.TextChanged += OnQueryEditorTextChanged;
 		}
 
-		protected override void OnAttachedToWindow()
+		if (_queryEditor?.LayoutParameters is LinearLayout.LayoutParams layoutParams)
 		{
-			base.OnAttachedToWindow();
-
-			// Initialize when attached to window - EditText is guaranteed to exist
-			if (!_initialized)
-			{
-				Initialize();
-			}
+			layoutParams.Height = LinearLayout.LayoutParams.MatchParent;
+			layoutParams.Gravity = GravityFlags.FillVertical;
 		}
 
-		void Initialize()
+		var searchCloseButtonIdentifier = Resource.Id.search_close_btn;
+		if (searchCloseButtonIdentifier > 0)
 		{
-			_initialized = true;
+			var image = FindViewById<ImageView>(searchCloseButtonIdentifier);
+			image?.SetMinimumWidth((int?)Context?.ToPixels(44) ?? 0);
+		}
+	}
 
-			_queryEditor = this.GetFirstChildOfType<EditText>();
-			if (_queryEditor is not null)
+	internal void SyncQueryToEditor()
+	{
+		if (_queryEditor is not null)
+		{
+			_queryEditor.TextChanged -= OnQueryEditorTextChanged;
+			_queryEditor.Text = Query;
+			_queryEditor.TextChanged += OnQueryEditorTextChanged;
+
+			// Place cursor at end after sync
+			if (_queryEditor.Text is not null && _queryEditor.IsFocused)
 			{
-				if (_queryEditor.LayoutParameters is LinearLayout.LayoutParams layoutParams)
-				{
-					layoutParams.Height = LinearLayout.LayoutParams.MatchParent;
-					layoutParams.Gravity = GravityFlags.FillVertical;
-				}
-				_selectionMonitor = new SelectionMonitor(this, _queryEditor);
-			}
-
-			var searchCloseButtonIdentifier = Resource.Id.search_close_btn;
-			if (searchCloseButtonIdentifier > 0)
-			{
-				var image = FindViewById<ImageView>(searchCloseButtonIdentifier);
-
-				image?.SetMinimumWidth((int?)Context?.ToPixels(44) ?? 0);
+				_queryEditor.SetSelection(_queryEditor.Text.Length);
 			}
 		}
+	}
 
-		internal void DisconnectSelectionMonitor()
+	void OnQueryEditorTextChanged(object? sender, TextChangedEventArgs e)
+	{
+		if (_queryEditor?.Text is not null)
 		{
-			_selectionMonitor?.Disconnect();
-			_selectionMonitor?.Dispose();
-			_selectionMonitor = null;
+			base.SetQuery(_queryEditor.Text, false);
 		}
+	}
+}
 
-		internal void InvokeSelectionChanged()
-		{
-			SelectionChanged?.Invoke(this, EventArgs.Empty);
-		}
+// Custom EditText for SearchView that exposes SelectionChanged event.
+internal class MauiSearchViewEditText : EditText
+{
+	public event EventHandler? SelectionChanged;
 
-		class SelectionMonitor : Java.Lang.Object, View.IOnKeyListener
-		{
-			readonly MauiSearchView _searchView;
-			readonly EditText _editText;
-			int _lastSelectionStart = -1;
-			int _lastSelectionEnd = -1;
+	public MauiSearchViewEditText(Context context) : base(context)
+	{
+	}
 
-			public SelectionMonitor(MauiSearchView searchView, EditText editText)
-			{
-				_searchView = searchView;
-				_editText = editText;
+	public MauiSearchViewEditText(Context context, IAttributeSet? attrs) : base(context, attrs)
+	{
+	}
 
-				// Monitor key events for keyboard-based selection (Shift+arrows)
-				_editText.SetOnKeyListener(this);
+	public MauiSearchViewEditText(Context context, IAttributeSet? attrs, int defStyleAttr) : base(context, attrs, defStyleAttr)
+	{
+	}
 
-				// Monitor touch events for mouse/touch-based selection
-				_editText.Touch += OnTouch;
-
-				// Monitor IME actions for composition-based input (Asian languages, voice input)
-				_editText.EditorAction += OnEditorAction;
-			}
-
-			public void Disconnect()
-			{
-				// Unwire event handlers and listeners
-				if (_editText is not null)
-				{
-					_editText.Touch -= OnTouch;
-					_editText.EditorAction -= OnEditorAction;
-					_editText.SetOnKeyListener(null);
-				}
-			}
-
-			void OnTouch(object? sender, View.TouchEventArgs e)
-			{
-				e.Handled = false; // Don't consume the event
-
-				// Check selection after touch event completes
-				_editText.Post(CheckSelectionChanged);
-			}
-
-			void OnEditorAction(object? sender, TextView.EditorActionEventArgs e)
-			{
-				e.Handled = false; // Don't consume the event
-
-				// Check selection after IME action completes
-				_editText.Post(CheckSelectionChanged);
-			}
-
-			public bool OnKey(View? v, Keycode keyCode, KeyEvent? e)
-			{
-				// Monitor key events (especially arrow keys with Shift for selection)
-				if (e?.Action == KeyEventActions.Up)
-				{
-					// Check selection after key is processed
-					_editText.Post(CheckSelectionChanged);
-				}
-				return false; // Don't consume the key event
-			}
-
-			void CheckSelectionChanged()
-			{
-				int selStart = _editText.SelectionStart;
-				int selEnd = _editText.SelectionEnd;
-
-				// Only fire event if selection actually changed
-				if (selStart != _lastSelectionStart || selEnd != _lastSelectionEnd)
-				{
-					_lastSelectionStart = selStart;
-					_lastSelectionEnd = selEnd;
-					_searchView.InvokeSelectionChanged();
-				}
-			}
-		}
+	protected override void OnSelectionChanged(int selStart, int selEnd)
+	{
+		base.OnSelectionChanged(selStart, selEnd);
+		SelectionChanged?.Invoke(this, EventArgs.Empty);
 	}
 }
