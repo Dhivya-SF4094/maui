@@ -21,31 +21,29 @@ namespace Microsoft.Maui.DeviceTests
 		public async Task CursorPositionUpdatesAfterSetQuery()
 		{
 			var searchBar = new SearchBarStub();
-			int virtualViewCursorPosition = -1;
 
-			await AttachAndRun(searchBar, (handler) =>
+			await AttachAndRun(searchBar, async (handler) =>
 			{
 				// Simulate user typing by calling the native SetQuery method
 				var searchView = GetNativeSearchBar(handler);
 				searchView.SetQuery("Hello", false);
 
-				// VirtualView.CursorPosition should now reflect the cursor at the end
-				virtualViewCursorPosition = searchBar.CursorPosition;
+				// The fix uses Post() to defer cursor reads (SearchView timing quirk: setQuery()
+				// calls setText() before setSelection()). Wait for the deferred update.
+				await AssertEventually(() => searchBar.CursorPosition == 5);
 			});
 
 			// After SetQuery("Hello"), cursor should be at position 5 (end of text),
 			// not stuck at 0 as it was before the fix
-			Assert.Equal(5, virtualViewCursorPosition);
+			Assert.Equal(5, searchBar.CursorPosition);
 		}
 
 		[Fact(DisplayName = "SelectionLength Updates When Text Is Selected Natively (Issue 30779)")]
 		public async Task SelectionLengthUpdatesWhenTextIsSelectedNatively()
 		{
 			var searchBar = new SearchBarStub { Text = "Hello World" };
-			int virtualSelectionLength = -1;
-			int virtualCursorPosition = -1;
 
-			await AttachAndRun(searchBar, (handler) =>
+			await AttachAndRun(searchBar, async (handler) =>
 			{
 				var control = GetNativeSearchBar(handler);
 				var editText = control.GetChildrenOfType<EditText>().FirstOrDefault();
@@ -53,13 +51,13 @@ namespace Microsoft.Maui.DeviceTests
 				// Programmatically select the word "Hello" (chars 0–5)
 				editText?.SetSelection(0, 5);
 
-				virtualSelectionLength = searchBar.SelectionLength;
-				virtualCursorPosition = searchBar.CursorPosition;
+				// The fix uses Post() to defer cursor reads; wait for the deferred update.
+				await AssertEventually(() => searchBar.SelectionLength == 5);
 			});
 
 			// Selection of 5 characters starting at position 0 should be reflected in the VirtualView
-			Assert.Equal(0, virtualCursorPosition);
-			Assert.Equal(5, virtualSelectionLength);
+			Assert.Equal(0, searchBar.CursorPosition);
+			Assert.Equal(5, searchBar.SelectionLength);
 		}
 
 		[Fact(DisplayName = "ReturnType Initializes Correctly")]

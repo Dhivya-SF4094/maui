@@ -505,20 +505,19 @@ namespace Microsoft.Maui.DeviceTests
 			public async Task CursorPositionUpdatesAfterTypingViaNativeInput()
 			{
 				var searchBar = new SearchBarStub();
-				int virtualViewCursorPosition = -1;
 
-				await AttachAndRun(searchBar, (handler) =>
+				await AttachAndRun(searchBar, async (handler) =>
 				{
 					// Simulate user typing by setting text via the native platform method
 					SetNativeText(handler, "Hello");
 
-					// Read the VirtualView's CursorPosition – this should now reflect
-					// the cursor moved to the end (position 5) rather than staying at 0
-					virtualViewCursorPosition = searchBar.CursorPosition;
+					// On Android the fix uses Post() to defer cursor reads; wait for it.
+					// On iOS/Windows the update is synchronous, so AssertEventually returns immediately.
+					await AssertEventually(() => searchBar.CursorPosition == 5);
 				});
 
 				// After typing "Hello" (5 chars), the cursor should be at the end
-				Assert.Equal(5, virtualViewCursorPosition);
+				Assert.Equal(5, searchBar.CursorPosition);
 			}
 		}
 
