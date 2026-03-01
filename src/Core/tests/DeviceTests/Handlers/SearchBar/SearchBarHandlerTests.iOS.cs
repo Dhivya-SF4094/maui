@@ -12,6 +12,54 @@ namespace Microsoft.Maui.DeviceTests
 {
 	public partial class SearchBarHandlerTests
 	{
+		// Regression tests for https://github.com/dotnet/maui/issues/30779
+		// SearchBar.CursorPosition and SelectionLength were not updated when the user typed
+
+		[Fact(DisplayName = "CursorPosition Updates After Setting Native Text (Issue 30779)")]
+		public async Task CursorPositionUpdatesAfterSettingNativeText()
+		{
+			var searchBar = new SearchBarStub();
+			int virtualViewCursorPosition = -1;
+
+			await AttachAndRun(searchBar, (handler) =>
+			{
+				// Simulate user typing by setting text on the native UISearchBar
+				GetNativeSearchBar(handler).Text = "Hello";
+
+				// VirtualView.CursorPosition should now reflect the cursor at the end
+				virtualViewCursorPosition = searchBar.CursorPosition;
+			});
+
+			// After setting "Hello", cursor should be at position 5 (end of text),
+			// not stuck at 0 as it was before the fix
+			Assert.Equal(5, virtualViewCursorPosition);
+		}
+
+		[Fact(DisplayName = "SelectionLength Updates When Text Is Selected Natively (Issue 30779)")]
+		public async Task SelectionLengthUpdatesWhenTextIsSelectedNatively()
+		{
+			var searchBar = new SearchBarStub { Text = "Hello World" };
+			int virtualSelectionLength = -1;
+			int virtualCursorPosition = -1;
+
+			await AttachAndRun(searchBar, (handler) =>
+			{
+				// Use the internal UITextField (QueryEditor) to programmatically
+				// select the word "Hello" (chars 0–5)
+				var control = handler.QueryEditor;
+				var startPosition = control.GetPosition(control.BeginningOfDocument, 0);
+				var endPosition = control.GetPosition(control.BeginningOfDocument, 5);
+				control.SelectedTextRange = control.GetTextRange(startPosition, endPosition);
+
+				virtualSelectionLength = searchBar.SelectionLength;
+				virtualCursorPosition = searchBar.CursorPosition;
+			});
+
+			// Selection of 5 characters starting at position 0 should be reflected in the VirtualView
+			Assert.Equal(0, virtualCursorPosition);
+			Assert.Equal(5, virtualSelectionLength);
+		}
+
 		[Theory(DisplayName = "Gradient Background Initializes Correctly")]
 		[InlineData(0xFFFF0000, 0xFFFE2500)]
 		[InlineData(0xFF00FF00, 0xFF04F800)]

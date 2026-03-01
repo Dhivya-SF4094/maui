@@ -14,6 +14,54 @@ namespace Microsoft.Maui.DeviceTests
 {
 	public partial class SearchBarHandlerTests
 	{
+		// Regression tests for https://github.com/dotnet/maui/issues/30779
+		// SearchBar.CursorPosition and SelectionLength were not updated when the user typed
+
+		[Fact(DisplayName = "CursorPosition Updates After SetQuery (Issue 30779)")]
+		public async Task CursorPositionUpdatesAfterSetQuery()
+		{
+			var searchBar = new SearchBarStub();
+			int virtualViewCursorPosition = -1;
+
+			await AttachAndRun(searchBar, (handler) =>
+			{
+				// Simulate user typing by calling the native SetQuery method
+				var searchView = GetNativeSearchBar(handler);
+				searchView.SetQuery("Hello", false);
+
+				// VirtualView.CursorPosition should now reflect the cursor at the end
+				virtualViewCursorPosition = searchBar.CursorPosition;
+			});
+
+			// After SetQuery("Hello"), cursor should be at position 5 (end of text),
+			// not stuck at 0 as it was before the fix
+			Assert.Equal(5, virtualViewCursorPosition);
+		}
+
+		[Fact(DisplayName = "SelectionLength Updates When Text Is Selected Natively (Issue 30779)")]
+		public async Task SelectionLengthUpdatesWhenTextIsSelectedNatively()
+		{
+			var searchBar = new SearchBarStub { Text = "Hello World" };
+			int virtualSelectionLength = -1;
+			int virtualCursorPosition = -1;
+
+			await AttachAndRun(searchBar, (handler) =>
+			{
+				var control = GetNativeSearchBar(handler);
+				var editText = control.GetChildrenOfType<EditText>().FirstOrDefault();
+
+				// Programmatically select the word "Hello" (chars 0–5)
+				editText?.SetSelection(0, 5);
+
+				virtualSelectionLength = searchBar.SelectionLength;
+				virtualCursorPosition = searchBar.CursorPosition;
+			});
+
+			// Selection of 5 characters starting at position 0 should be reflected in the VirtualView
+			Assert.Equal(0, virtualCursorPosition);
+			Assert.Equal(5, virtualSelectionLength);
+		}
+
 		[Fact(DisplayName = "ReturnType Initializes Correctly")]
 		public async Task ReturnTypeInitializesCorrectly()
 		{

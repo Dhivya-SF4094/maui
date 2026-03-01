@@ -32,6 +32,9 @@ namespace Microsoft.Maui.Handlers
 
 			platformView.QueryTextChange += OnQueryTextChange;
 			platformView.QueryTextSubmit += OnQueryTextSubmit;
+
+			if (QueryEditor is MauiAppCompatEditText mauiEditor)
+				mauiEditor.SelectionChanged += OnQueryEditorSelectionChanged;
 		}
 
 		protected override void DisconnectHandler(SearchView platformView)
@@ -41,6 +44,9 @@ namespace Microsoft.Maui.Handlers
 
 			platformView.QueryTextChange -= OnQueryTextChange;
 			platformView.QueryTextSubmit -= OnQueryTextSubmit;
+
+			if (QueryEditor is MauiAppCompatEditText mauiEditor)
+				mauiEditor.SelectionChanged -= OnQueryEditorSelectionChanged;
 		}
 
 		public static void MapBackground(ISearchBarHandler handler, ISearchBar searchBar)
@@ -135,6 +141,16 @@ namespace Microsoft.Maui.Handlers
 			handler.QueryEditor?.UpdateIsReadOnly(searchBar);
 		}
 
+		public static void MapCursorPosition(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.QueryEditor?.UpdateCursorPosition(searchBar);
+		}
+
+		public static void MapSelectionLength(ISearchBarHandler handler, ISearchBar searchBar)
+		{
+			handler.QueryEditor?.UpdateSelectionLength(searchBar);
+		}
+
 		public static void MapCancelButtonColor(ISearchBarHandler handler, ISearchBar searchBar)
 		{
 			handler.PlatformView?.UpdateCancelButtonColor(searchBar);
@@ -173,6 +189,20 @@ namespace Microsoft.Maui.Handlers
 		{
 			VirtualView.UpdateText(e.NewText);
 			e.Handled = true;
+		}
+
+		void OnQueryEditorSelectionChanged(object? sender, EventArgs e)
+		{
+			// SearchView.setQuery() calls setText() before setSelection(), so defer the cursor read
+			// to allow the selection to be finalized first.
+			QueryEditor?.Post(() =>
+			{
+				if (VirtualView is ISearchBar searchBar && QueryEditor is EditText queryEditor)
+				{
+					searchBar.CursorPosition = queryEditor.GetCursorPosition();
+					searchBar.SelectionLength = queryEditor.GetSelectedTextLength();
+				}
+			});
 		}
 
 		class FocusChangeListener : Java.Lang.Object, SearchView.IOnFocusChangeListener

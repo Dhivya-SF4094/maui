@@ -9,6 +9,61 @@ namespace Microsoft.Maui.DeviceTests
 {
 	public partial class SearchBarHandlerTests
 	{
+		// Regression tests for https://github.com/dotnet/maui/issues/30779
+		// SearchBar.CursorPosition and SelectionLength were not updated when the user typed
+
+		[Fact(DisplayName = "CursorPosition Updates After Setting Native Text (Issue 30779)")]
+		public async Task CursorPositionUpdatesAfterSettingNativeText()
+		{
+			var searchBar = new SearchBarStub();
+			int virtualViewCursorPosition = -1;
+
+			await AttachAndRun(searchBar, async (handler) =>
+			{
+				await AssertEventually(() => handler.PlatformView.IsLoaded());
+
+				// Simulate user typing by setting text on the native AutoSuggestBox
+				GetNativeSearchBar(handler).Text = "Hello";
+
+				// VirtualView.CursorPosition should now reflect the cursor at the end
+				virtualViewCursorPosition = searchBar.CursorPosition;
+			});
+
+			// After setting "Hello", cursor should be at position 5 (end of text),
+			// not stuck at 0 as it was before the fix
+			Assert.Equal(5, virtualViewCursorPosition);
+		}
+
+		[Fact(DisplayName = "SelectionLength Updates When Text Is Selected Natively (Issue 30779)")]
+		public async Task SelectionLengthUpdatesWhenTextIsSelectedNatively()
+		{
+			var searchBar = new SearchBarStub { Text = "Hello World" };
+			int virtualSelectionLength = -1;
+			int virtualCursorPosition = -1;
+
+			await AttachAndRun(searchBar, async (handler) =>
+			{
+				await AssertEventually(() => handler.PlatformView.IsLoaded());
+
+				var platformSearchBar = GetNativeSearchBar(handler);
+				var textBox = platformSearchBar.GetFirstDescendant<TextBox>();
+
+				if (textBox is not null)
+				{
+					// Programmatically select the word "Hello" (chars 0–5)
+					textBox.SelectionStart = 0;
+					textBox.SelectionLength = 5;
+				}
+
+				virtualSelectionLength = searchBar.SelectionLength;
+				virtualCursorPosition = searchBar.CursorPosition;
+			});
+
+			// Selection of 5 characters starting at position 0 should be reflected in the VirtualView
+			Assert.Equal(0, virtualCursorPosition);
+			Assert.Equal(5, virtualSelectionLength);
+		}
+
 		[Theory(DisplayName = "CancelButtonColor Initializes Correctly")]
 		[InlineData(0xFFFF0000)]
 		[InlineData(0xFF00FF00)]
