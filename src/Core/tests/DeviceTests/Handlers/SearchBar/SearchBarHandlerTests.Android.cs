@@ -3,10 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android.Text;
 using Android.Text.Method;
+using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
 using Microsoft.Maui.DeviceTests.Stubs;
 using Xunit;
+using static Microsoft.Maui.DeviceTests.AssertHelpers;
 using AColor = Android.Graphics.Color;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
 
@@ -48,14 +50,86 @@ namespace Microsoft.Maui.DeviceTests
 				var control = GetNativeSearchBar(handler);
 				var editText = control.GetChildrenOfType<EditText>().FirstOrDefault();
 
-				// Programmatically select the word "Hello" (chars 0–5)
+				// Simulate a native selection gesture: set native selection then trigger
+				// the handler's selection-change reader (mirrors what touch/key listeners do).
 				editText?.SetSelection(0, 5);
+				handler.OnQueryEditorSelectionChanged();
 
 				// The fix uses Post() to defer cursor reads; wait for the deferred update.
 				await AssertEventually(() => searchBar.SelectionLength == 5);
 			});
 
 			// Selection of 5 characters starting at position 0 should be reflected in the VirtualView
+			Assert.Equal(0, searchBar.CursorPosition);
+			Assert.Equal(5, searchBar.SelectionLength);
+		}
+
+		[Fact(DisplayName = "CursorPosition Set Programmatically Updates Native Cursor (Issue 30779)")]
+		public async Task CursorPositionSetProgrammaticallyUpdatesNativeCursor()
+		{
+			var searchBar = new SearchBarStub { Text = "Hello World" };
+
+			await AttachAndRun(searchBar, async (handler) =>
+			{
+				var control = GetNativeSearchBar(handler);
+				var editText = control.GetChildrenOfType<EditText>().FirstOrDefault();
+
+				// Set cursor position via MAUI property (programmatic MAUI → native direction).
+				// MapCursorPosition → UpdateCursorPosition → editText.SetSelection() is synchronous.
+				searchBar.CursorPosition = 3;
+				SearchBarHandler.MapCursorPosition(handler, searchBar);
+
+				Assert.Equal(3, editText?.SelectionStart);
+			});
+		}
+
+		[Fact(DisplayName = "SelectionLength Set Programmatically Updates Native Selection (Issue 30779)")]
+		public async Task SelectionLengthSetProgrammaticallyUpdatesNativeSelection()
+		{
+			var searchBar = new SearchBarStub { Text = "Hello World", CursorPosition = 0 };
+
+			await AttachAndRun(searchBar, async (handler) =>
+			{
+				var control = GetNativeSearchBar(handler);
+				var editText = control.GetChildrenOfType<EditText>().FirstOrDefault();
+
+				// Set selection length via MAUI property (programmatic MAUI → native direction).
+				// MapSelectionLength → UpdateSelectionLength → editText.SetSelection() is synchronous.
+				searchBar.SelectionLength = 5;
+				SearchBarHandler.MapSelectionLength(handler, searchBar);
+
+				Assert.Equal(0, editText?.SelectionStart);
+				Assert.Equal(5, editText?.SelectionEnd - editText?.SelectionStart);
+			});
+		}
+
+		[Fact(DisplayName = "SelectionLength Updates When Text Is Selected Via Keyboard (Issue 30779)")]
+		public async Task SelectionLengthUpdatesWhenTextIsSelectedViaKeyboard()
+		{
+			var searchBar = new SearchBarStub { Text = "Hello World" };
+
+			await AttachAndRun(searchBar, async (handler) =>
+			{
+				var control = GetNativeSearchBar(handler);
+				var editText = control.GetChildrenOfType<EditText>().FirstOrDefault();
+
+				// Simulate Shift+Arrow keyboard selection:
+				// 1. Set the native selection as if the user had selected with Shift+Arrow
+				editText?.SetSelection(0, 5);
+
+				// 2. Dispatch a KEY_UP (Shift release) which triggers QueryEditorKeyListener.
+				//    Using only KEY_UP (no preceding KEY_DOWN for a character key) means the
+				//    EditText won't modify the selection; our listener reads the current state.
+				if (editText != null)
+				{
+					var keyEvent = new KeyEvent(KeyEventActions.Up, Keycode.ShiftLeft);
+					editText.DispatchKeyEvent(keyEvent);
+				}
+
+				// QueryEditorKeyListener.OnKey fires on ACTION_UP and schedules a Post() read.
+				await AssertEventually(() => searchBar.SelectionLength == 5);
+			});
+
 			Assert.Equal(0, searchBar.CursorPosition);
 			Assert.Equal(5, searchBar.SelectionLength);
 		}

@@ -1,8 +1,10 @@
+using System;
 using Android.Content;
 using Android.Content.Res;
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.Widget;
+using Microsoft.Maui.Platform;
 using static AndroidX.AppCompat.Widget.SearchView;
 using AView = Android.Views.View;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
@@ -25,6 +27,9 @@ namespace Microsoft.Maui.Handlers
 			return _platformSearchView;
 		}
 
+		QueryEditorTouchListener? _queryEditorTouchListener;
+		QueryEditorKeyListener? _queryEditorKeyListener;
+
 		protected override void ConnectHandler(SearchView platformView)
 		{
 			FocusListener.Handler = this;
@@ -33,8 +38,19 @@ namespace Microsoft.Maui.Handlers
 			platformView.QueryTextChange += OnQueryTextChange;
 			platformView.QueryTextSubmit += OnQueryTextSubmit;
 
-			if (QueryEditor is MauiAppCompatEditText mauiEditor)
-				mauiEditor.SelectionChanged += OnQueryEditorSelectionChanged;
+			// QueryEditor is SearchView.SearchAutoComplete (not MauiAppCompatEditText), so there is
+			// no SelectionChanged event available. Track cursor/selection via three hooks:
+			//   1. OnQueryTextChange: fires on every keystroke (typing)
+			//   2. QueryEditorTouchListener (ACTION_UP): tap-to-reposition / drag-to-select
+			//   3. QueryEditorKeyListener (ACTION_UP): hardware keyboard navigation (Shift+Arrow, etc.)
+			if (QueryEditor is EditText queryEditor)
+			{
+				_queryEditorTouchListener = new QueryEditorTouchListener(this);
+				queryEditor.SetOnTouchListener(_queryEditorTouchListener);
+
+				_queryEditorKeyListener = new QueryEditorKeyListener(this);
+				queryEditor.SetOnKeyListener(_queryEditorKeyListener);
+			}
 		}
 
 		protected override void DisconnectHandler(SearchView platformView)
@@ -45,8 +61,16 @@ namespace Microsoft.Maui.Handlers
 			platformView.QueryTextChange -= OnQueryTextChange;
 			platformView.QueryTextSubmit -= OnQueryTextSubmit;
 
-			if (QueryEditor is MauiAppCompatEditText mauiEditor)
-				mauiEditor.SelectionChanged -= OnQueryEditorSelectionChanged;
+			if (QueryEditor is EditText queryEditor)
+			{
+				queryEditor.SetOnTouchListener(null);
+				_queryEditorTouchListener?.Dispose();
+				_queryEditorTouchListener = null;
+
+				queryEditor.SetOnKeyListener(null);
+				_queryEditorKeyListener?.Dispose();
+				_queryEditorKeyListener = null;
+			}
 		}
 
 		public static void MapBackground(ISearchBarHandler handler, ISearchBar searchBar)
@@ -189,12 +213,14 @@ namespace Microsoft.Maui.Handlers
 		{
 			VirtualView.UpdateText(e.NewText);
 			e.Handled = true;
+			// Typing always repositions the cursor; schedule a deferred cursor/selection read.
+			OnQueryEditorSelectionChanged();
 		}
 
-		void OnQueryEditorSelectionChanged(object? sender, EventArgs e)
+		internal void OnQueryEditorSelectionChanged()
 		{
-			// SearchView.setQuery() calls setText() before setSelection(), so defer the cursor read
-			// to allow the selection to be finalized first.
+			// SearchView.setQuery() calls setText() before setSelection(), so we defer the read
+			// via Post() to ensure setSelection() has completed before we capture the position.
 			QueryEditor?.Post(() =>
 			{
 				if (VirtualView is ISearchBar searchBar && QueryEditor is EditText queryEditor)
@@ -203,6 +229,42 @@ namespace Microsoft.Maui.Handlers
 					searchBar.SelectionLength = queryEditor.GetSelectedTextLength();
 				}
 			});
+		}
+
+		class QueryEditorTouchListener : Java.Lang.Object, AView.IOnTouchListener
+		{
+			readonly SearchBarHandler _handler;
+
+			public QueryEditorTouchListener(SearchBarHandler handler)
+			{
+				_handler = handler;
+			}
+
+			public bool OnTouch(AView? v, MotionEvent? e)
+			{
+				// After ACTION_UP the gesture is complete and the cursor/selection is finalized.
+				if (e?.Action == MotionEventActions.Up)
+					_handler.OnQueryEditorSelectionChanged();
+				return false;
+			}
+		}
+
+		class QueryEditorKeyListener : Java.Lang.Object, AView.IOnKeyListener
+		{
+			readonly SearchBarHandler _handler;
+
+			public QueryEditorKeyListener(SearchBarHandler handler)
+			{
+				_handler = handler;
+			}
+
+			public bool OnKey(AView? v, Keycode keyCode, KeyEvent? e)
+			{
+				// After ACTION_UP the key is released and the cursor/selection is finalized.
+				if (e?.Action == KeyEventActions.Up)
+					_handler.OnQueryEditorSelectionChanged();
+				return false;
+			}
 		}
 
 		class FocusChangeListener : Java.Lang.Object, SearchView.IOnFocusChangeListener
