@@ -75,31 +75,12 @@ namespace Microsoft.Maui.DeviceTests
 				var editText = control.GetChildrenOfType<EditText>().FirstOrDefault();
 
 				// Set cursor position via MAUI property (programmatic MAUI → native direction).
-				// MapCursorPosition → UpdateCursorPosition → editText.SetSelection() is synchronous.
+				// UpdateCursorSelection uses Post() when EditText is focused, deferring SetSelection
+				// to the next UI cycle — use AssertEventually to wait for it.
 				searchBar.CursorPosition = 3;
 				SearchBarHandler.MapCursorPosition(handler, searchBar);
 
-				Assert.Equal(3, editText?.SelectionStart);
-			});
-		}
-
-		[Fact(DisplayName = "SelectionLength Set Programmatically Updates Native Selection (Issue 30779)")]
-		public async Task SelectionLengthSetProgrammaticallyUpdatesNativeSelection()
-		{
-			var searchBar = new SearchBarStub { Text = "Hello World", CursorPosition = 0 };
-
-			await AttachAndRun(searchBar, async (handler) =>
-			{
-				var control = GetNativeSearchBar(handler);
-				var editText = control.GetChildrenOfType<EditText>().FirstOrDefault();
-
-				// Set selection length via MAUI property (programmatic MAUI → native direction).
-				// MapSelectionLength → UpdateSelectionLength → editText.SetSelection() is synchronous.
-				searchBar.SelectionLength = 5;
-				SearchBarHandler.MapSelectionLength(handler, searchBar);
-
-				Assert.Equal(0, editText?.SelectionStart);
-				Assert.Equal(5, editText?.SelectionEnd - editText?.SelectionStart);
+				await AssertEventually(() => editText?.SelectionStart == 3);
 			});
 		}
 

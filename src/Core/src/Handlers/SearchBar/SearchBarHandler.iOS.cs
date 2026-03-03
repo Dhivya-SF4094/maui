@@ -192,6 +192,7 @@ namespace Microsoft.Maui.Handlers
 				platformView.ShouldChangeTextInRange += ShouldChangeText;
 				platformView.OnEditingStarted += OnEditingStarted;
 				platformView.OnEditingStopped += OnEditingStopped;
+				platformView.SelectionChanged += OnSelectionChanged;
 
 				if (handler.QueryEditor is UITextField editor)
 					editor.EditingChanged += OnEditingChanged;
@@ -209,6 +210,7 @@ namespace Microsoft.Maui.Handlers
 				platformView.OnMovedToWindow -= OnMovedToWindow;
 				platformView.OnEditingStarted -= OnEditingStarted;
 				platformView.OnEditingStopped -= OnEditingStopped;
+				platformView.SelectionChanged -= OnSelectionChanged;
 
 				if (editor is not null)
 					editor.EditingChanged -= OnEditingChanged;
@@ -279,6 +281,33 @@ namespace Microsoft.Maui.Handlers
 				if (Handler is SearchBarHandler handler)
 				{
 					handler.UpdateCancelButtonVisibility();
+				}
+			}
+
+			// Fires for all selection/cursor changes: user taps to reposition, long-press selection,
+			// keyboard navigation, and text input. Mirrors EntryHandler's OnSelectionChanged pattern.
+			// Guards:
+			//   - SelectedTextRange != null: UIKit fires DidChangeSelection during becomeFirstResponder
+			//     (step 2) BEFORE SelectedTextRange is valid; GetCursorPosition would throw otherwise.
+			//   - IsFirstResponder: prevents programmatic UISearchBar.Text changes on unfocused fields
+			//     from resetting CursorPosition to 0. CursorPosition should only update during active
+			//     user interaction (typing, tap-to-reposition, text selection).
+			void OnSelectionChanged(object? sender, EventArgs e)
+			{
+				if (Handler is SearchBarHandler handler && VirtualView is ISearchBar virtualView)
+				{
+					var editor = handler.QueryEditor;
+					if (editor != null && editor.SelectedTextRange != null && editor.IsFirstResponder)
+					{
+						var cursorPosition = editor.GetCursorPosition();
+						var selectedTextLength = editor.GetSelectedTextLength();
+
+						if (virtualView.CursorPosition != cursorPosition)
+							virtualView.CursorPosition = cursorPosition;
+
+						if (virtualView.SelectionLength != selectedTextLength)
+							virtualView.SelectionLength = selectedTextLength;
+					}
 				}
 			}
 

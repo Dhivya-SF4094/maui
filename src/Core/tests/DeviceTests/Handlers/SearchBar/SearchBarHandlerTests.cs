@@ -508,11 +508,17 @@ namespace Microsoft.Maui.DeviceTests
 
 				await AttachAndRun(searchBar, async (handler) =>
 				{
+#if IOS || MACCATALYST
+					// On iOS/Mac, CursorPosition only updates when the SearchBar is focused
+					// (IsFirstResponder = true). Focus the QueryEditor before setting text
+					// to simulate the real user flow: tap → type.
+					handler.QueryEditor.BecomeFirstResponder();
+#endif
 					// Simulate user typing by setting text via the native platform method
 					SetNativeText(handler, "Hello");
 
 					// On Android the fix uses Post() to defer cursor reads; wait for it.
-					// On iOS/Windows the update is synchronous, so AssertEventually returns immediately.
+					// On iOS/Windows the update fires via DidChangeSelection on the focused field.
 					await AssertEventually(() => searchBar.CursorPosition == 5);
 				});
 
