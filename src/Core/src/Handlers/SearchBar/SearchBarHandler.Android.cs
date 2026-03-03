@@ -219,14 +219,22 @@ namespace Microsoft.Maui.Handlers
 
 		internal void OnQueryEditorSelectionChanged()
 		{
-			// SearchView.setQuery() calls setText() before setSelection(), so we defer the read
-			// via Post() to ensure setSelection() has completed before we capture the position.
 			QueryEditor?.Post(() =>
 			{
 				if (VirtualView is ISearchBar searchBar && QueryEditor is EditText queryEditor)
 				{
-					searchBar.CursorPosition = queryEditor.GetCursorPosition();
-					searchBar.SelectionLength = queryEditor.GetSelectedTextLength();
+					var cursorPosition = queryEditor.GetCursorPosition();
+					var selectedTextLength = queryEditor.GetSelectedTextLength();
+
+					if (searchBar.CursorPosition != cursorPosition)
+					{
+						searchBar.CursorPosition = cursorPosition;
+					}
+
+					if (searchBar.SelectionLength != selectedTextLength)
+					{
+						searchBar.SelectionLength = selectedTextLength;
+					}
 				}
 			});
 		}
@@ -260,11 +268,28 @@ namespace Microsoft.Maui.Handlers
 
 			public bool OnKey(AView? v, Keycode keyCode, KeyEvent? e)
 			{
-				// After ACTION_UP the key is released and the cursor/selection is finalized.
-				if (e?.Action == KeyEventActions.Up)
+				// Only fire for navigation keys (arrow, Home, End, PageUp/Down) that can
+				// reposition the cursor. Text-modifying keys are already handled by
+				// OnQueryTextChange; modifier-only keys (Shift, Ctrl, …) cannot move the cursor.
+				if (e?.Action == KeyEventActions.Up && IsNavigationKey(keyCode))
+				{
 					_handler.OnQueryEditorSelectionChanged();
+				}
+
 				return false;
 			}
+
+			// Returns true for keys that can reposition the cursor or change the
+			// selection range without altering the text content.
+			static bool IsNavigationKey(Keycode keyCode) =>
+				keyCode == Keycode.DpadLeft ||
+				keyCode == Keycode.DpadRight ||
+				keyCode == Keycode.DpadUp ||
+				keyCode == Keycode.DpadDown ||
+				keyCode == Keycode.MoveHome ||
+				keyCode == Keycode.MoveEnd ||
+				keyCode == Keycode.PageUp ||
+				keyCode == Keycode.PageDown;
 		}
 
 		class FocusChangeListener : Java.Lang.Object, SearchView.IOnFocusChangeListener
