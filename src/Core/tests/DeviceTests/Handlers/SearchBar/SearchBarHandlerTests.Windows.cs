@@ -25,7 +25,12 @@ namespace Microsoft.Maui.DeviceTests
 				// Simulate user typing by setting text on the native AutoSuggestBox
 				GetNativeSearchBar(handler).Text = "Hello";
 
-				// VirtualView.CursorPosition should now reflect the cursor at the end
+				// Wait for the SelectionChanged event to propagate back to the VirtualView.
+				// On Windows the update is synchronous, but AssertEventually is used as a
+				// safety net in case of any scheduling differences in the test environment.
+				await AssertEventually(() => searchBar.CursorPosition == 5,
+					message: "CursorPosition should update to 5 after setting native text to 'Hello'");
+
 				virtualViewCursorPosition = searchBar.CursorPosition;
 			});
 
@@ -48,12 +53,18 @@ namespace Microsoft.Maui.DeviceTests
 				var platformSearchBar = GetNativeSearchBar(handler);
 				var textBox = platformSearchBar.GetFirstDescendant<TextBox>();
 
-				if (textBox is not null)
-				{
-					// Programmatically select the word "Hello" (chars 0–5)
-					textBox.SelectionStart = 0;
-					textBox.SelectionLength = 5;
-				}
+				// The inner TextBox must exist after the AutoSuggestBox is loaded
+				Assert.NotNull(textBox);
+
+				// Programmatically select the word "Hello" (chars 0–5)
+				textBox.SelectionStart = 0;
+				textBox.SelectionLength = 5;
+
+				// Wait for the SelectionChanged event to propagate back to the VirtualView.
+				// On Windows the update is synchronous, but AssertEventually is used as a
+				// safety net in case of any scheduling differences in the test environment.
+				await AssertEventually(() => searchBar.SelectionLength == 5,
+					message: "SelectionLength should update to 5 after selecting text natively");
 
 				virtualSelectionLength = searchBar.SelectionLength;
 				virtualCursorPosition = searchBar.CursorPosition;
