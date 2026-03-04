@@ -49,7 +49,25 @@ namespace Microsoft.Maui.Platform
 			var deviceIndependentWidth = widthMeasureSpec.ToDouble(_context);
 			var deviceIndependentHeight = heightMeasureSpec.ToDouble(_context);
 
-			CrossPlatformLayout?.CrossPlatformMeasure(deviceIndependentWidth, deviceIndependentHeight);
+			var widthMode = MeasureSpec.GetMode(widthMeasureSpec);
+			var heightMode = MeasureSpec.GetMode(heightMeasureSpec);
+
+			var measure = CrossPlatformLayout.CrossPlatformMeasure(deviceIndependentWidth, deviceIndependentHeight);
+
+			// If the measure spec was exact, we should return the explicit size value, even if the content
+			// measure came out to a different size. Otherwise (AtMost or Unspecified), report the
+			// desired cross-platform size so the parent layout can size us correctly.
+			var width = widthMode == MeasureSpecMode.Exactly ? deviceIndependentWidth : measure.Width;
+			var height = heightMode == MeasureSpecMode.Exactly ? deviceIndependentHeight : measure.Height;
+
+			var platformWidth = _context.ToPixels(width);
+			var platformHeight = _context.ToPixels(height);
+
+			// Minimum values win over everything
+			platformWidth = Math.Max(MinimumWidth, platformWidth);
+			platformHeight = Math.Max(MinimumHeight, platformHeight);
+
+			SetMeasuredDimension((int)platformWidth, (int)platformHeight);
 		}
 
 		protected override void OnLayout(bool changed, int left, int top, int right, int bottom)
