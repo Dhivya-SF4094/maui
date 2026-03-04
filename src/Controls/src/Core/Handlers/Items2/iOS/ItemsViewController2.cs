@@ -572,7 +572,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			// layout, but direct subviews are NOT — resulting in mirror-flipped rendering.
 			// Adding to the superview avoids this flip zone entirely.
 			var targetView = CollectionView.Superview;
-			if (targetView != null)
+			if (targetView is not null)
 			{
 				targetView.InsertSubviewAbove(_emptyUIView, CollectionView);
 			}
