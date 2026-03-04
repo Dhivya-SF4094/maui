@@ -311,7 +311,9 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 						// Skip the empty view element — its flow direction is handled
 						// separately in AlignEmptyView to avoid double application
 						if (child == _emptyViewFormsElement)
+						{
 							continue;
+						}
 
 						if (child is VisualElement ve && ve.Handler?.PlatformView is UIView view)
 						{
@@ -330,7 +332,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 						}
 					}
 				}
-	
+
 				CollectionView.UpdateFlowDirection(ItemsView);
 			}
 
