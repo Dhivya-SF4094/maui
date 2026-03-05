@@ -267,15 +267,6 @@ namespace Microsoft.Maui.Handlers
 				if (sender is UITextField textField && VirtualView is ISearchBar virtualView)
 				{
 					virtualView.UpdateText(textField.Text);
-
-					var cursorPosition = textField.GetCursorPosition();
-					var selectedTextLength = textField.GetSelectedTextLength();
-
-					if (virtualView.CursorPosition != cursorPosition)
-						virtualView.CursorPosition = cursorPosition;
-
-					if (virtualView.SelectionLength != selectedTextLength)
-						virtualView.SelectionLength = selectedTextLength;
 				}
 
 				if (Handler is SearchBarHandler handler)
