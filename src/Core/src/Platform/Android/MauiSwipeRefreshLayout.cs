@@ -39,6 +39,9 @@ namespace Microsoft.Maui.Platform
 
 		public override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
+			// Always call base.OnMeasure — unlike ContentViewGroup/LayoutViewGroup,
+			// SwipeRefreshLayout.onMeasure internally measures its spinner indicator
+			// (mCircleView). Skipping this leaves the spinner at 0x0, making it invisible.
 			base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
 
 			if (CrossPlatformLayout is null)
@@ -54,11 +57,12 @@ namespace Microsoft.Maui.Platform
 
 			var measure = CrossPlatformLayout.CrossPlatformMeasure(deviceIndependentWidth, deviceIndependentHeight);
 
-			// If the measure spec was exact, we should return the explicit size value, even if the content
-			// measure came out to a different size. Otherwise (AtMost or Unspecified), report the
-			// desired cross-platform size so the parent layout can size us correctly.
-			var width = widthMode == MeasureSpecMode.Exactly ? deviceIndependentWidth : measure.Width;
-			var height = heightMode == MeasureSpecMode.Exactly ? deviceIndependentHeight : measure.Height;
+			// Unlike ContentViewGroup/LayoutViewGroup, SwipeRefreshLayout internally positions
+			// its spinner at getMeasuredWidth()/2. We must use the full spec size for both
+			// Exactly and AtMost modes (matching View.getDefaultSize behavior) so the spinner
+			// is centered correctly. Only for Unspecified do we use the cross-platform measure.
+			var width = widthMode == MeasureSpecMode.Unspecified ? measure.Width : deviceIndependentWidth;
+			var height = heightMode == MeasureSpecMode.Unspecified ? measure.Height : deviceIndependentHeight;
 
 			var platformWidth = _context.ToPixels(width);
 			var platformHeight = _context.ToPixels(height);
@@ -72,14 +76,18 @@ namespace Microsoft.Maui.Platform
 
 		protected override void OnLayout(bool changed, int left, int top, int right, int bottom)
 		{
+			// Always call base.OnLayout — SwipeRefreshLayout.onLayout positions the
+			// spinner indicator (mCircleView) centered horizontally. Without this,
+			// the spinner won't appear or will be mispositioned.
 			base.OnLayout(changed, left, top, right, bottom);
+
 			if (CrossPlatformLayout is null)
 			{
 				return;
 			}
 
 			var destination = _context.ToCrossPlatformRectInReferenceFrame(left, top, right, bottom);
-			CrossPlatformLayout?.CrossPlatformArrange(destination);
+			CrossPlatformLayout.CrossPlatformArrange(destination);
 		}
 
 		public bool RefreshEnabled
