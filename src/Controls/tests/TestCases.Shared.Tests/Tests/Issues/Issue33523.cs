@@ -1,5 +1,3 @@
-#if TEST_FAILS_ON_CATALYST && TEST_FAILS_ON_IOS // Issue: https://github.com/dotnet/maui/issues/34190
-
 using NUnit.Framework;
 using UITest.Appium;
 using UITest.Core;
@@ -26,11 +24,13 @@ namespace Microsoft.Maui.TestCases.Tests.Issues
 			// Verify initial state
 			var statusLabel = App.WaitForElement("StatusLabel");
 			Assert.That(statusLabel.GetText(), Is.EqualTo("OnBackButtonPressed not called"));
-
+#if IOS || MACCATALYST
+			App.TapBackArrow("Main Page");
+#else
 			// Tap the navigation bar back button
 			// Note: This uses the Shell's navigation bar back button, not the system back button
 			App.TapBackArrow();
-
+#endif
 			// Wait a moment for the event to fire
 			App.WaitForElement("StatusLabel");
 
@@ -41,4 +41,3 @@ namespace Microsoft.Maui.TestCases.Tests.Issues
 		}
 	}
 }
-#endif
