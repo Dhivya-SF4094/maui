@@ -36,6 +36,11 @@ namespace Microsoft.Maui.Handlers
 #if ANDROID || WINDOWS
 			[nameof(IImageButton.Background)] = MapBackground,
 #endif
+#if WINDOWS
+			// Override the shared MapAspect to apply aspect-aware MaxHeight/Width constraints
+			// for the image inside the WinUI Button's content area.
+			[nameof(IImage.Aspect)] = MapAspect,
+#endif
 		};
 
 		public static CommandMapper<IImageButton, IImageButtonHandler> CommandMapper = new(ViewHandler.ViewCommandMapper)

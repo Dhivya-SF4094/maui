@@ -18,6 +18,14 @@ namespace Microsoft.Maui.Platform
 
 			if (image.Aspect == Aspect.AspectFill)
 			{
+				// For AspectFill (UniformToFill), the Image element must stretch to fill its
+				// container so the bitmap can scale up to cover the full area and be clipped.
+				imageView.VerticalAlignment = VerticalAlignment.Stretch;
+				imageView.HorizontalAlignment = HorizontalAlignment.Stretch;
+			}
+			else
+			{
+				// For all other aspects, center the Image element within its container.
 				imageView.VerticalAlignment = VerticalAlignment.Center;
 				imageView.HorizontalAlignment = HorizontalAlignment.Center;
 			}
