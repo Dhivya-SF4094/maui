@@ -93,7 +93,8 @@ namespace Microsoft.Maui.Platform
 			string title,
 			IImageSource? imageSource,
 			IMauiContext mauiContext,
-			IUIMenuBuilder? uIMenuBuilder)
+			IUIMenuBuilder? uIMenuBuilder,
+			bool isEnabled = true)
 		{
 			if (String.IsNullOrWhiteSpace(title))
 				throw new ArgumentNullException(nameof(title), $"{menuElements} requires title text.");
@@ -122,6 +123,12 @@ namespace Microsoft.Maui.Platform
 			{
 				var item = menuElements[i];
 				var menuElement = (UIMenuElement)item.ToHandler(mauiContext)!.PlatformView!;
+
+				// If the parent MenuBarItem is disabled, visually disable all children
+				// since UIMenu itself does not support UIMenuElementAttributes.
+				if (!isEnabled)
+					menuElement.UpdateMenuElementAttributes(false);
+
 				platformMenuElements[i] = menuElement;
 			}
 

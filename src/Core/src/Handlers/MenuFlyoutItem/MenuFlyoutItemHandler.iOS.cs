@@ -53,7 +53,17 @@ namespace Microsoft.Maui.Handlers
 			if (uICommand.PropertyList is NSString nsString &&
 				Int32.TryParse(nsString.ToString(), out int index))
 			{
-				menus[index].Clicked();
+				if (!menus.TryGetValue(index, out var menuElement))
+					return;
+
+				// Respect the disabled state of the parent MenuBarItem.
+				// CanPerform always returns true for "MenuItem" selectors, so we
+				// must guard here: if the parent MenuBarItem is disabled its children
+				// should not fire even when invoked via accessibility or keyboard.
+				if (menuElement.Parent is IMenuBarItem { IsEnabled: false })
+					return;
+
+				menuElement.Clicked();
 			}
 		}
 
