@@ -35,7 +35,14 @@ namespace Microsoft.Maui.Handlers
 					title: VirtualView.Text,
 					image: contextUiImage,
 					identifier: null,
-					handler: (_) => VirtualView?.Clicked());
+					handler: (_) =>
+				{
+					if (VirtualView?.IsEnabled == false)
+					{
+						return;
+					}
+					VirtualView?.Clicked();
+				});
 
 				return uiAction;
 			}
@@ -62,6 +69,12 @@ namespace Microsoft.Maui.Handlers
 				// should not fire even when invoked via accessibility or keyboard.
 				if (menuElement.Parent is IMenuBarItem { IsEnabled: false })
 					return;
+
+				// Respect the item's own IsEnabled state.
+				if (menuElement is IMenuFlyoutItem { IsEnabled: false })
+				{
+					return;
+				}
 
 				menuElement.Clicked();
 			}

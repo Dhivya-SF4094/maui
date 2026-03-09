@@ -24,14 +24,40 @@ public class Issue34038 : _IssuesUITest
 			"Disable button should have updated the result label");
 
 		// Try to open the disabled MenuBarItem — it should be greyed out/unclickable.
-		// Wrap both taps in try-catch: a properly disabled MenuBarItem may not be
-		// interactable via Appium and will throw; the crucial assertion is below.
-		try { App.Tap("TestMenu"); } catch { }
-		try { App.Tap("Perform Action"); } catch { }
+		try
+		{ App.Tap("TestMenu"); }
+		catch { }
+		try
+		{ App.Tap("Perform Action"); }
+		catch { }
 
 		// Verify the action was NOT fired - label must remain "MenuBarDisabled"
 		Assert.That(App.FindElement("ResultLabel").GetText(), Is.EqualTo("MenuBarDisabled"),
 			"Clicking a disabled MenuBarItem should not fire actions");
+	}
+
+	[Test]
+	public void MenuFlyoutItemIsEnabledFalseDisablesChildItem()
+	{
+		// Enable menubar and disable only the second MenuFlyoutItem
+		App.WaitForElement("DisableItemButton");
+		App.Tap("DisableItemButton");
+		Assert.That(App.WaitForElement("ResultLabel").GetText(), Is.EqualTo("MenuItemDisabled"),
+			"Setup button should enable the MenuBarItem and disable the second child item");
+
+		// Open the menu and tap the ENABLED first item — action should fire
+		App.Tap("TestMenu");
+		App.Tap("Perform Action");
+		Assert.That(App.WaitForElement("ResultLabel").GetText(), Is.EqualTo("FirstActionFired"),
+			"Tapping an enabled child MenuFlyoutItem when MenuBarItem is enabled should fire its action");
+
+		// Open the menu again and try to tap the DISABLED second item — action should NOT fire
+		App.Tap("TestMenu");
+		try
+		{ App.Tap("Perform Second Action"); }
+		catch { }
+		Assert.That(App.FindElement("ResultLabel").GetText(), Is.EqualTo("FirstActionFired"),
+			"Tapping a disabled child MenuFlyoutItem should not fire its action");
 	}
 }
 

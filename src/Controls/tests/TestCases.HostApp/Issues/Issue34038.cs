@@ -4,9 +4,11 @@ namespace Maui.Controls.Sample.Issues;
 	PlatformAffected.macOS)]
 public class Issue34038 : TestShell
 {
+	Label _resultLabel = null!;
+
 	protected override void Init()
 	{
-		var resultLabel = new Label
+		_resultLabel = new Label
 		{
 			Text = "InitialState",
 			AutomationId = "ResultLabel"
@@ -19,23 +21,44 @@ public class Issue34038 : TestShell
 
 		var menuFlyoutItem = new MenuFlyoutItem
 		{
-			Text = "Perform Action"
+			Text = "Perform Action",
+			AutomationId = "FirstMenuItem"
 		};
-		menuFlyoutItem.Clicked += OnMenuFlyoutItemClicked;
-		//	menuFlyoutItem.Clicked += (s, e) => resultLabel.Text = "ActionFired";
+
+		menuFlyoutItem.Clicked += OnFirstMenuItemClicked;
 		menuBarItem.Add(menuFlyoutItem);
+
+		var secondMenuFlyoutItem = new MenuFlyoutItem
+		{
+			Text = "Perform Second Action",
+			AutomationId = "SecondMenuItem"
+		};
+		secondMenuFlyoutItem.Clicked += OnSecondMenuItemClicked;
+		menuBarItem.Add(secondMenuFlyoutItem);
 
 		MenuBarItems.Add(menuBarItem);
 
 		var disableButton = new Button
 		{
-			Text = "Disable Menu",
+			Text = "Disable Menu Bar",
 			AutomationId = "DisableMenuButton"
 		};
 		disableButton.Clicked += (s, e) =>
 		{
 			menuBarItem.IsEnabled = false;
-			resultLabel.Text = "MenuBarDisabled";
+			_resultLabel.Text = "MenuBarDisabled";
+		};
+
+		var disableItemButton = new Button
+		{
+			Text = "Enable menubar and disable Menu Item",
+			AutomationId = "DisableItemButton"
+		};
+		disableItemButton.Clicked += (s, e) =>
+		{
+			menuBarItem.IsEnabled = true;
+			secondMenuFlyoutItem.IsEnabled = false;
+			_resultLabel.Text = "MenuItemDisabled";
 		};
 
 		var contentPage = new ContentPage
@@ -48,7 +71,8 @@ public class Issue34038 : TestShell
 				{
 					new Label { Text = "MenuBarItem IsEnabled Test" },
 					disableButton,
-					resultLabel
+					disableItemButton,
+					_resultLabel
 				}
 			}
 		};
@@ -57,8 +81,13 @@ public class Issue34038 : TestShell
 		FlyoutBehavior = FlyoutBehavior.Disabled;
 	}
 
-	private void OnMenuFlyoutItemClicked(object sender, EventArgs e)
+	private void OnSecondMenuItemClicked(object sender, EventArgs e)
 	{
+		_resultLabel.Text = "SecondActionFired";
+	}
 
+	private void OnFirstMenuItemClicked(object sender, EventArgs e)
+	{
+		_resultLabel.Text = "FirstActionFired";
 	}
 }
