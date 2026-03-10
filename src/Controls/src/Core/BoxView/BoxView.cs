@@ -76,7 +76,8 @@ namespace Microsoft.Maui.Controls
 				propertyName == ColorProperty.PropertyName ||
 				propertyName == IsVisibleProperty.PropertyName ||
 				propertyName == BackgroundProperty.PropertyName ||
-				propertyName == CornerRadiusProperty.PropertyName)
+				propertyName == CornerRadiusProperty.PropertyName ||
+				propertyName == FlowDirectionProperty.PropertyName)
 				Handler?.UpdateValue(nameof(IShapeView.Shape));
 		}
 
@@ -109,12 +110,23 @@ namespace Microsoft.Maui.Controls
 		{
 			var path = new PathF();
 
+			var topLeft = (float)CornerRadius.TopLeft;
+			var topRight = (float)CornerRadius.TopRight;
+			var bottomLeft = (float)CornerRadius.BottomLeft;
+			var bottomRight = (float)CornerRadius.BottomRight;
+
+			if (((IVisualElementController)this).EffectiveFlowDirection.IsRightToLeft())
+			{
+				(topLeft, topRight) = (topRight, topLeft);
+				(bottomLeft, bottomRight) = (bottomRight, bottomLeft);
+			}
+
 			path.AppendRoundedRectangle(
 				bounds,
-				(float)CornerRadius.TopLeft,
-				(float)CornerRadius.TopRight,
-				(float)CornerRadius.BottomLeft,
-				(float)CornerRadius.BottomRight);
+				topLeft,
+				topRight,
+				bottomLeft,
+				bottomRight);
 
 			return path;
 		}
