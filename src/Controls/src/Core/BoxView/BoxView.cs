@@ -115,7 +115,6 @@ namespace Microsoft.Maui.Controls
 			var bottomLeft = (float)CornerRadius.BottomLeft;
 			var bottomRight = (float)CornerRadius.BottomRight;
 
-			//if (((IVisualElementController)this).EffectiveFlowDirection.IsRightToLeft())
 			if (this.FlowDirection == FlowDirection.RightToLeft)
 			{
 				(topLeft, topRight) = (topRight, topLeft);
