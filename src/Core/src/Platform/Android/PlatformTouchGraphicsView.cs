@@ -5,6 +5,7 @@ using Android.Content;
 using Android.Views;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Platform;
+using ACanvas = Android.Graphics.Canvas;
 
 namespace Microsoft.Maui.Platform
 {
@@ -151,6 +152,28 @@ namespace Microsoft.Maui.Platform
 			}
 
 			return true;
+		}
+
+		public override void Draw(ACanvas? canvas)
+		{
+			if (canvas is not null && _graphicsView?.FlowDirection == FlowDirection.RightToLeft)
+			{
+				int save = canvas.Save();
+				canvas.Translate(Width, 0);
+				canvas.Scale(-1, 1);
+				try
+				{
+					base.Draw(canvas);
+				}
+				finally
+				{
+					canvas.RestoreToCount(save);
+				}
+			}
+			else
+			{
+				base.Draw(canvas);
+			}
 		}
 
 		public void Connect(IGraphicsView graphicsView) => _graphicsView = graphicsView;

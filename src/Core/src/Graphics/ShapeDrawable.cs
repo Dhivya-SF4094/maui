@@ -74,12 +74,19 @@ namespace Microsoft.Maui.Graphics
 				canvas.Scale(-1, 1);
 			}
 
-			// Draw fill first, then stroke on top to ensure stroke is fully visible
-			DrawFillPath(canvas, rect, path);
-			DrawStrokePath(canvas, rect, path);
-
-			if (isRtl)
-				canvas.RestoreState();
+			try
+			{
+				// Draw fill first, then stroke on top to ensure stroke is fully visible
+				DrawFillPath(canvas, rect, path);
+				DrawStrokePath(canvas, rect, path);
+			}
+			finally
+			{
+				if (isRtl)
+				{
+					canvas.RestoreState();
+				}
+			}
 		}
 
 		void DrawStrokePath(ICanvas canvas, RectF dirtyRect, PathF path)

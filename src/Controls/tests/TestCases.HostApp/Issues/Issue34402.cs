@@ -1,4 +1,5 @@
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 
 namespace Maui.Controls.Sample.Issues;
 
@@ -16,6 +17,14 @@ public class Issue34402 : ContentPage
 			AutomationId = "MyBoxView"
 		};
 
+		var graphicsView = new GraphicsView
+		{
+			Drawable = new TriangleDrawable(),
+			WidthRequest = 200,
+			HeightRequest = 100,
+			AutomationId = "MyGraphicsView"
+		};
+
 		var checkBox = new CheckBox
 		{
 			AutomationId = "RtlCheckBox"
@@ -23,7 +32,9 @@ public class Issue34402 : ContentPage
 
 		checkBox.CheckedChanged += (s, e) =>
 		{
-			boxView.FlowDirection = e.Value ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+			var direction = e.Value ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+			boxView.FlowDirection = direction;
+			graphicsView.FlowDirection = direction;
 		};
 
 		Content = new VerticalStackLayout
@@ -32,10 +43,38 @@ public class Issue34402 : ContentPage
 			Spacing = 20,
 			Children =
 			{
-				new Label { Text = "Toggle RTL to see corners mirror:" },
+				new Label { Text = "Toggle RTL to see corners/shape mirror:" },
 				checkBox,
-				boxView
+				boxView,
+				graphicsView
 			}
 		};
+	}
+
+	class TriangleDrawable : IDrawable
+	{
+		public void Draw(ICanvas canvas, RectF dirtyRect)
+		{
+			canvas.StrokeColor = Colors.Black;
+			canvas.StrokeSize = 2;
+
+			// Right angle triangle points
+			float x1 = 20;
+			float y1 = 180;
+
+			float x2 = 180;
+			float y2 = 180;
+
+			float x3 = 20;
+			float y3 = 20;
+
+			PathF path = new PathF();
+			path.MoveTo(x1, y1);
+			path.LineTo(x2, y2);
+			path.LineTo(x3, y3);
+			path.Close();
+
+			canvas.DrawPath(path);
+		}
 	}
 }

@@ -12,13 +12,13 @@ public class Issue34402 : _IssuesUITest
 
 	[Test]
 	[Category(UITestCategories.BoxView)]
-	public void BoxViewFlowDirectionShouldUpdateOnCheckBoxToggle()
+	public void BoxViewAndGraphicsViewFlowDirectionShouldMirrorOnRTL()
 	{
 		App.WaitForElement("MyBoxView");
+		App.WaitForElement("MyGraphicsView");
 		VerifyScreenshot("LTR_Initial");
 
 		App.Tap("RtlCheckBox");
-		App.WaitForElement("MyBoxView");
 		VerifyScreenshot("RTL_AfterCheckBox");
 	}
 }
