@@ -154,28 +154,6 @@ namespace Microsoft.Maui.Platform
 			return true;
 		}
 
-		public override void Draw(ACanvas? canvas)
-		{
-			if (canvas is not null && _graphicsView?.FlowDirection == FlowDirection.RightToLeft)
-			{
-				int save = canvas.Save();
-				canvas.Translate(Width, 0);
-				canvas.Scale(-1, 1);
-				try
-				{
-					base.Draw(canvas);
-				}
-				finally
-				{
-					canvas.RestoreToCount(save);
-				}
-			}
-			else
-			{
-				base.Draw(canvas);
-			}
-		}
-
 		public void Connect(IGraphicsView graphicsView) => _graphicsView = graphicsView;
 
 		public void Disconnect() => _graphicsView = null;

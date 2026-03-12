@@ -65,28 +65,9 @@ namespace Microsoft.Maui.Graphics
 
 			ApplyTransform(path);
 
-			var isRtl = ShapeView?.FlowDirection == FlowDirection.RightToLeft;
-
-			if (isRtl)
-			{
-				canvas.SaveState();
-				canvas.Translate(rect.Width, 0);
-				canvas.Scale(-1, 1);
-			}
-
-			try
-			{
-				// Draw fill first, then stroke on top to ensure stroke is fully visible
-				DrawFillPath(canvas, rect, path);
-				DrawStrokePath(canvas, rect, path);
-			}
-			finally
-			{
-				if (isRtl)
-				{
-					canvas.RestoreState();
-				}
-			}
+			// Draw fill first, then stroke on top to ensure stroke is fully visible
+			DrawFillPath(canvas, rect, path);
+			DrawStrokePath(canvas, rect, path);
 		}
 
 		void DrawStrokePath(ICanvas canvas, RectF dirtyRect, PathF path)

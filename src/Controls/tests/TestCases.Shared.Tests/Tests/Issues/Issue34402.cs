@@ -12,13 +12,23 @@ public class Issue34402 : _IssuesUITest
 
 	[Test]
 	[Category(UITestCategories.BoxView)]
-	public void BoxViewAndGraphicsViewFlowDirectionShouldMirrorOnRTL()
+	public void BoxViewFlowDirectionShouldMirrorOnRTL()
 	{
 		App.WaitForElement("MyBoxView");
-		App.WaitForElement("MyGraphicsView");
-		VerifyScreenshot("LTR_Initial");
+		VerifyScreenshot("BoxView_LTR_Initial");
 
-		App.Tap("RtlCheckBox");
-		VerifyScreenshot("RTL_AfterCheckBox");
+		App.Tap("BoxViewRtlButton");
+		VerifyScreenshot("BoxView_RTL_AfterButton");
+	}
+
+	[Test]
+	[Category(UITestCategories.GraphicsView)]
+	public void GraphicsViewFlowDirectionShouldMirrorOnRTL()
+	{
+		App.WaitForElement("MyGraphicsView");
+		VerifyScreenshot("GraphicsView_LTR_Initial");
+
+		App.Tap("GraphicsViewRtlButton");
+		VerifyScreenshot("GraphicsView_RTL_AfterButton");
 	}
 }

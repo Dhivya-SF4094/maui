@@ -8,6 +8,12 @@ public class Issue34402 : ContentPage
 {
 	public Issue34402()
 	{
+		var boxViewLabel = new Label
+		{
+			Text = "BoxView with different corner radius values on each corner",
+			HorizontalOptions = LayoutOptions.Center
+		};
+
 		var boxView = new BoxView
 		{
 			CornerRadius = new CornerRadius(30, 60, 10, 20),
@@ -15,6 +21,12 @@ public class Issue34402 : ContentPage
 			WidthRequest = 200,
 			HeightRequest = 200,
 			AutomationId = "MyBoxView"
+		};
+
+		var graphicsViewLabel = new Label
+		{
+			Text = "GraphicsView with a triangle drawable",
+			HorizontalOptions = LayoutOptions.Center
 		};
 
 		var graphicsView = new GraphicsView
@@ -25,28 +37,43 @@ public class Issue34402 : ContentPage
 			AutomationId = "MyGraphicsView"
 		};
 
-		var checkBox = new CheckBox
+		var boxViewRtlButton = new Button
 		{
-			AutomationId = "RtlCheckBox"
+			Text = "Toggle BoxView RTL",
+			AutomationId = "BoxViewRtlButton"
 		};
 
-		checkBox.CheckedChanged += (s, e) =>
+		bool boxViewIsRtl = false;
+		boxViewRtlButton.Clicked += (s, e) =>
 		{
-			var direction = e.Value ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
-			boxView.FlowDirection = direction;
-			graphicsView.FlowDirection = direction;
+			boxViewIsRtl = !boxViewIsRtl;
+			boxView.FlowDirection = boxViewIsRtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+		};
+
+		var graphicsViewRtlButton = new Button
+		{
+			Text = "Toggle GraphicsView RTL",
+			AutomationId = "GraphicsViewRtlButton"
+		};
+
+		bool graphicsViewIsRtl = false;
+		graphicsViewRtlButton.Clicked += (s, e) =>
+		{
+			graphicsViewIsRtl = !graphicsViewIsRtl;
+			graphicsView.FlowDirection = graphicsViewIsRtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 		};
 
 		Content = new VerticalStackLayout
 		{
-			Padding = new Thickness(20),
 			Spacing = 20,
 			Children =
 			{
-				new Label { Text = "Toggle RTL to see corners/shape mirror:" },
-				checkBox,
+				boxViewLabel,
 				boxView,
-				graphicsView
+				boxViewRtlButton,
+				graphicsViewLabel,
+				graphicsView,
+				graphicsViewRtlButton
 			}
 		};
 	}
@@ -58,20 +85,16 @@ public class Issue34402 : ContentPage
 			canvas.StrokeColor = Colors.Black;
 			canvas.StrokeSize = 2;
 
-			// Right angle triangle points
-			float x1 = 20;
-			float y1 = 180;
-
-			float x2 = 180;
-			float y2 = 180;
-
-			float x3 = 20;
-			float y3 = 20;
+			// Right angle triangle fitted to the view bounds
+			float left = dirtyRect.Left + 10;
+			float right = dirtyRect.Right - 10;
+			float top = dirtyRect.Top + 10;
+			float bottom = dirtyRect.Bottom - 10;
 
 			PathF path = new PathF();
-			path.MoveTo(x1, y1);
-			path.LineTo(x2, y2);
-			path.LineTo(x3, y3);
+			path.MoveTo(left, bottom);   // bottom-left
+			path.LineTo(right, bottom);  // bottom-right
+			path.LineTo(left, top);      // top-left
 			path.Close();
 
 			canvas.DrawPath(path);

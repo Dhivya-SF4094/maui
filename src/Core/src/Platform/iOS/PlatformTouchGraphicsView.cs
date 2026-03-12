@@ -46,33 +46,6 @@ namespace Microsoft.Maui.Platform
 			_graphicsView = null;
 		}
 
-		public override void Draw(CGRect dirtyRect)
-		{
-			bool isRtl = _graphicsView is not null &&
-				_graphicsView.TryGetTarget(out var graphicsView) &&
-				graphicsView.FlowDirection == FlowDirection.RightToLeft;
-
-			if (isRtl)
-			{
-				var currentContext = UIGraphics.GetCurrentContext();
-				currentContext?.SaveState();
-				currentContext?.TranslateCTM((nfloat)Bounds.Width, 0);
-				currentContext?.ScaleCTM(-1, 1);
-				try
-				{
-					base.Draw(dirtyRect);
-				}
-				finally
-				{
-					currentContext?.RestoreState();
-				}
-			}
-			else
-			{
-				base.Draw(dirtyRect);
-			}
-		}
-
 		public override void TouchesBegan(NSSet touches, UIEvent? evt)
 		{
 			if (_graphicsView is null || !_graphicsView.TryGetTarget(out var graphicsView) || !graphicsView.IsEnabled)

@@ -72,7 +72,7 @@ namespace Microsoft.Maui.Handlers
 
 		public static void MapFlowDirection(IShapeViewHandler handler, IShapeView shapeView)
   		{
-   			ViewHandler.MapFlowDirection(handler, shapeView);
+			handler.PlatformView?.UpdateFlowDirection(shapeView);
    			handler.PlatformView?.InvalidateShape(shapeView);
   		}
 #endif
