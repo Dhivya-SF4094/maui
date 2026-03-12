@@ -5,7 +5,6 @@ using Android.Content;
 using Android.Views;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Platform;
-using ACanvas = Android.Graphics.Canvas;
 
 namespace Microsoft.Maui.Platform
 {
