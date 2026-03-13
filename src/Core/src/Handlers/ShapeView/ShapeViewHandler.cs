@@ -70,7 +70,7 @@ namespace Microsoft.Maui.Handlers
 			}
 		}
 
-		public static void MapFlowDirection(IShapeViewHandler handler, IShapeView shapeView)
+		internal static void MapFlowDirection(IShapeViewHandler handler, IShapeView shapeView)
   		{
 			handler.PlatformView?.UpdateFlowDirection(shapeView);
    			handler.PlatformView?.InvalidateShape(shapeView);

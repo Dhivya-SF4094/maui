@@ -11,7 +11,7 @@ namespace Microsoft.Maui.Platform
 			PlatformGraphicsView.Drawable = graphicsView.Drawable;
 		}
 
-		public static void UpdateFlowDirection(this PlatformTouchGraphicsView platformView, IGraphicsView graphicsView)
+		internal static void UpdateFlowDirection(this PlatformTouchGraphicsView platformView, IGraphicsView graphicsView)
 		{
 			// Apply visual mirroring for Win2D canvas content when RTL
 			if (graphicsView.FlowDirection == FlowDirection.RightToLeft)

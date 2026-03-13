@@ -1,3 +1,1 @@
 #nullable enable
-static Microsoft.Maui.Handlers.ShapeViewHandler.MapFlowDirection(Microsoft.Maui.Handlers.IShapeViewHandler! handler, Microsoft.Maui.IShapeView! shapeView) -> void
-static Microsoft.Maui.Platform.GraphicsViewExtensions.UpdateFlowDirection(this Microsoft.Maui.Platform.PlatformTouchGraphicsView! platformView, Microsoft.Maui.IGraphicsView! graphicsView) -> void
