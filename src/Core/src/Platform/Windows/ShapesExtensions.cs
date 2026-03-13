@@ -16,6 +16,7 @@ namespace Microsoft.Maui.Platform
 			platformView.Invalidate();
 		}
 
+		// TODO: make it public in .net 11s
 		internal static void UpdateFlowDirection(this W2DGraphicsView platformView, IShapeView shapeView)
 		{
 			// Apply visual mirroring for Win2D canvas content when RTL

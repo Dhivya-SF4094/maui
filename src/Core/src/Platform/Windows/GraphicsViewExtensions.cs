@@ -11,6 +11,7 @@ namespace Microsoft.Maui.Platform
 			PlatformGraphicsView.Drawable = graphicsView.Drawable;
 		}
 
+		// TODO: make it public in .net 11
 		internal static void UpdateFlowDirection(this PlatformTouchGraphicsView platformView, IGraphicsView graphicsView)
 		{
 			// Apply visual mirroring for Win2D canvas content when RTL
