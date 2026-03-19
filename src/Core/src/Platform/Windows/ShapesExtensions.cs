@@ -15,20 +15,5 @@ namespace Microsoft.Maui.Platform
 		{
 			platformView.Invalidate();
 		}
-
-		// TODO: make it public in .net 11s
-		internal static void UpdateFlowDirection(this W2DGraphicsView platformView, IShapeView shapeView)
-		{
-			// Apply visual mirroring for Win2D canvas content when RTL
-			if (shapeView.FlowDirection == FlowDirection.RightToLeft)
-			{
-				platformView.RenderTransformOrigin = new global::Windows.Foundation.Point(0.5, 0.5);
-				platformView.RenderTransform = new ScaleTransform { ScaleX = -1 };
-			}
-			else
-			{
-				platformView.ClearValue(global::Microsoft.UI.Xaml.UIElement.RenderTransformProperty);
-			}
-		}
 	}
 }
