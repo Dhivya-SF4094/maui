@@ -5,6 +5,8 @@ namespace Microsoft.Maui.Handlers
 	[System.Runtime.Versioning.SupportedOSPlatform("ios13.0")]
 	public partial class MenuFlyoutSubItemHandler
 	{
+		bool _isEnabledApplied;
+
 		protected override UIMenu CreatePlatformElement()
 		{
 			var menuBar = VirtualView.FindParentOfType<IMenuBar>();
@@ -20,14 +22,24 @@ namespace Microsoft.Maui.Handlers
 					VirtualView.Text,
 					VirtualView.Source,
 					MauiContext!,
-					uIMenuBuilder);
+					uIMenuBuilder,
+					VirtualView.IsEnabled);
 
 			return menu;
 		}
 
 		public static void MapIsEnabled(IMenuFlyoutSubItemHandler handler, IMenuFlyoutSubItem view)
 		{
-			handler?.PlatformView?.UpdateIsEnabled(view);
+			var h = (MenuFlyoutSubItemHandler)handler;
+			if (!h._isEnabledApplied)
+			{
+				h._isEnabledApplied = true;
+				return;
+			}
+
+			h.PlatformView?.UpdateMenuElementTreeAttributes(view.IsEnabled);
+			handler.DisconnectHandler();
+			Rebuild();
 		}
 
 		public void Add(IMenuElement view)

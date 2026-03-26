@@ -33,6 +33,17 @@ namespace Microsoft.Maui.Platform
 				command.Attributes = isEnabled.ToUIMenuElementAttributes();
 		}
 
+		internal static void UpdateMenuElementTreeAttributes(this UIMenuElement uiMenuElement, bool isEnabled)
+		{
+			uiMenuElement.UpdateMenuElementAttributes(isEnabled);
+
+			if (uiMenuElement is UIMenu menu)
+			{
+				foreach (var child in menu.Children)
+					child.UpdateMenuElementTreeAttributes(isEnabled);
+			}
+		}
+
 		internal static UIMenuElementAttributes ToUIMenuElementAttributes(this bool isEnabled)
 		{
 			return isEnabled ? 0 : UIMenuElementAttributes.Disabled;
@@ -127,7 +138,7 @@ namespace Microsoft.Maui.Platform
 				// If the parent MenuBarItem is disabled, visually disable all children
 				// since UIMenu itself does not support UIMenuElementAttributes.
 				if (!isEnabled)
-					menuElement.UpdateMenuElementAttributes(false);
+					menuElement.UpdateMenuElementTreeAttributes(false);
 
 				platformMenuElements[i] = menuElement;
 			}
@@ -161,4 +172,3 @@ namespace Microsoft.Maui.Platform
 		}
 	}
 }
-

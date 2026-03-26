@@ -63,21 +63,34 @@ namespace Microsoft.Maui.Handlers
 				if (!menus.TryGetValue(index, out var menuElement))
 					return;
 
-				// Respect the disabled state of the parent MenuBarItem.
 				// CanPerform always returns true for "MenuItem" selectors, so we
-				// must guard here: if the parent MenuBarItem is disabled its children
-				// should not fire even when invoked via accessibility or keyboard.
-				if (menuElement.Parent is IMenuBarItem { IsEnabled: false })
-					return;
-
-				// Respect the item's own IsEnabled state.
-				if (menuElement is IMenuFlyoutItem { IsEnabled: false })
+				// must guard execution ourselves when the item or any ancestor
+				// menu element is disabled.
+				if (HasDisabledMenuElementInPath(menuElement))
 				{
 					return;
 				}
 
 				menuElement.Clicked();
 			}
+		}
+
+		static bool HasDisabledMenuElementInPath(IMenuElement menuElement)
+		{
+			IElement? current = menuElement;
+
+			while (current is not null)
+			{
+				if (current is IMenuBarItem { IsEnabled: false })
+					return true;
+
+				if (current is IMenuElement { IsEnabled: false })
+					return true;
+
+				current = current.Parent;
+			}
+
+			return false;
 		}
 
 		internal static void Reset()

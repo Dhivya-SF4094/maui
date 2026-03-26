@@ -19,6 +19,21 @@ public class Issue34038 : TestShell
 			Text = "TestMenu"
 		};
 
+		var subMenu = new MenuFlyoutSubItem
+		{
+			Text = "SubMenu",
+			AutomationId = "SubMenu"
+		};
+
+		var subMenuItem = new MenuFlyoutItem
+		{
+			Text = "Perform SubMenu Action",
+			AutomationId = "SubMenuItem"
+		};
+		subMenuItem.Clicked += OnSubMenuItemClicked;
+		subMenu.Add(subMenuItem);
+		menuBarItem.Add(subMenu);
+
 		var menuFlyoutItem = new MenuFlyoutItem
 		{
 			Text = "Perform Action",
@@ -57,8 +72,22 @@ public class Issue34038 : TestShell
 		disableItemButton.Clicked += (s, e) =>
 		{
 			menuBarItem.IsEnabled = true;
+			subMenu.IsEnabled = true;
 			secondMenuFlyoutItem.IsEnabled = false;
 			_resultLabel.Text = "MenuItemDisabled";
+		};
+
+		var disableSubMenuButton = new Button
+		{
+			Text = "Enable menubar and disable SubMenu",
+			AutomationId = "DisableSubMenuButton"
+		};
+		disableSubMenuButton.Clicked += (s, e) =>
+		{
+			menuBarItem.IsEnabled = true;
+			secondMenuFlyoutItem.IsEnabled = true;
+			subMenu.IsEnabled = false;
+			_resultLabel.Text = "SubMenuDisabled";
 		};
 
 		var contentPage = new ContentPage
@@ -72,6 +101,7 @@ public class Issue34038 : TestShell
 					new Label { Text = "MenuBarItem IsEnabled Test" },
 					disableButton,
 					disableItemButton,
+					disableSubMenuButton,
 					_resultLabel
 				}
 			}
@@ -89,5 +119,10 @@ public class Issue34038 : TestShell
 	private void OnFirstMenuItemClicked(object sender, EventArgs e)
 	{
 		_resultLabel.Text = "FirstActionFired";
+	}
+
+	private void OnSubMenuItemClicked(object sender, EventArgs e)
+	{
+		_resultLabel.Text = "SubMenuActionFired";
 	}
 }

@@ -59,6 +59,26 @@ public class Issue34038 : _IssuesUITest
 		Assert.That(App.FindElement("ResultLabel").GetText(), Is.EqualTo("FirstActionFired"),
 			"Tapping a disabled child MenuFlyoutItem should not fire its action");
 	}
+
+	[Test]
+	public void MenuFlyoutSubItemIsEnabledFalseDisablesSubMenuChildren()
+	{
+		App.WaitForElement("DisableSubMenuButton");
+		App.Tap("DisableSubMenuButton");
+		Assert.That(App.WaitForElement("ResultLabel").GetText(), Is.EqualTo("SubMenuDisabled"),
+			"Setup button should enable the menu bar and disable the submenu");
+
+		App.Tap("TestMenu");
+		try
+		{ App.Tap("SubMenu"); }
+		catch { }
+		try
+		{ App.Tap("Perform SubMenu Action"); }
+		catch { }
+
+		Assert.That(App.FindElement("ResultLabel").GetText(), Is.EqualTo("SubMenuDisabled"),
+			"Tapping an item under a disabled MenuFlyoutSubItem should not fire its action");
+	}
 }
 
 #endif

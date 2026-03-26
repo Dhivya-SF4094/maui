@@ -52,7 +52,7 @@ namespace Microsoft.Maui.Handlers
 			foreach (var child in view)
 			{
 				if (child.Handler?.PlatformView is UIMenuElement element)
-					element.UpdateMenuElementAttributes(view.IsEnabled);
+					element.UpdateMenuElementTreeAttributes(view.IsEnabled);
 			}
 
 			// Disconnect and rebuild so the UIMenu is fully recreated with the correct
