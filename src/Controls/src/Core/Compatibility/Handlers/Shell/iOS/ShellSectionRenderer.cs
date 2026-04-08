@@ -503,25 +503,15 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		{
 			if (!_ignorePopCall && ActiveViewControllers().Length > 1)
 			{
-				ProcessPopToRoot();
+				// User-initiated long press back to root: route through Shell.GoToAsync
+				// so that each step passes through OnNavigating and can be cancelled.
+				// Do NOT call base — iOS navigation is driven step-by-step by GoToAsync.
+				_pendingViewControllers = null;
+				DispatchGoBackLoop(1, animated);
+				return Array.Empty<UIViewController>();
 			}
 
 			return base.PopToRootViewController(animated);
-		}
-
-		async void ProcessPopToRoot()
-		{
-			var task = new TaskCompletionSource<bool>();
-			var pages = _shellSection.Stack.ToList();
-			_completionTasks[_renderer.ViewController] = task;
-			((IShellSectionController)ShellSection).SendPoppingToRoot(task.Task);
-			await task.Task;
-
-			for (int i = pages.Count - 1; i >= 1; i--)
-			{
-				var page = pages[i];
-				DisposePage(page);
-			}
 		}
 
 		protected virtual async void OnPopToRootRequested(NavigationRequestedEventArgs e)
@@ -673,8 +663,55 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 
 		public override UIViewController[] PopToViewController(UIViewController viewController, bool animated)
 		{
+			if (!_ignorePopCall)
+			{
+				var vcs = base.ViewControllers;
+				if (vcs != null)
+				{
+					int idx = -1;
+					for (int i = 0; i < vcs.Length; i++)
+					{
+						if (vcs[i] == viewController)
+						{
+							idx = i;
+							break;
+						}
+					}
+
+					if (idx >= 0 && (idx + 1) < vcs.Length)
+					{
+						// User-initiated long press back to intermediate page: route through
+						// Shell.GoToAsync so that OnNavigating can intercept and cancel it.
+						_pendingViewControllers = null;
+						DispatchGoBackLoop(idx + 1, animated);
+						return Array.Empty<UIViewController>();
+					}
+				}
+			}
+
 			_pendingViewControllers = null;
 			return base.PopToViewController(viewController, animated);
+		}
+
+		// Dispatches Shell.GoToAsync("..") in a loop until the Shell stack depth
+		// reaches targetDepth. Each step goes through OnNavigating and can be
+		// cancelled. This is used for user-initiated long press back navigation
+		// (iOS calls PopToRootViewController/PopToViewController programmatically),
+		// which bypasses the ShouldPopItem callback.
+		void DispatchGoBackLoop(int targetDepth, bool animated)
+		{
+			CoreFoundation.DispatchQueue.MainQueue.DispatchAsync(async () =>
+			{
+				bool cancelled = false;
+				while (!cancelled && (_shellSection?.Stack?.Count ?? 0) > targetDepth)
+				{
+					var stackBefore = _shellSection.Stack.Count;
+					await _context.Shell.GoToAsync("..", animated);
+					// If the stack didn't shrink, OnNavigating cancelled the navigation.
+					if ((_shellSection?.Stack?.Count ?? 0) >= stackBefore)
+						cancelled = true;
+				}
+			});
 		}
 
 		public override void PushViewController(UIViewController viewController, bool animated)
