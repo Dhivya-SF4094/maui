@@ -501,16 +501,6 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 
 		public override UIViewController[] PopToRootViewController(bool animated)
 		{
-			if (!_ignorePopCall && ActiveViewControllers().Length > 1)
-			{
-				// User-initiated long press back to root: route through Shell.GoToAsync
-				// so that each step passes through OnNavigating and can be cancelled.
-				// Do NOT call base — iOS navigation is driven step-by-step by GoToAsync.
-				_pendingViewControllers = null;
-				DispatchGoBackLoop(1, animated);
-				return Array.Empty<UIViewController>();
-			}
-
 			return base.PopToRootViewController(animated);
 		}
 
@@ -666,24 +656,24 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			if (!_ignorePopCall)
 			{
 				var vcs = base.ViewControllers;
-				if (vcs != null)
+				if (vcs is not null)
 				{
-					int idx = -1;
+					int targetIndex = -1;
 					for (int i = 0; i < vcs.Length; i++)
 					{
 						if (vcs[i] == viewController)
 						{
-							idx = i;
+							targetIndex = i;
 							break;
 						}
 					}
 
-					if (idx >= 0 && (idx + 1) < vcs.Length)
+					if (targetIndex >= 0 && (targetIndex + 1) < vcs.Length)
 					{
 						// User-initiated long press back to intermediate page: route through
 						// Shell.GoToAsync so that OnNavigating can intercept and cancel it.
 						_pendingViewControllers = null;
-						DispatchGoBackLoop(idx + 1, animated);
+						DispatchGoBack(vcs.Length - 1 - targetIndex, animated);
 						return Array.Empty<UIViewController>();
 					}
 				}
@@ -693,23 +683,21 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			return base.PopToViewController(viewController, animated);
 		}
 
-		// Dispatches Shell.GoToAsync("..") in a loop until the Shell stack depth
-		// reaches targetDepth. Each step goes through OnNavigating and can be
-		// cancelled. This is used for user-initiated long press back navigation
-		// (iOS calls PopToRootViewController/PopToViewController programmatically),
-		// which bypasses the ShouldPopItem callback.
-		void DispatchGoBackLoop(int targetDepth, bool animated)
+		// Dispatches a single Shell.GoToAsync call with a multi-level relative path
+		// (e.g. "../.." to pop 2 levels). This fires ONE OnNavigating event for the
+		// entire navigation and returns early if the user cancels it.
+		// Used for user-initiated long press back navigation (iOS calls
+		// PopToRootViewController/PopToViewController, bypassing ShouldPopItem).
+		void DispatchGoBack(int levels, bool animated)
 		{
+			// Build a relative Shell navigation path that pops multiple levels at once.
+			// e.g. levels=2 produces "../..", which tells Shell to go back 2 pages.
+			var shellRelativePath = string.Join("/", Enumerable.Repeat("..", levels));
 			CoreFoundation.DispatchQueue.MainQueue.DispatchAsync(async () =>
 			{
-				bool cancelled = false;
-				while (!cancelled && (_shellSection?.Stack?.Count ?? 0) > targetDepth)
+				if (!_disposed && _context is not null)
 				{
-					var stackBefore = _shellSection.Stack.Count;
-					await _context.Shell.GoToAsync("..", animated);
-					// If the stack didn't shrink, OnNavigating cancelled the navigation.
-					if ((_shellSection?.Stack?.Count ?? 0) >= stackBefore)
-						cancelled = true;
+					await _context.Shell.GoToAsync(shellRelativePath, animated);
 				}
 			});
 		}
