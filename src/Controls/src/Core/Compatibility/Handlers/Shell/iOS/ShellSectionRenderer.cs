@@ -501,7 +501,27 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 
 		public override UIViewController[] PopToRootViewController(bool animated)
 		{
+			if (!_ignorePopCall && ActiveViewControllers().Length > 1)
+			{
+				ProcessPopToRoot();
+			}
+
 			return base.PopToRootViewController(animated);
+		}
+
+		async void ProcessPopToRoot()
+		{
+			var task = new TaskCompletionSource<bool>();
+			var pages = _shellSection.Stack.ToList();
+			_completionTasks[_renderer.ViewController] = task;
+			((IShellSectionController)ShellSection).SendPoppingToRoot(task.Task);
+			await task.Task;
+
+			for (int i = pages.Count - 1; i >= 1; i--)
+			{
+				var page = pages[i];
+				DisposePage(page);
+			}
 		}
 
 		protected virtual async void OnPopToRootRequested(NavigationRequestedEventArgs e)
