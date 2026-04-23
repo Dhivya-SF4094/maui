@@ -423,5 +423,47 @@ namespace Microsoft.Maui.DeviceTests
 				Location = location;
 			}
 		}
+
+		[Fact(DisplayName = "CollectionView Label Style Propagation from ContentPage Resources")]
+		public async Task CollectionViewLabelStylePropagationFromContentPageResources()
+		{
+			SetupBuilder();
+
+			// Create a style that should be inherited by labels in CollectionView templates
+			var labelStyle = new Style(typeof(Label));
+			labelStyle.Setters.Add(new Setter { Property = Label.TextColorProperty, Value = Colors.Red });
+
+			var contentPage = new ContentPage();
+			contentPage.Resources = new ResourceDictionary();
+			contentPage.Resources.Add(labelStyle);
+
+			var collectionView = new CollectionView()
+			{
+				ItemTemplate = new Controls.DataTemplate(() =>
+				{
+					var label = new Label();
+					label.SetBinding(Label.TextProperty, new Binding("."));
+					return label;
+				}),
+				ItemsSource = new ObservableCollection<string>() { "Test Item" }
+			};
+
+			contentPage.Content = collectionView;
+
+			await CreateHandlerAndAddToWindow<Microsoft.Maui.Handlers.WindowHandler>(
+				new Window { Page = contentPage }, async handler =>
+			{
+				await Task.Delay(100);
+
+				// Get the first label from the CollectionView template
+				var labels = collectionView.LogicalChildrenInternal.OfType<Label>().ToList();
+				Assert.True(labels.Count > 0, "No labels found in CollectionView template");
+
+				var firstLabel = labels.First();
+				
+				// Verify that the style was properly propagated and applied
+				Assert.Equal(Colors.Red, firstLabel.TextColor);
+			});
+		}
 	}
 }

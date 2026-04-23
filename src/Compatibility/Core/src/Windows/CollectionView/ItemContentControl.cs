@@ -140,6 +140,13 @@ namespace Microsoft.Maui.Controls.Compatibility.Platform.UWP
 				// then we'll need to create the content from the template 
 				_visualElement = formsTemplate.CreateContent(dataContext, container) as VisualElement;
 				_visualElement.BindingContext = dataContext;
+				
+				// Establish logical parent relationship first
+				itemsView?.AddLogicalChild(_visualElement);
+				
+				// Make sure properties (including inherited styles) are available when the renderer is created
+				PropertyPropagationExtensions.PropagatePropertyChanged(null, _visualElement, itemsView);
+				
 				_renderer = Platform.CreateRenderer(_visualElement);
 				Platform.SetRenderer(_visualElement, _renderer);
 
@@ -162,7 +169,6 @@ namespace Microsoft.Maui.Controls.Compatibility.Platform.UWP
 			}
 
 			Content = _renderer.ContainerElement;
-			itemsView?.AddLogicalChild(_visualElement);
 		}
 
 		void SetNativeStateConsistent(VisualElement visualElement)
