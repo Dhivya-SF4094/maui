@@ -18,7 +18,7 @@ namespace Microsoft.Maui.Platform
     //
     // Per-view state is stored in a ConditionalWeakTable so that it is
     // automatically cleaned up when the View is garbage-collected.
-    internal static class AppBarLiftTargetExtensions
+    internal static class AppbarLayoutExtensions
     {
         static readonly ConditionalWeakTable<View, AppBarLiftState> s_stateTable = new();
 
