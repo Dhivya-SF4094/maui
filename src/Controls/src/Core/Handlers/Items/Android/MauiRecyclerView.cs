@@ -8,8 +8,10 @@ using Android.Views;
 using AndroidX.RecyclerView.Widget;
 using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Controls.Platform;
+using Microsoft.Maui.Platform;
 using Microsoft.Maui.Graphics;
 using ARect = Android.Graphics.Rect;
+using AView = Android.Views.View;
 using AViewCompat = AndroidX.Core.View.ViewCompat;
 
 namespace Microsoft.Maui.Controls.Handlers.Items
@@ -57,6 +59,45 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 			_emptyCollectionObserver = new DataChangeObserver(UpdateEmptyViewVisibility);
 			_itemsUpdateScrollObserver = new DataChangeObserver(AdjustScrollForItemUpdate);
+		}
+
+		protected override void OnAttachedToWindow()
+		{
+			base.OnAttachedToWindow();
+
+			if (RuntimeFeature.IsMaterial3Enabled)
+			{
+				Post(() => this.TrySetAppBarLiftTargetIfOnScreen());
+			}
+		}
+
+		protected override void OnDetachedFromWindow()
+		{
+			base.OnDetachedFromWindow();
+
+			if (RuntimeFeature.IsMaterial3Enabled)
+			{
+				this.ClearAppBarLiftTarget();
+			}
+		}
+
+		protected override void OnVisibilityChanged(AView changedView, ViewStates visibility)
+		{
+			base.OnVisibilityChanged(changedView, visibility);
+
+			if (!RuntimeFeature.IsMaterial3Enabled)
+			{
+				return;
+			}
+
+			if (visibility == ViewStates.Visible)
+			{
+				Post(() => this.TrySetAppBarLiftTargetIfOnScreen());
+			}
+			else
+			{
+				this.ClearAppBarLiftTarget();
+			}
 		}
 
 		public virtual void TearDownOldElement(TItemsView oldElement)
