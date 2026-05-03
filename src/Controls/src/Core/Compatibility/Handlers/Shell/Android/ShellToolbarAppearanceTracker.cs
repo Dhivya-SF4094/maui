@@ -45,6 +45,12 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			shellToolbar.BarTextColor = title ?? ShellRenderer.DefaultTitleColor;
 			shellToolbar.BarBackground = new SolidColorBrush(background ?? ShellRenderer.DefaultBackgroundColor);
 			shellToolbar.IconColor = foreground ?? ShellRenderer.DefaultForegroundColor;
+
+			// Directly apply background to the native toolbar to ensure it's applied
+			// even when the property change propagation chain doesn't trigger the handler mapper.
+			// This can happen when Shell.BackgroundColor is set on the Shell element itself
+			// rather than on individual pages.
+			toolbar.UpdateBarBackground(shellToolbar);
 		}
 
 		#region IDisposable

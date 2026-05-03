@@ -14,7 +14,9 @@ using AndroidX.AppCompat.Graphics.Drawable;
 using AndroidX.AppCompat.Widget;
 using AndroidX.Core.View;
 using AndroidX.Core.View.Accessibility;
+using Google.Android.Material.AppBar;
 using Google.Android.Material.Badge;
+using Google.Android.Material.Shape;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Primitives;
 using AGraphics = Android.Graphics;
@@ -160,9 +162,29 @@ namespace Microsoft.Maui.Controls.Platform
 		public static void UpdateBarBackground(this AToolbar nativeToolbar, Toolbar toolbar)
 		{
 			Brush barBackground = toolbar.BarBackground;
-
-			if (barBackground is SolidColorBrush solidColor)
+			var appBar = nativeToolbar.Parent?.GetParentOfType<AppBarLayout>();
+			if (appBar?.Background is MaterialShapeDrawable shapeDrawable)
 			{
+				// Material 3: apply color via the MaterialShapeDrawable fill and lift-on-scroll color
+				var tintColor = (barBackground as SolidColorBrush)?.Color;
+				if (tintColor is not null)
+				{
+					var platformTintColor = tintColor.ToPlatform();
+					shapeDrawable.FillColor = ColorStateList.ValueOf(platformTintColor);
+
+					// Apply ~9% white overlay on the tint color to simulate a 4dp elevation lift effect
+					const float overlayAlpha = 0.09f;
+					var liftColor = new AGraphics.Color(
+						(int)(platformTintColor.R + (255 - platformTintColor.R) * overlayAlpha),
+						(int)(platformTintColor.G + (255 - platformTintColor.G) * overlayAlpha),
+						(int)(platformTintColor.B + (255 - platformTintColor.B) * overlayAlpha),
+						platformTintColor.A);
+					appBar.SetLiftOnScrollColor(ColorStateList.ValueOf(platformTintColor));
+				}
+			}
+			else if (barBackground is SolidColorBrush solidColor)
+			{
+				// Material 2: apply color via BackgroundTintList
 				var tintColor = solidColor.Color;
 				if (tintColor == null)
 				{
