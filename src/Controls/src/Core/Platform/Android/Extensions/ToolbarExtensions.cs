@@ -146,7 +146,7 @@ namespace Microsoft.Maui.Controls.Platform
 				else
 				{
 					// Reinitialize navigation icon to display flyout (hamburger) menu
-    				// This ensures the icon is shown when back button is not visible
+					// This ensures the icon is shown when back button is not visible
 					nativeToolbar.NavigationIcon = new DrawerArrowDrawable(context!);
 					if (nativeToolbar.NavigationIcon is DrawerArrowDrawable iconDrawable)
 						iconDrawable.Progress = 0;
@@ -162,46 +162,50 @@ namespace Microsoft.Maui.Controls.Platform
 		public static void UpdateBarBackground(this AToolbar nativeToolbar, Toolbar toolbar)
 		{
 			Brush barBackground = toolbar.BarBackground;
-			var appBar = nativeToolbar.Parent?.GetParentOfType<AppBarLayout>();
-			if (appBar?.Background is MaterialShapeDrawable shapeDrawable)
-			{
-				// Material 3: apply color via the MaterialShapeDrawable fill and lift-on-scroll color
-				var tintColor = (barBackground as SolidColorBrush)?.Color;
-				if (tintColor is not null)
-				{
-					var platformTintColor = tintColor.ToPlatform();
-					shapeDrawable.FillColor = ColorStateList.ValueOf(platformTintColor);
 
-					// Apply ~9% white overlay on the tint color to simulate a 4dp elevation lift effect
-					const float overlayAlpha = 0.09f;
-					var liftColor = new AGraphics.Color(
-						(int)(platformTintColor.R + (255 - platformTintColor.R) * overlayAlpha),
-						(int)(platformTintColor.G + (255 - platformTintColor.G) * overlayAlpha),
-						(int)(platformTintColor.B + (255 - platformTintColor.B) * overlayAlpha),
-						platformTintColor.A);
-					appBar.SetLiftOnScrollColor(ColorStateList.ValueOf(platformTintColor));
-				}
-			}
-			else if (barBackground is SolidColorBrush solidColor)
+			if (RuntimeFeature.IsMaterial3Enabled)
 			{
-				// Material 2: apply color via BackgroundTintList
-				var tintColor = solidColor.Color;
-				if (tintColor == null)
+				var appBar = nativeToolbar.Parent?.GetParentOfType<AppBarLayout>();
+				if (appBar?.Background is MaterialShapeDrawable shapeDrawable)
 				{
-					nativeToolbar.BackgroundTintMode = null;
-				}
-				else
-				{
-					nativeToolbar.BackgroundTintMode = PorterDuff.Mode.Src;
-					nativeToolbar.BackgroundTintList = ColorStateList.ValueOf(tintColor.ToPlatform());
+					var tintColor = (barBackground as SolidColorBrush)?.Color;
+					if (tintColor is not null)
+					{
+						var platformTintColor = tintColor.ToPlatform();
+						shapeDrawable.FillColor = ColorStateList.ValueOf(platformTintColor);
+
+						// Re-set the background so AppBarLayout recaptures originalBackgroundFillColor
+						// with our custom color. Without this, scrolling back to top animates to
+						// the theme default instead of the custom color.
+						appBar.Background = null;
+						appBar.Background = shapeDrawable;
+					}
 				}
 			}
 			else
 			{
-				nativeToolbar.UpdateBackground(barBackground);
+				if (barBackground is SolidColorBrush solidColor)
+				{
+					var tintColor = solidColor.Color;
+					if (tintColor is not null)
+					{
+						nativeToolbar.BackgroundTintMode = null;
+					}
+					else
+					{
+						nativeToolbar.BackgroundTintMode = PorterDuff.Mode.Src;
+						nativeToolbar.BackgroundTintList = ColorStateList.ValueOf(tintColor.ToPlatform());
+					}
+				}
+				else
+				{
+					nativeToolbar.UpdateBackground(barBackground);
 
-				if (Brush.IsNullOrEmpty(barBackground))
-					nativeToolbar.BackgroundTintMode = null;
+					if (Brush.IsNullOrEmpty(barBackground))
+					{
+						nativeToolbar.BackgroundTintMode = null;
+					}
+				}
 			}
 		}
 

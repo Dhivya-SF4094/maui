@@ -1,6 +1,8 @@
 #nullable disable
 using Android.Graphics.Drawables;
 using AndroidX.AppCompat.Widget;
+using Google.Android.Material.AppBar;
+using Google.Android.Material.Shape;
 using Microsoft.Maui.Controls.Handlers.Compatibility;
 using Microsoft.Maui.Graphics;
 using AToolbar = AndroidX.AppCompat.Widget.Toolbar;
@@ -50,7 +52,11 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			// even when the property change propagation chain doesn't trigger the handler mapper.
 			// This can happen when Shell.BackgroundColor is set on the Shell element itself
 			// rather than on individual pages.
-			toolbar.UpdateBarBackground(shellToolbar);
+			if (RuntimeFeature.IsMaterial3Enabled &&
+				toolbar.Parent?.GetParentOfType<AppBarLayout>()?.Background is MaterialShapeDrawable)
+			{
+				toolbar.UpdateBarBackground(shellToolbar);
+			}
 		}
 
 		#region IDisposable
