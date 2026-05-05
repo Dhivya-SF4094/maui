@@ -187,7 +187,7 @@ namespace Microsoft.Maui.Controls.Platform
 				if (barBackground is SolidColorBrush solidColor)
 				{
 					var tintColor = solidColor.Color;
-					if (tintColor is not null)
+					if (tintColor is null)
 					{
 						nativeToolbar.BackgroundTintMode = null;
 					}
