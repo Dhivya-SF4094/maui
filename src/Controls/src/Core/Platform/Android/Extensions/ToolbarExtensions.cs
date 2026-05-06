@@ -166,10 +166,11 @@ namespace Microsoft.Maui.Controls.Platform
 			if (RuntimeFeature.IsMaterial3Enabled)
 			{
 				var appBar = nativeToolbar.Parent?.GetParentOfType<AppBarLayout>();
-				if (appBar?.Background is MaterialShapeDrawable shapeDrawable)
+				if (appBar is not null)
 				{
-					var tintColor = (barBackground as SolidColorBrush)?.Color;
-					if (tintColor is not null)
+					if (appBar.Background is MaterialShapeDrawable shapeDrawable
+						&& barBackground is SolidColorBrush solidBrush
+						&& solidBrush.Color is Color tintColor)
 					{
 						var platformTintColor = tintColor.ToPlatform();
 						shapeDrawable.FillColor = ColorStateList.ValueOf(platformTintColor);
@@ -179,6 +180,13 @@ namespace Microsoft.Maui.Controls.Platform
 						// the theme default instead of the custom color.
 						appBar.Background = null;
 						appBar.Background = shapeDrawable;
+					}
+					else if (!Brush.IsNullOrEmpty(barBackground))
+					{
+						// For gradient brushes (LinearGradientBrush, RadialGradientBrush),
+						// or when the background was already replaced by a previous gradient,
+						// set the background drawable directly on AppBarLayout.
+						appBar.UpdateBackground(barBackground);
 					}
 				}
 			}
