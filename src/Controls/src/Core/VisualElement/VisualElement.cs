@@ -1678,7 +1678,7 @@ namespace Microsoft.Maui.Controls
 				return;
 
 			_isPointerOver = value;
-			if (callChangeVisualState)
+			if (callChangeVisualState && !_isItemSelected)
 				ChangeVisualState();
 		}
 
@@ -1693,8 +1693,7 @@ namespace Microsoft.Maui.Controls
 			}
 			else
 			{
-				string targetState = _isItemSelected ? VisualStateManager.CommonStates.Selected
-													: (IsPointerOver ? VisualStateManager.CommonStates.PointerOver : VisualStateManager.CommonStates.Normal);
+				string targetState = IsPointerOver ? VisualStateManager.CommonStates.PointerOver : VisualStateManager.CommonStates.Normal;
 
 				VisualStateManager.GoToState(this, targetState);
 			}
