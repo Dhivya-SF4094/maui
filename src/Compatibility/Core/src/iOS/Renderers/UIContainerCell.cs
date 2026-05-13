@@ -107,11 +107,10 @@ namespace Microsoft.Maui.Controls.Compatibility.Platform.iOS
 		{
 			if (BindingContext is BaseShellItem baseShellItem && baseShellItem != null)
 			{
-				if (View is VisualElement ve)
-					ve.IsItemSelected = baseShellItem.IsChecked;
-				VisualStateManager.GoToState(View, baseShellItem.IsChecked
-					? VisualStateManager.CommonStates.Selected
-					: VisualStateManager.CommonStates.Normal);
+				if (baseShellItem.IsChecked)
+					VisualStateManager.GoToState(View, "Selected");
+				else
+					VisualStateManager.GoToState(View, "Normal");
 			}
 		}
 
