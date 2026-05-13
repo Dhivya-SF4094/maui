@@ -1679,7 +1679,9 @@ namespace Microsoft.Maui.Controls
 
 			_isPointerOver = value;
 			if (callChangeVisualState && !_isItemSelected)
+			{
 				ChangeVisualState();
+			}
 		}
 
 		/// <summary>
