@@ -145,9 +145,9 @@ namespace Microsoft.Maui.Controls.Platform
 					ve.IsItemSelected = baseShellItem.IsChecked;
 
 				if (baseShellItem.IsChecked)
-					VisualStateManager.GoToState(_content, "Selected");
+					VisualStateManager.GoToState(_content, VisualStateManager.CommonStates.Selected);
 				else
-					VisualStateManager.GoToState(_content, "Normal");
+					VisualStateManager.GoToState(_content, VisualStateManager.CommonStates.Normal);
 			}
 		}
 

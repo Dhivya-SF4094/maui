@@ -813,6 +813,11 @@ namespace Microsoft.Maui.Controls
 
 			return false;
 		}
+
+		internal static bool IsElementInSelectedState(this VisualElement element)
+		{
+			return element.IsItemSelected;
+		}
 	}
 
 	internal class WatchAddList<T> : IList<T>
