@@ -25,7 +25,6 @@ namespace Microsoft.Maui.Controls
 #endif
 #if WINDOWS
 			ButtonHandler.Mapper.ReplaceMapping<Button, IButtonHandler>(nameof(ImageSource), MapImageSource);
-			ButtonHandler.Mapper.ReplaceMapping<Button, IButtonHandler>(nameof(BackgroundColor), MapBackground);
 #endif
 			ButtonHandler.Mapper.ReplaceMapping<Button, IButtonHandler>(nameof(Text), MapText);
 
