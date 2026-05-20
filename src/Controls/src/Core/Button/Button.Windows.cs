@@ -6,6 +6,27 @@ namespace Microsoft.Maui.Controls
 {
 	public partial class Button
 	{
+		internal static void MapBackground(IButtonHandler handler, Button button)
+		{
+			// On Windows, if the resolved background is null it could mean a local null value is
+			// overriding a MAUI style that set BackgroundColor. Clear the manual override so the
+			// style value can surface and the correct background is applied via the platform.
+			if (button.BackgroundColor is null)
+			{
+				button.ClearValue(BackgroundColorProperty);
+
+				// After clearing, if a style value has surfaced the second MapBackground call
+				// triggered by OnPropertyChanged has already updated the platform view, so we
+				// can return early to avoid a redundant UpdateBackground call.
+				if (button.BackgroundColor is not null)
+				{
+					return;
+				}
+			}
+
+			ButtonHandler.MapBackground(handler, button);
+		}
+
 		public static void MapImageSource(ButtonHandler handler, Button button) =>
 			MapImageSource((IButtonHandler)handler, button);
 
