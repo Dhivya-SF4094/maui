@@ -164,38 +164,10 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			}
 
 			topViewController ??= TopViewController;
-			foreach (var tracker in _trackers)
+			if (!ShouldProcessBackNavigation(topViewController))
 			{
-				if (tracker.Value.ViewController == topViewController)
-				{
-					var behavior = Shell.GetEffectiveBackButtonBehavior(tracker.Value.Page);
-					var enabled = behavior.GetPropertyIfSet(BackButtonBehavior.IsEnabledProperty, true);
-					var command = behavior.GetPropertyIfSet<ICommand>(BackButtonBehavior.CommandProperty, null);
-					var commandParameter = behavior.GetPropertyIfSet<object>(BackButtonBehavior.CommandParameterProperty, null);
-
-					if (!enabled)
-					{
-						return false;
-					}
-
-					if (command != null)
-					{
-						if (command.CanExecute(commandParameter))
-						{
-							command.Execute(commandParameter);
-						}
-						_sendPopPending = false;  // reset before returning
-						return false;
-					}
-
-					// Allow the page to intercept back navigation via OnBackButtonPressed
-					if (tracker.Value.Page?.SendBackButtonPressed() == true)
-					{
-						return false;
-					}
-
-					break;
-				}
+				_sendPopPending = false;
+				return false;
 			}
 
 			// Do not remove, wonky behavior on some versions of iOS if you dont dispatch
@@ -203,7 +175,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 			// we now route this through "GoToAsync"
 			CoreFoundation.DispatchQueue.MainQueue.DispatchAsync(async () =>
 			{
-				var navItemsCount = NavigationBar.Items.Length;
+				var navItemsCount = NavigationBar?.Items?.Length ?? -1;
 
 				try
 				{
@@ -214,19 +186,62 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 					_sendPopPending = false;
 				}
 
-				// This means the navigation was cancelled
-				if (NavigationBar.Items.Length == navItemsCount)
-				{
-					for (int i = 0; i < NavigationBar.Subviews.Length; i++)
-					{
-						var child = NavigationBar.Subviews[i];
-						if (child.Alpha != 1)
-							UIView.Animate(.2f, () => child.Alpha = 1);
-					}
-				}
+				RestoreNavigationBarVisualStateIfCancelled(navItemsCount);
 			});
 
 			return false;
+		}
+
+		bool ShouldProcessBackNavigation(UIViewController topViewController)
+		{
+			foreach (var tracker in _trackers)
+			{
+				if (tracker.Value.ViewController != topViewController)
+					continue;
+
+				var behavior = Shell.GetEffectiveBackButtonBehavior(tracker.Value.Page);
+				var enabled = behavior.GetPropertyIfSet(BackButtonBehavior.IsEnabledProperty, true);
+				var command = behavior.GetPropertyIfSet<ICommand>(BackButtonBehavior.CommandProperty, null);
+				var commandParameter = behavior.GetPropertyIfSet<object>(BackButtonBehavior.CommandParameterProperty, null);
+
+				if (!enabled)
+					return false;
+
+				if (command != null)
+				{
+					if (command.CanExecute(commandParameter))
+					{
+						command.Execute(commandParameter);
+					}
+
+					return false;
+				}
+
+				// Allow the page to intercept back navigation via OnBackButtonPressed
+				if (tracker.Value.Page?.SendBackButtonPressed() == true)
+					return false;
+
+				break;
+			}
+
+			return true;
+		}
+
+		void RestoreNavigationBarVisualStateIfCancelled(int navItemsCount)
+		{
+			if (navItemsCount < 0 || NavigationBar?.Items is null)
+				return;
+
+			// This means the navigation was cancelled.
+			if (NavigationBar.Items.Length != navItemsCount)
+				return;
+
+			for (int i = 0; i < NavigationBar.Subviews.Length; i++)
+			{
+				var child = NavigationBar.Subviews[i];
+				if (child.Alpha != 1)
+					UIView.Animate(.2f, () => child.Alpha = 1);
+			}
 		}
 
 		public override void ViewDidDisappear(bool animated)
@@ -675,7 +690,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		{
 			if (!_ignorePopCall)
 			{
-				var vcs = base.ViewControllers;
+				var vcs = ActiveViewControllers();
 				if (vcs is not null)
 				{
 					int targetIndex = -1;
@@ -693,7 +708,7 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 						// User-initiated long press back to intermediate page: route through
 						// Shell.GoToAsync so that OnNavigating can intercept and cancel it.
 						_pendingViewControllers = null;
-						DispatchGoBack(vcs.Length - 1 - targetIndex, animated);
+						DispatchGoBack(vcs.Length - 1 - targetIndex, animated, vcs[vcs.Length - 1]);
 						return Array.Empty<UIViewController>();
 					}
 				}
@@ -708,16 +723,47 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		// entire navigation and returns early if the user cancels it.
 		// Used for user-initiated long press back navigation (iOS calls
 		// PopToRootViewController/PopToViewController, bypassing ShouldPopItem).
-		void DispatchGoBack(int levels, bool animated)
+		void DispatchGoBack(int levels, bool animated, UIViewController topViewController = null)
 		{
 			// Build a relative Shell navigation path that pops multiple levels at once.
 			// e.g. levels=2 produces "../..", which tells Shell to go back 2 pages.
 			var shellRelativePath = string.Join("/", Enumerable.Repeat("..", levels));
+
+			if (OperatingSystem.IsIOSVersionAtLeast(26) || OperatingSystem.IsMacCatalystVersionAtLeast(26))
+			{
+				if (_sendPopPending)
+					return;
+
+				_sendPopPending = true;
+			}
+
+			topViewController ??= TopViewController;
+			if (!ShouldProcessBackNavigation(topViewController))
+			{
+				_sendPopPending = false;
+				return;
+			}
+
 			CoreFoundation.DispatchQueue.MainQueue.DispatchAsync(async () =>
 			{
+				var navItemsCount = NavigationBar?.Items?.Length ?? -1;
+
 				if (!_disposed && _context is not null)
 				{
-					await _context.Shell.GoToAsync(shellRelativePath, animated);
+					try
+					{
+						await _context.Shell.GoToAsync(shellRelativePath, animated);
+					}
+					finally
+					{
+						_sendPopPending = false;
+					}
+
+					RestoreNavigationBarVisualStateIfCancelled(navItemsCount);
+				}
+				else
+				{
+					_sendPopPending = false;
 				}
 			});
 		}
