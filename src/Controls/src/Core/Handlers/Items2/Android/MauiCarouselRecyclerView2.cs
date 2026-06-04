@@ -129,6 +129,18 @@ internal class MauiCarouselRecyclerView2 :
         => new CarouselViewOnScrollListener2(Carousel, ItemsViewAdapter, () => _carouselSnapHelper);
 
     // -----------------------------------------------------------------------
+    // Empty-view adapter — wrap the empty/header/footer holders in
+    // MaskableFrameLayout so CarouselLayoutManager's child-type contract is
+    // satisfied while the EmptyView is showing.
+    // -----------------------------------------------------------------------
+
+    protected override Items.EmptyViewAdapter CreateEmptyViewAdapter()
+        => new EmptyViewAdapter2(ItemsView, IsHorizontalOrientation);
+
+    bool IsHorizontalOrientation() =>
+        (Carousel?.ItemsLayout as LinearItemsLayout)?.Orientation != ItemsLayoutOrientation.Vertical;
+
+    // -----------------------------------------------------------------------
     // Dispose / teardown
     // -----------------------------------------------------------------------
 
