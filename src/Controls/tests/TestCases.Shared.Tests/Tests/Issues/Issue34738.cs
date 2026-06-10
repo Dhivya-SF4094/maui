@@ -4,11 +4,11 @@ using UITest.Core;
 
 namespace Microsoft.Maui.TestCases.Tests.Issues;
 
-public class Issue32995 : _IssuesUITest
+public class Issue34738 : _IssuesUITest
 {
-	public Issue32995(TestDevice device) : base(device) { }
+	public Issue34738(TestDevice device) : base(device) { }
 
-	public override string Issue => "TabBarDisabledColor not applied to disabled tabs on iOS";
+	public override string Issue => "TabBarDisabledColor not applied to disabled tabs on Windows";
 
 	[Test]
 	[Category(UITestCategories.Shell)]
