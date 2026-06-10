@@ -4,6 +4,7 @@ Microsoft.Maui.Controls.Handlers.Items2.IMauiCarouselRecyclerView2.IsSwipeEnable
 Microsoft.Maui.Controls.Handlers.Items2.IMauiCarouselRecyclerView2.IsSwipeEnabled.set -> void
 Microsoft.Maui.Controls.Handlers.Items2.IMauiCarouselRecyclerView2.UpdateFromCurrentItem() -> void
 Microsoft.Maui.Controls.Handlers.Items2.IMauiCarouselRecyclerView2.UpdateFromPosition() -> void
+Microsoft.Maui.Controls.Handlers.Items2.IMauiCarouselRecyclerView2.UpdatePeekAreaInsets() -> void
 override Microsoft.Maui.Controls.GraphicsView.OnBindingContextChanged() -> void
 ~override Microsoft.Maui.Controls.Handlers.Items.MauiRecyclerView<TItemsView, TAdapter, TItemsViewSource>.OnInterceptTouchEvent(Android.Views.MotionEvent e) -> bool
 ~override Microsoft.Maui.Controls.Handlers.Items.MauiRecyclerView<TItemsView, TAdapter, TItemsViewSource>.OnTouchEvent(Android.Views.MotionEvent e) -> bool

@@ -1,5 +1,6 @@
 #nullable disable
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Android.Content;
 using Android.Views;
 using AndroidX.RecyclerView.Widget;
@@ -77,19 +78,82 @@ internal class MauiCarouselRecyclerView2 :
             return new LinearLayoutManager(Context, orientation, false);
         }
 
-        return new CarouselLayoutManager(CreateCarouselStrategy(), orientation);
+        var layoutManager = new CarouselLayoutManager(CreateCarouselStrategy(), orientation);
+
+        // When PeekAreaInsets > 0 we want the focal item centered so BOTH the previous
+        // and the next items peek symmetrically (default alignment is START, which only
+        // peeks the trailing neighbor). AlignmentCenter is a public, non-obsolete API on
+        // CarouselLayoutManager so this is safe.
+        if (HasPeekAreaInsets())
+        {
+            layoutManager.CarouselAlignment = CarouselLayoutManager.AlignmentCenter;
+        }
+
+        return layoutManager;
     }
 
     /// <summary>
     /// Creates the <see cref="CarouselStrategy"/> to use.
     ///
-    /// Currently locked to <see cref="FullScreenCarouselStrategy"/>: the other Material
-    /// strategies (MultiBrowse, Hero, Uncontained) require items to be smaller than the
-    /// viewport, which conflicts with how Handler2 sizes items (full RecyclerView width/
-    /// height via <see cref="Items.SizedItemContentView"/>). If a future change wires up
-    /// strategy-aware sizing, this can become user-selectable via an attached property.
+    /// When <see cref="CarouselView.PeekAreaInsets"/> is zero we use
+    /// <see cref="FullScreenCarouselStrategy"/> (one-up viewing). When peek insets are
+    /// requested we fall back to <c>UncontainedCarouselStrategy</c>, which keeps items
+    /// at their measured size and lets neighbors peek — matching the legacy Handler1
+    /// behavior. UncontainedCarouselStrategy is marked <c>[Obsolete(error:true)]</c> in
+    /// the Xamarin.Google.Android.Material binding (Google flags it "internal API"),
+    /// so it must be instantiated via reflection.
     /// </summary>
-    protected virtual CarouselStrategy CreateCarouselStrategy() => new FullScreenCarouselStrategy();
+    protected virtual CarouselStrategy CreateCarouselStrategy()
+    {
+        if (HasPeekAreaInsets())
+        {
+            var uncontained = CreateUncontainedCarouselStrategy();
+            if (uncontained is not null)
+            {
+                return uncontained;
+            }
+        }
+
+        return new FullScreenCarouselStrategy();
+    }
+
+    /// <summary>
+    /// Reflectively constructs a <c>UncontainedCarouselStrategy</c>. The type is bound
+    /// in <c>Xamarin.Google.Android.Material</c> but marked <c>[Obsolete(error:true)]</c>
+    /// — neither the type nor its constructor can be referenced directly, and the error
+    /// is CS0619 which cannot be suppressed with <c>#pragma warning disable</c>.
+    /// </summary>
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor,
+        "Google.Android.Material.Carousel.UncontainedCarouselStrategy",
+        "Xamarin.Google.Android.Material")]
+    static CarouselStrategy CreateUncontainedCarouselStrategy()
+    {
+        try
+        {
+            var type = Type.GetType(
+                "Google.Android.Material.Carousel.UncontainedCarouselStrategy, Xamarin.Google.Android.Material",
+                throwOnError: false);
+
+            if (type is null)
+            {
+                return null;
+            }
+
+            return Activator.CreateInstance(type) as CarouselStrategy;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    bool HasPeekAreaInsets()
+    {
+        var insets = Carousel?.PeekAreaInsets ?? default;
+        return IsHorizontal
+            ? (insets.Left > 0 || insets.Right > 0)
+            : (insets.Top > 0 || insets.Bottom > 0);
+    }
 
     // -----------------------------------------------------------------------
     // Snap — replace MAUI snap manager with CarouselSnapHelper
@@ -134,6 +198,72 @@ internal class MauiCarouselRecyclerView2 :
         // Re-attach the CarouselSnapHelper to the current Material layout manager. The
         // helper is skipped while a LinearLayoutManager is active for the EmptyView.
         UpdateSnapBehavior();
+
+        UpdatePeekPadding();
+    }
+
+    /// <summary>
+    /// Reserves <see cref="CarouselView.PeekAreaInsets"/>-sized padding on the scroll axis
+    /// of the RecyclerView and disables <c>clipToPadding</c>. Material's
+    /// <c>getLeftOrTopPaddingForKeylineShift</c> shifts the start/end keylines by the
+    /// padding amount only when <c>clipToPadding == false</c>, which produces the outer
+    /// empty space on the first/last items so they can be centered like the middle
+    /// items (otherwise Material pins them flush to the container edge). The middle
+    /// keyline state is unaffected. Matches the Windows handler's behavior
+    /// (<c>ListViewBase.Padding = PeekAreaInsets</c>).
+    /// </summary>
+    void UpdatePeekPadding()
+    {
+        // No padding while the EmptyView is showing or when peek is not requested.
+        if (GetLayoutManager() is not CarouselLayoutManager || !HasPeekAreaInsets())
+        {
+            SetPadding(0, 0, 0, 0);
+            SetClipToPadding(true);
+            return;
+        }
+
+        var ctx = Context;
+        if (ctx is null)
+        {
+            return;
+        }
+
+        var insets = Carousel?.PeekAreaInsets ?? default;
+
+        if (IsHorizontal)
+        {
+            int leftPx = (int)ctx.ToPixels(insets.Left);
+            int rightPx = (int)ctx.ToPixels(insets.Right);
+            SetPadding(leftPx, 0, rightPx, 0);
+        }
+        else
+        {
+            int topPx = (int)ctx.ToPixels(insets.Top);
+            int bottomPx = (int)ctx.ToPixels(insets.Bottom);
+            SetPadding(0, topPx, 0, bottomPx);
+        }
+
+        // ViewGroup.ClipToPadding is not bound as a settable property — must call the
+        // explicit setter.
+        SetClipToPadding(false);
+    }
+
+    /// <summary>
+    /// Refresh layout manager + snap helper + adapter when PeekAreaInsets changes at
+    /// runtime. Skipped when the EmptyView is active so we don't churn the empty state.
+    /// </summary>
+    void IMauiCarouselRecyclerView2.UpdatePeekAreaInsets()
+    {
+        if (GetAdapter() is Items.EmptyViewAdapter)
+        {
+            return;
+        }
+
+        // Rebuild the layout manager so the new strategy + alignment are picked up.
+        SetLayoutManager(SelectLayoutManager(ItemsLayout));
+        UpdateSnapBehavior();
+        UpdatePeekPadding();
+        (this as Items.IMauiRecyclerView<CarouselView>)?.UpdateAdapter();
     }
 
     protected override void ScrollToRequested(object sender, ScrollToRequestEventArgs args)
