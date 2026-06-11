@@ -69,6 +69,6 @@ public class Issue32995 : Shell
 		Items.Add(tab2);
 
 		// Set TabBarDisabledColor using attached property
-		Shell.SetTabBarDisabledColor(this, Colors.Green);
+		//Shell.SetTabBarDisabledColor(this, Colors.Green);
 	}
 }
