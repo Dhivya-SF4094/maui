@@ -1,5 +1,6 @@
 #nullable disable
 using System;
+using System.Collections.Specialized;
 using Android.Content;
 using Android.Views;
 using AndroidX.RecyclerView.Widget;
@@ -30,6 +31,7 @@ internal class MauiCarouselRecyclerView2 :
 {
     CarouselSnapHelper _carouselSnapHelper;
     bool _disposed;
+    Items.ObservableItemsSource _trackedItemsSource;
 
     public MauiCarouselRecyclerView2(
         Context context,
@@ -176,11 +178,107 @@ internal class MauiCarouselRecyclerView2 :
     // Dispose / teardown
     // -----------------------------------------------------------------------
 
+    public override void UpdateAdapter()
+    {
+        // base.UpdateAdapter() unsubscribes the previous adapter, builds a new one, and
+        // re-subscribes its private CollectionItemsSourceChanged handler. Mirror that
+        // sub/unsub here for our parallel handler so we always track the current source.
+        UnsubscribeShiftTracking();
+        base.UpdateAdapter();
+        SubscribeShiftTracking();
+    }
+
+    public override void TearDownOldElement(CarouselView oldElement)
+    {
+        UnsubscribeShiftTracking();
+        base.TearDownOldElement(oldElement);
+    }
+
+    /// <summary>
+    /// Material's <see cref="CarouselLayoutManager"/> does not fire
+    /// <c>OnScrolled</c> when items are inserted/removed before the currently centered
+    /// item — it simply re-binds the position 0 view holder with the new item. The
+    /// Handler1 path relies on that scroll callback to call <c>UpdatePosition</c> so
+    /// <see cref="CarouselView.PositionChanged"/> fires when the visible item shifts in
+    /// the source. To preserve parity, we subscribe a parallel handler on the
+    /// <see cref="Items.ObservableItemsSource.CollectionItemsSourceChanged"/> event that
+    /// synchronously writes the shifted index to <c>CarouselView.Position</c> when the
+    /// current item's adapter index changed due to an Add/Remove/Move. The base
+    /// handler's dispatched callback then settles <c>Position</c> according to
+    /// <c>ItemsView.ItemsUpdatingScrollMode</c>, which mirrors the visible
+    /// scroll-then-settle behavior of the Handler1 LinearLayoutManager path.
+    /// </summary>
+    void SubscribeShiftTracking()
+    {
+        UnsubscribeShiftTracking();
+        if (ItemsViewAdapter?.ItemsSource is Items.ObservableItemsSource newSource)
+        {
+            _trackedItemsSource = newSource;
+            newSource.CollectionItemsSourceChanged += OnCollectionItemsSourceChanged;
+        }
+    }
+
+    void UnsubscribeShiftTracking()
+    {
+        if (_trackedItemsSource is { } source)
+        {
+            source.CollectionItemsSourceChanged -= OnCollectionItemsSourceChanged;
+            _trackedItemsSource = null;
+        }
+    }
+
+    void OnCollectionItemsSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        // Fast-exit for invalid state. Reset replaces everything;
+        // CurrentItem semantics don't apply in that case.
+        if (Carousel is not CarouselView carousel
+            || ItemsViewAdapter?.ItemsSource is not Items.IItemsViewSource source
+            || e.Action == NotifyCollectionChangedAction.Reset
+            || carousel.CurrentItem is not { } currentItem)
+        {
+            return;
+        }
+
+        var newCurrentItemPosition = source.GetPosition(currentItem);
+        if (newCurrentItemPosition < 0)
+        {
+            // CurrentItem is no longer in the source (e.g. it was removed). Let the
+            // base handler's dispatched callback decide where Position should land.
+            return;
+        }
+
+        var currentPosition = carousel.Position;
+        if (newCurrentItemPosition != currentPosition)
+        {
+            // CRITICAL ordering for Material3 — prevent the insert-time flicker:
+            //
+            // The adapter has already been notified (NotifyItemInserted ran before this event).
+            // Material's CarouselLayoutManager has no predictive-animation path that keeps the
+            // previously-focal view anchored on insert, so its next layout pass would render
+            // the just-inserted item in the focal slot for one frame (the visible "current item
+            // disappears, new item flashes in" flicker on Handler2 but not on
+            // Handler1, where LinearLayoutManager naturally keeps the anchor view in place).
+            //
+            // Calling the native RecyclerView.ScrollToPosition synchronously here sets a
+            // pending scroll position that Material's layout pass honors, so the focal slot
+            // re-anchors directly on the current item's new index instead of on the new item.
+            // The base CollectionItemsSourceChanged handler's dispatched callback runs after
+            // this and may move Position again per ItemsUpdatingScrollMode (e.g.
+            // KeepItemsInView -> animate-scroll back to position 0, the new item) — that
+            // transition is a smooth scroll, not a flicker.
+            ScrollToPosition(newCurrentItemPosition);
+
+            // Fire PositionChanged for the shifted current item.
+            carousel.SetValueFromRenderer(CarouselView.PositionProperty, newCurrentItemPosition);
+        }
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (disposing && !_disposed)
         {
             _disposed = true;
+            UnsubscribeShiftTracking();
             _carouselSnapHelper?.AttachToRecyclerView(null);
             _carouselSnapHelper = null;
         }
