@@ -10,12 +10,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 
         void UpdateFromPosition();
 
-        /// <summary>
-        /// Rebuilds the layout manager, snap helper, scroll-axis padding, and adapter so
-        /// changes to <see cref="CarouselView.PeekAreaInsets"/> take effect at runtime.
-        /// </summary>
-        void UpdatePeekAreaInsets();
-
         bool IsSwipeEnabled { get; set; }
     }
 }

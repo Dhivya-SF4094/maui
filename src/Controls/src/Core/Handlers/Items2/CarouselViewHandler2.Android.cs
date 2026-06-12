@@ -91,17 +91,7 @@ internal partial class CarouselViewHandler2 : Items.ItemsViewHandler<CarouselVie
 
     public static void MapPeekAreaInsets(CarouselViewHandler2 handler, CarouselView carouselView)
     {
-        if (handler.PlatformView is IMauiCarouselRecyclerView2 carousel2)
-        {
-            // Re-pick the carousel strategy + alignment, refresh scroll-axis padding, and
-            // rebind the adapter so cells re-measure with the new peek insets applied.
-            carousel2.UpdatePeekAreaInsets();
-        }
-        else if (handler.PlatformView is Items.IMauiRecyclerView<CarouselView> recycler)
-        {
-            // Fallback: matches Handler1 behavior.
-            recycler.UpdateAdapter();
-        }
+
     }
 
     public static void MapPosition(CarouselViewHandler2 handler, CarouselView carouselView)
