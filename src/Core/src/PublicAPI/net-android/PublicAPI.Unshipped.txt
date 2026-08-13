@@ -26,3 +26,4 @@ override Microsoft.Maui.Platform.MauiSwipeRefreshLayout.OnInterceptTouchEvent(An
 override Microsoft.Maui.Platform.MauiWebView.Dispose(bool disposing) -> void
 override Microsoft.Maui.Platform.MauiWebView.OnDetachedFromWindow() -> void
 override Microsoft.Maui.Platform.MauiWebView.OnTouchEvent(Android.Views.MotionEvent? e) -> bool
+static Microsoft.Maui.Handlers.ScrollViewHandler.MapPadding(Microsoft.Maui.Handlers.IScrollViewHandler! handler, Microsoft.Maui.IScrollView! scrollView) -> void
