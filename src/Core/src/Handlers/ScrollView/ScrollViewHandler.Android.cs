@@ -132,22 +132,16 @@ namespace Microsoft.Maui.Handlers
 			UpdateInsetView(scrollView, handler, crossPlatformLayout);
 		}
 
-		public static void MapPadding(IScrollViewHandler handler, IScrollView scrollView)
+		internal static void MapInvalidateMeasure(IScrollViewHandler handler, IView view, object? args)
 		{
-			// Padding is applied by the inset panel (the ContentViewGroup that hosts the ScrollView's
-			// content) via its CrossPlatformArrange implementation. Since the inset panel's native bounds
-			// typically don't change when only the Padding changes, requesting layout on the outer
-			// MauiScrollView alone isn't enough to make Android re-invoke the inset panel's OnLayout
-			// (and thus re-run CrossPlatformArrange). Request layout on the inset panel directly as well
-			// so the padding change is reflected immediately.
+			handler.PlatformView.InvalidateMeasure(view);
+
 			var insetPanel = FindInsetPanel(handler);
 
 			if (insetPanel is not null)
 			{
 				PlatformInterop.RequestLayoutIfNeeded(insetPanel);
 			}
-
-			PlatformInterop.RequestLayoutIfNeeded(handler.PlatformView);
 		}
 
 		public static void MapHorizontalScrollBarVisibility(IScrollViewHandler handler, IScrollView scrollView)

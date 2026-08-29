@@ -1,30 +1,22 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
-namespace Maui.Controls.Sample.Issues;
+﻿namespace Maui.Controls.Sample.Issues;
 
 [Issue(IssueTracker.Github, 37323, "Setting the padding value through binding or by using x:Name does not update the ScrollView padding", PlatformAffected.Android)]
 
 public partial class Issue37323 : ContentPage
 {
-	private Thickness _padding = new Thickness(0);
+	Thickness _scrollViewPadding;
 
-	public new Thickness Padding
+	public Thickness ScrollViewPadding
 	{
-		get => _padding;
+		get => _scrollViewPadding;
 		set
 		{
-			if (_padding != value)
+			if (_scrollViewPadding != value)
 			{
-				_padding = value;
+				_scrollViewPadding = value;
 				OnPropertyChanged();
 			}
 		}
-	}
-
-	protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
-	{
-		base.OnPropertyChanged(propertyName);
 	}
 
 	public Issue37323()
@@ -33,34 +25,8 @@ public partial class Issue37323 : ContentPage
 		BindingContext = this;
 	}
 
-	private void OnSafeAreaNoneClicked(object sender, EventArgs e)
-	{
-		TestScrollView.SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.None);
-		SafeAreaEdgesValueLabel.Text = "None";
-	}
-	private void OnSafeAreaAllClicked(object sender, EventArgs e)
-	{
-		TestScrollView.SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.All);
-		SafeAreaEdgesValueLabel.Text = "All";
-	}
-	private void OnSafeAreaContainerClicked(object sender, EventArgs e)
-	{
-		TestScrollView.SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.Container);
-		SafeAreaEdgesValueLabel.Text = "Container";
-	}
-	private void OnSafeAreaSoftInputClicked(object sender, EventArgs e)
-	{
-		TestScrollView.SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.SoftInput);
-		SafeAreaEdgesValueLabel.Text = "SoftInput";
-	}
-	private void OnSafeAreaDefaultClicked(object sender, EventArgs e)
-	{
-		TestScrollView.SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.Default);
-		SafeAreaEdgesValueLabel.Text = "Default";
-	}
-
 	private void OnPaddingClicked(object sender, EventArgs e)
 	{
-		Padding = new Thickness(20);
+		ScrollViewPadding = new Thickness(20);
 	}
 }

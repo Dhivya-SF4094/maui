@@ -24,7 +24,6 @@ namespace Microsoft.Maui.Handlers
 			[nameof(IScrollView.Orientation)] = MapOrientation,
 #if ANDROID
 			[nameof(IView.FlowDirection)] = MapFlowDirection,
-			[nameof(IPadding.Padding)] = MapPadding,
 #endif
 #if __IOS__
 			[nameof(IScrollView.IsEnabled)] = MapIsEnabled,
@@ -34,7 +33,7 @@ namespace Microsoft.Maui.Handlers
 		public static CommandMapper<IScrollView, IScrollViewHandler> CommandMapper = new(ViewCommandMapper)
 		{
 			[nameof(IScrollView.RequestScrollTo)] = MapRequestScrollTo,
-#if WINDOWS
+#if WINDOWS || ANDROID
 			[nameof(IView.InvalidateMeasure)] = MapInvalidateMeasure,
 #endif
 		};

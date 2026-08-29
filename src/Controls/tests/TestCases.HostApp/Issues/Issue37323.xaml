@@ -2,148 +2,37 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui.Controls.Sample.Issues.Issue37323">
 
-    <Grid BackgroundColor="Blue" SafeAreaEdges="None">
-              <!-- ScrollView with its own SafeAreaEdges -->
-              <ScrollView x:Name="TestScrollView"
-                          SafeAreaEdges="None"
-                          Padding="{Binding Padding}"
-                          AutomationId="TestScrollView"
-                          BackgroundColor="White">
-                     <Grid RowDefinitions="Auto,*,Auto"
-                           SafeAreaEdges="None"
-                           ColumnDefinitions="Auto,*,Auto">
-
-                            <!-- Top Edge Indicator -->
-                            <Label x:Name="TopEdgeIndicator"
-                                   AutomationId="TopEdgeIndicator"
-                                   Text="TOP TEST AREA: This should move in/out of notch/status bar area when safe area is toggled"
-                                   BackgroundColor="Red"
-                                   TextColor="Black"
-                                   FontSize="14"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Fill"
-                                   HorizontalTextAlignment="Center"
-                                   Padding="10"
-                                   Grid.Row="0"
-                                   Grid.Column="0"
-                                   Grid.ColumnSpan="3"/>
-
-                            <!-- Left Edge Indicator -->
-                            <Label x:Name="LeftEdgeIndicator"
-                                   AutomationId="LeftEdgeIndicator"
-                                   Text="L"
-                                   BackgroundColor="Green"
-                                   TextColor="White"
-                                   VerticalOptions="Fill"
-                                   HorizontalTextAlignment="Center"
-                                   VerticalTextAlignment="Center"
-                                   WidthRequest="55"
-                                   Grid.Row="1"
-                                   Grid.Column="0"/>
-
-                            <!-- Main Content -->
-                            <VerticalStackLayout
-                                   Spacing="10"
-                                   Padding="10,60,10,0"
-                                   Grid.Row="1"
-                                   Grid.Column="1">
-
-                                   <HorizontalStackLayout>
-                                          <Label Text="SafeAreaEdges: "
-                                                 FontAttributes="Bold"/>
-                                          <Label x:Name="SafeAreaEdgesValueLabel"
-                                                 Text="None"
-                                                 FontSize="14"/>
-                                   </HorizontalStackLayout>
-
-                                   <Label x:Name="SafeAreaInsetsLabel"
-                                          AutomationId="SafeAreaInsetsLabel"
-                                          Text="Insets: Loading..."
-                                          FontSize="12"/>
-
-                                   <Button AutomationId="Padding"
-                                           Text="Padding"
-                                           HorizontalOptions="Start"
-                                           Clicked="OnPaddingClicked"/>
-
-                                   <!-- SafeArea value buttons -->
-                                   <HorizontalStackLayout Spacing="5">
-                                          <Button AutomationId="SafeAreaNoneButton"
-                                                  Text="None"
-                                                  FontSize="12"
-                                                  Clicked="OnSafeAreaNoneClicked"/>
-                                          <Button AutomationId="SafeAreaAllButton"
-                                                  Text="All"
-                                                  FontSize="12"
-                                                  Clicked="OnSafeAreaAllClicked"/>
-                                          <Button AutomationId="SafeAreaContainerButton"
-                                                  Text="Container"
-                                                  FontSize="12"
-                                                  Clicked="OnSafeAreaContainerClicked"/>
-                                   </HorizontalStackLayout>
-                                   <HorizontalStackLayout Spacing="5">
-                                          <Button AutomationId="SafeAreaSoftInputButton"
-                                                  Text="SoftInput"
-                                                  FontSize="12"
-                                                  Clicked="OnSafeAreaSoftInputClicked"/>
-                                          <Button AutomationId="SafeAreaDefaultButton"
-                                                  Text="Default"
-                                                  FontSize="12"
-                                                  Clicked="OnSafeAreaDefaultClicked"/>
-                                   </HorizontalStackLayout>
-
-                                   <Button AutomationId="ScrollToBottom" Text="Scroll to Bottom"/>
-                                   <Label Text="Test Item 1" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                                   <Label Text="Test Item 2" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                                   <Label Text="Test Item 3" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                                   <Label Text="Test Item 4" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                                   <Label Text="Test Item 5" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                                   <Button AutomationId="ScrollToBottom" Text="Scroll to Bottom"/>
-                                   <Label x:Name="SafeAreaInsetsLabel2"
-                                          AutomationId="SafeAreaInsetsLabel"
-                                          Text="Insets: Loading..."
-                                          FontSize="12"/>
-                                   <Button AutomationId="ScrollToTop" Text="Scroll to Top"/>
-                                   <Label Text="Test Item 8" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                                   <Label Text="Test Item 9" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                                   <Label Text="Test Item 10" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                                   <Label Text="Test Item 11" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                                   <Entry x:Name="SafeAreaTestEntry"
-                                          AutomationId="SafeAreaTestEntry"
-                                          Placeholder="Tap to raise keyboard"
-                                          HorizontalOptions="Start"/>
-                                   <Label Text="Test Item 12" FontSize="18" BackgroundColor="LightGray" Padding="10" />
-                            </VerticalStackLayout>
-
-                            <!-- Right Edge Indicator -->
-                            <Label x:Name="RightEdgeIndicator"
-                                   AutomationId="RightEdgeIndicator"
-                                   Text="R"
-                                   BackgroundColor="Orange"
-                                   TextColor="White"
-                                   VerticalOptions="Fill"
-                                   HorizontalTextAlignment="Center"
-                                   VerticalTextAlignment="Center"
-                                   WidthRequest="55"
-                                   Grid.Row="1"
-                                   Grid.Column="2"/>
-
-                            <!-- Bottom Edge Indicator -->
-                            <Label x:Name="BottomEdgeIndicator"
-                                   AutomationId="BottomEdgeIndicator"
-                                   Text="BOTTOM TEST AREA: This should move in/out of home indicator/toolbar area when safe area is toggled"
-                                   BackgroundColor="Red"
-                                   TextColor="Black"
-                                   FontSize="14"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Fill"
-                                   HorizontalTextAlignment="Center"
-                                   Padding="10"
-                                   Grid.Row="2"
-                                   Grid.Column="0"
-                                   Grid.ColumnSpan="3"/>
-                     </Grid>
-              </ScrollView>
-       </Grid>
+    <Grid BackgroundColor="Blue">
+        <ScrollView x:Name="TestScrollView"
+                    AutomationId="TestScrollView"
+                    BackgroundColor="Red"
+                    Padding="{Binding ScrollViewPadding}">
+            <VerticalStackLayout BackgroundColor="LightGray">
+                <Label AutomationId="TopEdgeIndicator"
+                       BackgroundColor="Yellow"
+                       Text="ScrollView content"/>
+                <Button AutomationId="Padding"
+                        HorizontalOptions="Start"
+                        Text="Set Padding to 20"
+                        Clicked="OnPaddingClicked"/>
+                <Label Text="Test Item 1"
+                       HeightRequest="100"/>
+                <Label Text="Test Item 2"
+                       HeightRequest="100"/>
+                <Label Text="Test Item 3"
+                       HeightRequest="100"/>
+                <Label Text="Test Item 4"
+                       HeightRequest="100"/>
+                <Label Text="Test Item 5"
+                       HeightRequest="100"/>
+                <Label Text="Test Item 6"
+                       HeightRequest="100"/>
+                <Label Text="Test Item 7"
+                       HeightRequest="100"/>
+                <Label Text="Test Item 8"
+                       HeightRequest="100"/>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 
 </ContentPage>
