@@ -81,7 +81,8 @@ namespace Microsoft.Maui.Controls
 
 		/// <summary>Bindable property for <see cref="StrokeShape"/>.</summary>
 		public static readonly BindableProperty StrokeShapeProperty =
-			BindableProperty.Create(nameof(StrokeShape), typeof(IShape), typeof(Border), new Rectangle(),
+			BindableProperty.Create(nameof(StrokeShape), typeof(IShape), typeof(Border),
+				defaultValueCreator: static _ => CreateDefaultStrokeShape(),
 				propertyChanging: (bindable, oldvalue, newvalue) =>
 				{
 					if (oldvalue is not null)
@@ -93,9 +94,21 @@ namespace Microsoft.Maui.Controls
 						(bindable as Border)?.NotifyStrokeShapeChanges();
 				});
 
+		static IShape CreateDefaultStrokeShape()
+		{
+			var rectangle = new Rectangle();
+			rectangle.IsBorderShape = true;
+			return rectangle;
+		}
+
 		void NotifyStrokeShapeChanges()
 		{
 			var strokeShape = StrokeShape;
+
+			if (strokeShape is Shape shape)
+			{
+				shape.IsBorderShape = true;
+			}
 
 			if (strokeShape is VisualElement visualElement)
 			{
@@ -109,6 +122,11 @@ namespace Microsoft.Maui.Controls
 		void StopNotifyingStrokeShapeChanges()
 		{
 			var strokeShape = StrokeShape;
+
+			if (strokeShape is Shape shape)
+			{
+				shape.IsBorderShape = false;
+			}
 
 			if (strokeShape is VisualElement visualElement)
 			{

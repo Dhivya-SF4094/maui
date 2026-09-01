@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Maui.Graphics;
 using Xunit;
 
 namespace Microsoft.Maui.Controls.Core.UnitTests
@@ -139,6 +140,197 @@ namespace Microsoft.Maui.Controls.Core.UnitTests
 			Assert.NotEqual(0, roundRectangle.CornerRadius.TopRight);
 			Assert.NotEqual(0, roundRectangle.CornerRadius.BottomLeft);
 			Assert.NotEqual(0, roundRectangle.CornerRadius.BottomRight);
+		}
+
+		[Theory]
+		[InlineData(1.2)]
+		[InlineData(2.0)]
+		[InlineData(2.01)]
+		[InlineData(20.0)]
+		public void RectangleWithoutStrokeUsesFullBounds(double height)
+		{
+			var rectangle = new Rectangle
+			{
+				StrokeThickness = 1
+			};
+
+			rectangle.Layout(new Rect(0, 0, 20, height));
+
+			AssertPathBounds(rectangle.GetPath(), 0, 0, 20, height);
+		}
+
+		[Fact]
+		public void RectangleWithStrokeInsetsPath()
+		{
+			var rectangle = new Rectangle
+			{
+				Stroke = Colors.Black,
+				StrokeThickness = 2
+			};
+
+			rectangle.Layout(new Rect(0, 0, 20, 10));
+
+			AssertPathBounds(rectangle.GetPath(), 1, 1, 18, 8);
+		}
+
+		[Fact]
+		public void RectangleUsedAsBorderStrokeShapeRetainsPathInset()
+		{
+			var rectangle = new Rectangle();
+			var border = new Border
+			{
+				Stroke = Colors.Black,
+				StrokeShape = rectangle
+			};
+
+			rectangle.Layout(new Rect(0, 0, 20, 10));
+
+			Assert.Same(border, rectangle.Parent);
+			AssertPathBounds(rectangle.GetPath(), 0.5, 0.5, 19, 9);
+		}
+
+		[Fact]
+		public void DefaultBorderStrokeShapeRetainsPathInset()
+		{
+			var firstBorder = new Border();
+			var secondBorder = new Border();
+			var rectangle = Assert.IsType<Rectangle>(firstBorder.StrokeShape);
+
+			rectangle.Layout(new Rect(0, 0, 20, 10));
+
+			Assert.Null(rectangle.Parent);
+			Assert.NotSame(firstBorder.StrokeShape, secondBorder.StrokeShape);
+			AssertPathBounds(rectangle.GetPath(), 0.5, 0.5, 19, 9);
+		}
+
+		[Fact]
+		public void RectangleUsedAsBorderStrokeShapeWithoutBorderStrokeRetainsPathInset()
+		{
+			var rectangle = new Rectangle();
+			var border = new Border
+			{
+				Stroke = null,
+				StrokeShape = rectangle
+			};
+
+			rectangle.Layout(new Rect(0, 0, 20, 10));
+
+			Assert.Same(border, rectangle.Parent);
+			AssertPathBounds(rectangle.GetPath(), 0.5, 0.5, 19, 9);
+		}
+
+		[Fact]
+		public void RectangleRemovedFromBorderUsesStandalonePathInset()
+		{
+			var rectangle = new Rectangle();
+			var border = new Border
+			{
+				StrokeShape = rectangle
+			};
+
+			border.StrokeShape = new Rectangle();
+			rectangle.Layout(new Rect(0, 0, 20, 10));
+
+			Assert.Null(rectangle.Parent);
+			AssertPathBounds(rectangle.GetPath(), 0, 0, 20, 10);
+		}
+
+		[Fact]
+		public void EllipseWithoutStrokeUsesFullBounds()
+		{
+			var ellipse = new Ellipse
+			{
+				StrokeThickness = 2
+			};
+
+			ellipse.Layout(new Rect(0, 0, 20, 10));
+
+			AssertPathBounds(ellipse.GetPath(), 0, 0, 20, 10);
+		}
+
+		[Fact]
+		public void EllipseWithStrokeInsetsPath()
+		{
+			var ellipse = new Ellipse
+			{
+				Stroke = Colors.Black,
+				StrokeThickness = 2
+			};
+
+			ellipse.Layout(new Rect(0, 0, 20, 10));
+
+			AssertPathBounds(ellipse.GetPath(), 1, 1, 18, 8);
+		}
+
+		[Fact]
+		public void RoundRectangleWithoutStrokeUsesFullInnerBounds()
+		{
+			var roundRectangle = new RoundRectangle
+			{
+				StrokeThickness = 2
+			};
+
+			roundRectangle.Layout(new Rect(0, 0, 20, 10));
+
+			AssertPathBounds(((IRoundRectangle)roundRectangle).InnerPath(), 0, 0, 20, 10);
+		}
+
+		[Fact]
+		public void RoundRectangleWithStrokeInsetsInnerPath()
+		{
+			var roundRectangle = new RoundRectangle
+			{
+				Stroke = Colors.Black,
+				StrokeThickness = 2
+			};
+
+			roundRectangle.Layout(new Rect(0, 0, 20, 10));
+
+			AssertPathBounds(((IRoundRectangle)roundRectangle).InnerPath(), 1, 1, 18, 8);
+		}
+
+		[Fact]
+		public void RoundRectangleUsedAsBorderStrokeShapeRetainsInnerPathInset()
+		{
+			var roundRectangle = new RoundRectangle();
+			var border = new Border
+			{
+				Stroke = Colors.Black,
+				StrokeShape = roundRectangle
+			};
+
+			roundRectangle.Layout(new Rect(0, 0, 20, 10));
+
+			Assert.Same(border, roundRectangle.Parent);
+			AssertPathBounds(((IRoundRectangle)roundRectangle).InnerPath(), 0.5, 0.5, 19, 9);
+		}
+
+		[Fact]
+		public void RoundRectangleUsedAsBorderShadowShapeWithoutStrokeRetainsInnerPathInset()
+		{
+			var roundRectangle = new RoundRectangle();
+			var border = new Border
+			{
+				Background = Colors.Red,
+				Shadow = new Shadow(),
+				StrokeShape = roundRectangle
+			};
+
+			roundRectangle.Layout(new Rect(0, 0, 20, 10));
+
+			Assert.Null(border.Stroke);
+			Assert.Same(border, roundRectangle.Parent);
+			AssertPathBounds(((IRoundRectangle)roundRectangle).InnerPath(), 0.5, 0.5, 19, 9);
+		}
+
+		static void AssertPathBounds(PathF path, double x, double y, double width, double height)
+		{
+			var bounds = path.GetBoundsByFlattening(1);
+
+			Assert.Equal(x, bounds.X, 3);
+			Assert.Equal(y, bounds.Y, 3);
+			Assert.Equal(width, bounds.Width, 3);
+			Assert.Equal(height, bounds.Height, 3);
 		}
 	}
 }
