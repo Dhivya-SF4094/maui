@@ -205,7 +205,16 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 
 		bool BackButtonPressedHandled(UIViewController topViewController, bool isInteractivePopGesture)
 		{
-			var tracker = _trackers.Values.FirstOrDefault(tracker => tracker.ViewController == topViewController);
+			IShellPageRendererTracker tracker = null;
+			foreach (var candidate in _trackers.Values)
+			{
+				if (candidate.ViewController == topViewController)
+				{
+					tracker = candidate;
+					break;
+				}
+			}
+
 			if (tracker is null)
 			{
 				return false;
@@ -822,7 +831,9 @@ namespace Microsoft.Maui.Controls.Platform.Compatibility
 		bool ShouldPop()
 		{
 			if (BackButtonPressedHandled(TopViewController, isInteractivePopGesture: true))
+			{
 				return false;
+			}
 
 			var shellItem = _context.Shell.CurrentItem;
 			var shellSection = shellItem?.CurrentItem;
