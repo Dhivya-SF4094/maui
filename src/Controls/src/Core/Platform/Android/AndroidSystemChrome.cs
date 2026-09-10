@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Android.App;
 using Android.Content;
@@ -7,18 +8,21 @@ using Android.Content.Res;
 using Android.Graphics.Drawables;
 using AndroidX.Core.View;
 using Google.Android.Material.AppBar;
+using Google.Android.Material.Shape;
 using Microsoft.Maui;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Platform;
 using AGraphics = Android.Graphics;
 using AView = Android.Views.View;
 using AWindow = Android.Views.Window;
+using Android.Views;
 
 namespace Microsoft.Maui.Controls.Platform
 {
 	internal static class AndroidSystemChrome
 	{
 		static readonly ConditionalWeakTable<AppBarLayout, OriginalAppBarBackground> s_originalAppBarBackgrounds = new();
+		static readonly ConditionalWeakTable<AppBarLayout, GradientAppBarBackground> s_gradientAppBarBackgrounds = new();
 		static readonly ConditionalWeakTable<AView, PendingBottomChromeUpdate> s_pendingBottomChromeUpdates = new();
 
 		internal static void UpdateTopChrome(AView? chromeView, Brush? background)
@@ -36,12 +40,12 @@ namespace Microsoft.Maui.Controls.Platform
 			var appBarLayout = chromeView.GetParentOfType<AppBarLayout>();
 			UpdateAppBarBackground(appBarLayout, background);
 			UpdateSystemBarAppearance(
-				chromeView.Context,
-				GetActivityWindowForView(chromeView),
-				updateStatusBar: true,
-				updateNavigationBar: false,
-				statusBarBackgroundColor: GetChromeColor(background, ChromeEdge.Top),
-				resolveActivityWindow: false);
+			 chromeView.Context,
+			 GetActivityWindowForView(chromeView),
+			 updateStatusBar: true,
+			 updateNavigationBar: false,
+			 statusBarBackgroundColor: GetChromeColor(background, ChromeEdge.Top),
+			 resolveActivityWindow: false);
 		}
 
 		internal static void UpdateBottomChrome(AView? chromeView, Brush? background)
@@ -60,8 +64,8 @@ namespace Microsoft.Maui.Controls.Platform
 			if (window is null && !chromeView.IsAttachedToWindow)
 			{
 				s_pendingBottomChromeUpdates
-					.GetValue(chromeView, static view => new PendingBottomChromeUpdate(view))
-					.Update(background);
+				 .GetValue(chromeView, static view => new PendingBottomChromeUpdate(view))
+				 .Update(background);
 				return;
 			}
 
@@ -72,55 +76,55 @@ namespace Microsoft.Maui.Controls.Platform
 			}
 
 			UpdateSystemBarAppearance(
-				chromeView.Context,
-				window,
-				updateStatusBar: false,
-				updateNavigationBar: true,
-				navigationBarBackgroundColor: GetChromeColor(background, ChromeEdge.Bottom),
-				resolveActivityWindow: false);
+			 chromeView.Context,
+			 window,
+			 updateStatusBar: false,
+			 updateNavigationBar: true,
+			 navigationBarBackgroundColor: GetChromeColor(background, ChromeEdge.Bottom),
+			 resolveActivityWindow: false);
 		}
 
 		internal static void UpdateWindowChrome(
-			Context? context,
-			AWindow? window,
-			bool updateStatusBar,
-			bool updateNavigationBar,
-			Paint? background = null)
+		 Context? context,
+		 AWindow? window,
+		 bool updateStatusBar,
+		 bool updateNavigationBar,
+		 Paint? background = null)
 		{
 			UpdateSystemBarAppearance(
-				context,
-				window,
-				updateStatusBar,
-				updateNavigationBar,
-				statusBarBackgroundColor: GetChromeColor(background, ChromeEdge.Top),
-				navigationBarBackgroundColor: GetChromeColor(background, ChromeEdge.Bottom));
+			 context,
+			 window,
+			 updateStatusBar,
+			 updateNavigationBar,
+			 statusBarBackgroundColor: GetChromeColor(background, ChromeEdge.Top),
+			 navigationBarBackgroundColor: GetChromeColor(background, ChromeEdge.Bottom));
 		}
 
 		internal static void UpdateWindowChrome(
-			Context? context,
-			AWindow? window,
-			bool updateStatusBar,
-			bool updateNavigationBar,
-			Brush? statusBarBackground,
-			Paint? navigationBarBackground = null)
+		 Context? context,
+		 AWindow? window,
+		 bool updateStatusBar,
+		 bool updateNavigationBar,
+		 Brush? statusBarBackground,
+		 Paint? navigationBarBackground = null)
 		{
 			UpdateSystemBarAppearance(
-				context,
-				window,
-				updateStatusBar,
-				updateNavigationBar,
-				statusBarBackgroundColor: GetChromeColor(statusBarBackground, ChromeEdge.Top),
-				navigationBarBackgroundColor: GetChromeColor(navigationBarBackground, ChromeEdge.Bottom));
+			 context,
+			 window,
+			 updateStatusBar,
+			 updateNavigationBar,
+			 statusBarBackgroundColor: GetChromeColor(statusBarBackground, ChromeEdge.Top),
+			 navigationBarBackgroundColor: GetChromeColor(navigationBarBackground, ChromeEdge.Bottom));
 		}
 
 		static void UpdateSystemBarAppearance(
-			Context? context,
-			AWindow? window,
-			bool updateStatusBar,
-			bool updateNavigationBar,
-			Color? statusBarBackgroundColor = null,
-			Color? navigationBarBackgroundColor = null,
-			bool resolveActivityWindow = true)
+		 Context? context,
+		 AWindow? window,
+		 bool updateStatusBar,
+		 bool updateNavigationBar,
+		 Color? statusBarBackgroundColor = null,
+		 Color? navigationBarBackgroundColor = null,
+		 bool resolveActivityWindow = true)
 		{
 			if (!RuntimeFeature.UseMauiAndroidSystemBarBackgrounds)
 			{
@@ -134,19 +138,19 @@ namespace Microsoft.Maui.Controls.Platform
 			}
 
 			window.UpdateSystemBarAppearance(
-				activity,
-				updateStatusBar,
-				updateNavigationBar,
-				statusBarBackgroundColor,
-				navigationBarBackgroundColor);
+			 activity,
+			 updateStatusBar,
+			 updateNavigationBar,
+			 statusBarBackgroundColor,
+			 navigationBarBackgroundColor);
 		}
 
 		static AWindow? GetActivityWindowForView(AView view)
 		{
 			var activityWindow = view.Context?.GetActivity()?.Window;
 			if (activityWindow?.DecorView?.RootView is not { } activityRootView ||
-				view.RootView is not { } viewRootView ||
-				!viewRootView.Equals(activityRootView))
+			 view.RootView is not { } viewRootView ||
+			 !viewRootView.Equals(activityRootView))
 			{
 				return null;
 			}
@@ -206,28 +210,156 @@ namespace Microsoft.Maui.Controls.Platform
 			}
 
 			var originalBackground = s_originalAppBarBackgrounds.GetValue(
-				appBarLayout,
-				static appBar => new OriginalAppBarBackground(appBar.Background));
+			 appBarLayout,
+			 static appBar => new OriginalAppBarBackground(appBar.Background));
 
+			RemoveGradientAppBarBackground(appBarLayout);
+			ViewCompat.SetBackgroundTintMode(appBarLayout, null);
+			ViewCompat.SetBackgroundTintList(appBarLayout, null);
 			if (Brush.IsNullOrEmpty(background))
 			{
-				ViewCompat.SetBackgroundTintMode(appBarLayout, null);
-				ViewCompat.SetBackgroundTintList(appBarLayout, null);
 				appBarLayout.Background = originalBackground.CreateDrawable();
 				return;
 			}
 
 			if (background is SolidColorBrush { Color: not null } solidColorBrush)
 			{
-				appBarLayout.Background = originalBackground.CreateDrawable() ?? new ColorDrawable(AGraphics.Color.Transparent);
-				ViewCompat.SetBackgroundTintMode(appBarLayout, AGraphics.PorterDuff.Mode.Src);
-				ViewCompat.SetBackgroundTintList(appBarLayout, ColorStateList.ValueOf(solidColorBrush.Color.ToPlatform()));
+				if (RuntimeFeature.IsMaterial3Enabled && appBarLayout.Background is MaterialShapeDrawable materialShapeDrawable)
+				{
+					var platformColor = solidColorBrush.Color.ToPlatform();
+					materialShapeDrawable.FillColor = ColorStateList.ValueOf(platformColor);
+					appBarLayout.SetLiftOnScrollColor(
+					 ColorStateList.ValueOf(LightenColor(solidColorBrush.Color, 0.3f).ToPlatform()));
+				}
+				else
+				{
+					appBarLayout.Background = originalBackground.CreateDrawable() ?? new ColorDrawable(AGraphics.Color.Transparent);
+					ViewCompat.SetBackgroundTintMode(appBarLayout, AGraphics.PorterDuff.Mode.Src);
+					ViewCompat.SetBackgroundTintList(appBarLayout, ColorStateList.ValueOf(solidColorBrush.Color.ToPlatform()));
+				}
+
+				return;
+			}
+			if (background is LinearGradientBrush linearGradientBrush &&
+			 linearGradientBrush.GradientStops.Count > 0)
+			{
+				var (normalColors, liftedColors, offsets) = GetGradientColors(linearGradientBrush.GradientStops);
+				var gradientDrawable = new GradientDrawable();
+				gradientDrawable.SetOrientation(
+				 GetGradientOrientation(
+				  linearGradientBrush.StartPoint,
+				  linearGradientBrush.EndPoint));
+				SetGradientColors(gradientDrawable, normalColors, offsets);
+				appBarLayout.Background = gradientDrawable;
+
+				if (RuntimeFeature.IsMaterial3Enabled)
+				{
+					s_gradientAppBarBackgrounds.Add(
+					 appBarLayout,
+					 new GradientAppBarBackground(appBarLayout, gradientDrawable, normalColors, liftedColors, offsets));
+				}
+
 				return;
 			}
 
-			ViewCompat.SetBackgroundTintMode(appBarLayout, null);
-			ViewCompat.SetBackgroundTintList(appBarLayout, null);
-			appBarLayout.UpdateBackground(background);
+			if (background is RadialGradientBrush radialGradientBrush &&
+			 radialGradientBrush.GradientStops.Count > 0)
+			{
+				var (normalColors, liftedColors, offsets) = GetGradientColors(radialGradientBrush.GradientStops);
+				var gradientDrawable = new GradientDrawable();
+				gradientDrawable.SetGradientType(GradientType.RadialGradient);
+				gradientDrawable.SetGradientCenter((float)radialGradientBrush.Center.X, (float)radialGradientBrush.Center.Y);
+				SetGradientColors(gradientDrawable, normalColors, offsets);
+				UpdateRadialGradientRadius(gradientDrawable, appBarLayout.Width, appBarLayout.Height, radialGradientBrush.Radius);
+				appBarLayout.Background = gradientDrawable;
+
+				if (RuntimeFeature.IsMaterial3Enabled)
+				{
+					s_gradientAppBarBackgrounds.Add(
+					 appBarLayout,
+					 new GradientAppBarBackground(
+					  appBarLayout,
+					  gradientDrawable,
+					  normalColors,
+					  liftedColors,
+					  offsets,
+					  (width, height) => UpdateRadialGradientRadius(gradientDrawable, width, height, radialGradientBrush.Radius)));
+				}
+
+				return;
+			}
+
+			if (!RuntimeFeature.IsMaterial3Enabled)
+			{
+				appBarLayout.UpdateBackground(background);
+			}
+		}
+
+		static void RemoveGradientAppBarBackground(AppBarLayout appBarLayout)
+		{
+			if (s_gradientAppBarBackgrounds.TryGetValue(appBarLayout, out var gradientBackground))
+			{
+				gradientBackground.Dispose();
+				s_gradientAppBarBackgrounds.Remove(appBarLayout);
+			}
+		}
+
+		static void SetGradientColors(GradientDrawable gradientDrawable, int[] colors, float[] offsets)
+		{
+			if (OperatingSystem.IsAndroidVersionAtLeast(29))
+			{
+				gradientDrawable.SetColors(colors, offsets);
+			}
+			else
+			{
+				gradientDrawable.SetColors(colors);
+			}
+		}
+
+		static (int[] NormalColors, int[] LiftedColors, float[] Offsets) GetGradientColors(GradientStopCollection gradientStops)
+		{
+			var stops = gradientStops.OrderBy(x => x.Offset).ToArray();
+
+			return (
+			 stops.Select(x => x.Color.ToPlatform().ToArgb()).ToArray(),
+			 stops.Select(x => LightenColor(x.Color, 0.3f).ToPlatform().ToArgb()).ToArray(),
+			 stops.Select(x => (float)x.Offset).ToArray());
+		}
+
+		static void UpdateRadialGradientRadius(GradientDrawable gradientDrawable, int width, int height, double radius)
+		{
+			gradientDrawable.SetGradientRadius((float)(Math.Max(width, height) * radius));
+		}
+
+		static GradientDrawable.Orientation? GetGradientOrientation(
+		 Point startPoint,
+		 Point endPoint)
+		{
+			var dx = endPoint.X - startPoint.X;
+			var dy = endPoint.Y - startPoint.Y;
+
+			if (Math.Abs(dx) >= Math.Abs(dy))
+			{
+				return dx >= 0
+				 ? GradientDrawable.Orientation.LeftRight
+				 : GradientDrawable.Orientation.RightLeft;
+			}
+
+			return dy >= 0
+			 ? GradientDrawable.Orientation.TopBottom
+			 : GradientDrawable.Orientation.BottomTop;
+		}
+
+		static Color LightenColor(Color color, float factor)
+		{
+			factor = Math.Clamp(factor, 0f, 1f);
+
+			return new Color(
+			 color.Red + ((1f - color.Red) * factor),
+			 color.Green + ((1f - color.Green) * factor),
+			 color.Blue + ((1f - color.Blue) * factor),
+			 color.Alpha
+			);
 		}
 
 		static Color? GetChromeColor(Brush? background, ChromeEdge edge)
@@ -236,11 +368,11 @@ namespace Microsoft.Maui.Controls.Platform
 			{
 				SolidColorBrush { Color: { Alpha: > 0 } color } => color,
 				LinearGradientBrush linearGradientBrush => GetGradientColorAt(
-					linearGradientBrush.GradientStops,
-					GetLinearGradientOffset(linearGradientBrush.StartPoint, linearGradientBrush.EndPoint, edge)),
+				 linearGradientBrush.GradientStops,
+				 GetLinearGradientOffset(linearGradientBrush.StartPoint, linearGradientBrush.EndPoint, edge)),
 				RadialGradientBrush radialGradientBrush => GetGradientColorAt(
-					radialGradientBrush.GradientStops,
-					GetRadialGradientOffset(radialGradientBrush.Center, radialGradientBrush.Radius, edge)),
+				 radialGradientBrush.GradientStops,
+				 GetRadialGradientOffset(radialGradientBrush.Center, radialGradientBrush.Radius, edge)),
 				_ => null
 			};
 		}
@@ -251,11 +383,11 @@ namespace Microsoft.Maui.Controls.Platform
 			{
 				SolidPaint { Color: { Alpha: > 0 } color } => color,
 				LinearGradientPaint linearGradientPaint => GetGradientColorAt(
-					linearGradientPaint.GradientStops,
-					GetLinearGradientOffset(linearGradientPaint.StartPoint, linearGradientPaint.EndPoint, edge)),
+				 linearGradientPaint.GradientStops,
+				 GetLinearGradientOffset(linearGradientPaint.StartPoint, linearGradientPaint.EndPoint, edge)),
 				RadialGradientPaint radialGradientPaint => GetGradientColorAt(
-					radialGradientPaint.GradientStops,
-					GetRadialGradientOffset(radialGradientPaint.Center, radialGradientPaint.Radius, edge)),
+				 radialGradientPaint.GradientStops,
+				 GetRadialGradientOffset(radialGradientPaint.Center, radialGradientPaint.Radius, edge)),
 				_ => null
 			};
 		}
@@ -329,8 +461,8 @@ namespace Microsoft.Maui.Controls.Platform
 			if (beforeOffset.HasValue && beforeColor is not null && afterOffset.HasValue && afterColor is not null)
 			{
 				color = beforeOffset == afterOffset
-					? beforeColor
-					: BlendColors(beforeColor, afterColor, (offset - beforeOffset.Value) / (afterOffset.Value - beforeOffset.Value));
+				 ? beforeColor
+				 : BlendColors(beforeColor, afterColor, (offset - beforeOffset.Value) / (afterOffset.Value - beforeOffset.Value));
 			}
 			else if (beforeColor is not null)
 			{
@@ -349,10 +481,26 @@ namespace Microsoft.Maui.Controls.Platform
 			factor = Math.Clamp(factor, 0f, 1f);
 
 			return new Color(
-				startColor.Red + ((endColor.Red - startColor.Red) * factor),
-				startColor.Green + ((endColor.Green - startColor.Green) * factor),
-				startColor.Blue + ((endColor.Blue - startColor.Blue) * factor),
-				startColor.Alpha + ((endColor.Alpha - startColor.Alpha) * factor));
+			 startColor.Red + ((endColor.Red - startColor.Red) * factor),
+			 startColor.Green + ((endColor.Green - startColor.Green) * factor),
+			 startColor.Blue + ((endColor.Blue - startColor.Blue) * factor),
+			 startColor.Alpha + ((endColor.Alpha - startColor.Alpha) * factor));
+		}
+
+		static int BlendArgbColors(int startColor, int endColor, float factor)
+		{
+			factor = Math.Clamp(factor, 0f, 1f);
+
+			return AGraphics.Color.Argb(
+			 BlendColorComponent(startColor >> 24, endColor >> 24, factor),
+			 BlendColorComponent(startColor >> 16, endColor >> 16, factor),
+			 BlendColorComponent(startColor >> 8, endColor >> 8, factor),
+			 BlendColorComponent(startColor, endColor, factor)).ToArgb();
+		}
+
+		static int BlendColorComponent(int startColor, int endColor, float factor)
+		{
+			return (int)(((startColor & 0xff) + (((endColor & 0xff) - (startColor & 0xff)) * factor)));
 		}
 
 		static float GetLinearGradientOffset(Point startPoint, Point endPoint, ChromeEdge edge)
@@ -368,9 +516,9 @@ namespace Microsoft.Maui.Controls.Platform
 			}
 
 			return (float)Math.Clamp(
-				(((samplePoint.X - startPoint.X) * x) + ((samplePoint.Y - startPoint.Y) * y)) / lengthSquared,
-				0,
-				1);
+			 (((samplePoint.X - startPoint.X) * x) + ((samplePoint.Y - startPoint.Y) * y)) / lengthSquared,
+			 0,
+			 1);
 		}
 
 		static float GetRadialGradientOffset(Point center, double radius, ChromeEdge edge)
@@ -390,8 +538,8 @@ namespace Microsoft.Maui.Controls.Platform
 		static Point GetEdgeSamplePoint(ChromeEdge edge)
 		{
 			return edge == ChromeEdge.Top
-				? new Point(0.5, 0)
-				: new Point(0.5, 1);
+			 ? new Point(0.5, 0)
+			 : new Point(0.5, 1);
 		}
 
 		enum ChromeEdge
@@ -428,6 +576,90 @@ namespace Microsoft.Maui.Controls.Platform
 				}
 
 				return constantState.NewDrawable()?.Mutate();
+			}
+		}
+
+		sealed class GradientAppBarBackground : Java.Lang.Object, ViewTreeObserver.IOnScrollChangedListener, AView.IOnLayoutChangeListener
+		{
+			readonly AppBarLayout _appBarLayout;
+			readonly GradientDrawable _gradientDrawable;
+			readonly int[] _normalColors;
+			readonly int[] _liftedColors;
+			readonly float[] _offsets;
+			readonly int[] _currentColors;
+			readonly Action<int, int>? _updateDimensions;
+			bool _wasLifted;
+
+			public GradientAppBarBackground(
+			 AppBarLayout appBarLayout,
+			 GradientDrawable gradientDrawable,
+			 int[] normalColors,
+			 int[] liftedColors,
+			 float[] offsets,
+			 Action<int, int>? updateDimensions = null)
+			{
+				_appBarLayout = appBarLayout;
+				_gradientDrawable = gradientDrawable;
+				_normalColors = normalColors;
+				_liftedColors = liftedColors;
+				_offsets = offsets;
+				_currentColors = new int[normalColors.Length];
+				_updateDimensions = updateDimensions;
+				_wasLifted = _appBarLayout.IsLifted;
+				UpdateColors(_wasLifted ? 1f : 0f);
+				_appBarLayout.ViewTreeObserver?.AddOnScrollChangedListener(this);
+
+				if (_updateDimensions is not null)
+				{
+					_appBarLayout.AddOnLayoutChangeListener(this);
+				}
+			}
+
+			public void OnScrollChanged()
+			{
+				var isLifted = _appBarLayout.IsLifted;
+				if (_wasLifted == isLifted)
+				{
+					return;
+				}
+
+				_wasLifted = isLifted;
+				UpdateColors(isLifted ? 1f : 0f);
+			}
+
+			void UpdateColors(float progress)
+			{
+
+				for (var index = 0; index < _currentColors.Length; index++)
+				{
+					_currentColors[index] = BlendArgbColors(_normalColors[index], _liftedColors[index], progress);
+				}
+
+				SetGradientColors(_gradientDrawable, _currentColors, _offsets);
+			}
+
+			public void OnLayoutChange(AView? view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom)
+			{
+				_updateDimensions?.Invoke(right - left, bottom - top);
+			}
+
+			protected override void Dispose(bool disposing)
+			{
+				if (disposing)
+				{
+					var viewTreeObserver = _appBarLayout.ViewTreeObserver;
+					if (viewTreeObserver?.IsAlive == true)
+					{
+						viewTreeObserver.RemoveOnScrollChangedListener(this);
+					}
+
+					if (_updateDimensions is not null)
+					{
+						_appBarLayout.RemoveOnLayoutChangeListener(this);
+					}
+				}
+
+				base.Dispose(disposing);
 			}
 		}
 	}
