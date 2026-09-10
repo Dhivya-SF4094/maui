@@ -56,12 +56,16 @@ namespace Microsoft.Maui.Controls.Shapes
 
 		public override PathF GetPath()
 		{
+			return GetPath(GetPathStrokeInset());
+		}
+
+		internal override PathF GetPath(double strokeInset)
+		{
 			var width = WidthForPathComputation;
 			var height = HeightForPathComputation;
 
 			var path = new PathF();
 
-			var strokeInset = GetPathStrokeInset();
 			float x = (float)strokeInset / 2;
 			float y = (float)strokeInset / 2;
 			float w = (float)(width - strokeInset);
