@@ -28,7 +28,6 @@ namespace Microsoft.Maui.Platform
             public AppBarLayout? LiftOnScrollAppBar;
             public ScrollChangedListener? ScrollListener;
             public ViewTreeObserver? ScrollListenerObserver;
-            public readonly Rect VisibleRect = new();
         }
 
         internal static void TrySetAppBarLiftTargetIfOnScreen(this View view)
@@ -53,7 +52,7 @@ namespace Microsoft.Maui.Platform
             // so their ScrollViews also attach. Only the on-screen page's ScrollView should
             // claim the lift target. GetGlobalVisibleRect returns false if the view is
             // entirely outside the clipped viewport (e.g. a pre-loaded carousel page).
-            if (view.GetGlobalVisibleRect(state.VisibleRect))
+            if (IsViewVisible(view))
             {
                 SetAppBarLiftTarget(view, state, appBar);
             }
@@ -134,7 +133,7 @@ namespace Microsoft.Maui.Platform
                 return;
             }
 
-            bool isOnScreen = view.GetGlobalVisibleRect(state.VisibleRect);
+            bool isOnScreen = IsViewVisible(view);
             bool ownsTarget = state.LiftOnScrollAppBar is not null;
 
             if (isOnScreen && !ownsTarget)
@@ -147,6 +146,12 @@ namespace Microsoft.Maui.Platform
                 // detect when the carousel swipes back to this page.
                 ClearAppBarLiftTargetCore(view, state);
             }
+        }
+
+        static bool IsViewVisible(View view)
+        {
+            using var visibleRect = new Rect();
+            return view.GetGlobalVisibleRect(visibleRect);
         }
 
         static void StartListeningForParentScrollChanges(View view, AppBarLiftState state)
