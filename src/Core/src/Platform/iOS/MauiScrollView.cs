@@ -631,7 +631,7 @@ namespace Microsoft.Maui.Platform
 			// This logic adds safe area padding to the contentSize *only if* the content is nearly large enough to require scrolling,
 			// ensuring the scroll view remains in "scrollable mode" and keeps safe area insets at the scroll view level.
 			// This avoids inset flip-flopping and keeps layout behavior stable and predictable.
-			if (ContentInsetAdjustmentBehavior == UIScrollViewContentInsetAdjustmentBehavior.Automatic && !IsInPageSheet())
+			if (ContentInsetAdjustmentBehavior == UIScrollViewContentInsetAdjustmentBehavior.Automatic && !IsInsidePageSheet())
 			{
 				// We do this to keep the content scrollable
 				// if we don't do this the ContentAdjustedInset + contentSize will cause the content to go off the screen and not be scrollable
@@ -695,7 +695,7 @@ namespace Microsoft.Maui.Platform
 			return contentSize;
 		}
 
-		bool IsInPageSheet()
+		bool IsInsidePageSheet()
 		{
 			UIResponder? responder = this;
 			while (responder is not null)
