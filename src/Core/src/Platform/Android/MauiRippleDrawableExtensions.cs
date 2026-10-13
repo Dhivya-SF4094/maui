@@ -39,7 +39,6 @@ static class MauiRippleDrawableExtensions
 		}
 
 		var (width, color, radius) = button.GetStrokeProperties(platformView.Context!, false);
-		radius = platformView.ClampCornerRadius(radius);
 
 		strokeDrawable.SetStroke(width, color);
 		strokeDrawable.SetCornerRadius(radius);
@@ -53,7 +52,19 @@ static class MauiRippleDrawableExtensions
 		gradientDrawable.SetCornerRadius(radius);
 		maskDrawable.SetCornerRadius(radius);
 
-		platformView.UpdateShapeAppearance(radius);
+		if (platformView is ShapeableImageView shapeableImageView)
+		{
+			// Update the ShapeAppearanceModel to match the stroke radius
+			// so that the corners are rounded correctly.
+			shapeableImageView.ShapeAppearanceModel =
+				shapeableImageView.ShapeAppearanceModel
+					.ToBuilder()
+					.SetTopLeftCorner(CornerFamily.Rounded, radius)
+					.SetTopRightCorner(CornerFamily.Rounded, radius)
+					.SetBottomLeftCorner(CornerFamily.Rounded, radius)
+					.SetBottomRightCorner(CornerFamily.Rounded, radius)
+					.Build();
+		}
 
 		return true;
 	}
@@ -67,7 +78,7 @@ static class MauiRippleDrawableExtensions
 	{
 		// Get the current background
 		var recreateRipple = false;
-		if (!platformView.TryGetMauiBackground(out var rippleDrawable, out var layerDrawable, out _, out var strokeDrawable, out var maskDrawable))
+		if (!platformView.TryGetMauiBackground(out var rippleDrawable, out var layerDrawable, out _, out var strokeDrawable, out _))
 		{
 			// The current background is the default one.
 
@@ -82,7 +93,6 @@ static class MauiRippleDrawableExtensions
 		}
 
 		var (width, color, radius) = stroke.GetStrokeProperties(platformView.Context!, false);
-		radius = platformView.ClampCornerRadius(radius);
 
 		// The previous background may have had transparency or a gradient which cannot
 		// be un-set, so we need an entirely new drawable.
@@ -125,8 +135,6 @@ static class MauiRippleDrawableExtensions
 			// be executing now.
 
 			layerDrawable!.SetDrawableByLayerId(MauiBackgroundDrawableId, backgroundDrawable);
-			strokeDrawable!.SetCornerRadius(radius);
-			maskDrawable!.SetCornerRadius(radius);
 			rippleDrawable!.InvalidateSelf();
 		}
 		else
@@ -135,7 +143,7 @@ static class MauiRippleDrawableExtensions
 			// whole background from scratch.
 
 			// Create the ripple mask.
-			maskDrawable = new GradientDrawable();
+			var maskDrawable = new GradientDrawable();
 			maskDrawable.SetTint(AColor.White);
 			maskDrawable.SetCornerRadius(radius);
 
@@ -170,35 +178,6 @@ static class MauiRippleDrawableExtensions
 			// responsible for everything - which we want.
 			platformView.Background = rippleDrawable;
 		}
-
-		platformView.UpdateShapeAppearance(radius);
-	}
-
-	static int ClampCornerRadius(this AView platformView, int radius)
-	{
-		if (platformView.Width <= 0 || platformView.Height <= 0)
-		{
-			return radius;
-		}
-
-		return Math.Min(radius, Math.Min(platformView.Width, platformView.Height) / 2);
-	}
-
-	static void UpdateShapeAppearance(this AView platformView, int radius)
-	{
-		if (platformView is not ShapeableImageView shapeableImageView)
-		{
-			return;
-		}
-
-		shapeableImageView.ShapeAppearanceModel =
-			shapeableImageView.ShapeAppearanceModel
-				.ToBuilder()
-				.SetTopLeftCorner(CornerFamily.Rounded, radius)
-				.SetTopRightCorner(CornerFamily.Rounded, radius)
-				.SetBottomLeftCorner(CornerFamily.Rounded, radius)
-				.SetBottomRightCorner(CornerFamily.Rounded, radius)
-				.Build();
 	}
 
 	internal static (int Thickness, ColorStateList Color, int Radius) GetStrokeProperties(this IButtonStroke button, Context context, bool defaultButtonLogic)
