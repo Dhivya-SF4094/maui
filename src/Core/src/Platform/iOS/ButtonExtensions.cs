@@ -1,5 +1,4 @@
 using System;
-using CoreAnimation;
 using Foundation;
 using Microsoft.Maui.Graphics;
 using UIKit;
@@ -25,27 +24,7 @@ namespace Microsoft.Maui.Platform
 		public static void UpdateCornerRadius(this UIButton platformButton, IButtonStroke buttonStroke)
 		{
 			if (buttonStroke.CornerRadius >= 0)
-			{
-				platformButton.Layer.CornerRadius = platformButton.Layer.GetEffectiveCornerRadius(buttonStroke.CornerRadius);
-
-				if (platformButton.Layer.Sublayers is { } sublayers)
-				{
-					foreach (var sublayer in sublayers)
-					{
-						if (sublayer.Name == ViewExtensions.BackgroundLayerName)
-							sublayer.CornerRadius = sublayer.GetEffectiveCornerRadius(buttonStroke.CornerRadius);
-					}
-				}
-			}
-		}
-
-		internal static float GetEffectiveCornerRadius(this CALayer layer, int cornerRadius)
-		{
-			var bounds = layer.Bounds;
-			if (bounds.Width <= 0 || bounds.Height <= 0)
-				return cornerRadius;
-
-			return (float)Math.Min(cornerRadius, Math.Min(bounds.Width, bounds.Height) / 2);
+				platformButton.Layer.CornerRadius = buttonStroke.CornerRadius;
 		}
 
 		public static void UpdateText(this UIButton platformButton, IText button) =>
