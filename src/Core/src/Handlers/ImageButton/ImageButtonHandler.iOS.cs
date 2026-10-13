@@ -11,6 +11,7 @@ namespace Microsoft.Maui.Handlers
 		public override bool NeedsContainer => true;
 
 		readonly ImageButtonProxy _proxy = new();
+		Size _previousSize;
 
 		protected override void SetupContainer()
 		{
@@ -50,7 +51,11 @@ namespace Microsoft.Maui.Handlers
 		public override void PlatformArrange(Rect rect)
 		{
 			base.PlatformArrange(rect);
-			UpdateValue(nameof(IButtonStroke.CornerRadius));
+			if (_previousSize.Width != rect.Width || _previousSize.Height != rect.Height)
+			{
+				UpdateValue(nameof(IButtonStroke.CornerRadius));
+				_previousSize = rect.Size;
+			}
 		}
 
 		//TODO : Make it public in NET 11.
