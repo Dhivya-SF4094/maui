@@ -1,4 +1,5 @@
 using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Platform;
 using UIKit;
 
 namespace Microsoft.Maui.Handlers
@@ -13,8 +14,13 @@ namespace Microsoft.Maui.Handlers
 
 		public UIViewController? ViewController { get; set; }
 
-		public override void PlatformArrange(Rect rect) =>
+		public override void PlatformArrange(Rect rect)
+		{
 			this.PlatformArrangeHandler(rect);
+
+			if (PlatformView is UIButton button && VirtualView is IButtonStroke buttonStroke)
+				button.UpdateCornerRadius(buttonStroke);
+		}
 
 		public override Size GetDesiredSize(double widthConstraint, double heightConstraint) =>
 			this.GetDesiredSizeFromHandler(widthConstraint, heightConstraint);
