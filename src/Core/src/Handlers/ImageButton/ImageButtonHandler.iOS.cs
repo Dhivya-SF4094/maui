@@ -47,6 +47,12 @@ namespace Microsoft.Maui.Handlers
 			SourceLoader.Reset();
 		}
 
+		public override void PlatformArrange(Rect rect)
+		{
+			base.PlatformArrange(rect);
+			UpdateValue(nameof(IButtonStroke.CornerRadius));
+		}
+
 		//TODO : Make it public in NET 11.
 		internal static void MapBackground(IImageButtonHandler handler, IImageButton imageButton)
 		{
