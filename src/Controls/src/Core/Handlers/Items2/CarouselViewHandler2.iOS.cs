@@ -38,39 +38,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 		protected override CarouselViewController2 CreateController(CarouselView newElement, UICollectionViewLayout layout)
 				=> new(newElement, layout);
 
-		public override void PlatformArrange(Rect rect)
-		{
-			if (VirtualView is null || PlatformView is null || Controller is not CarouselViewController2 controller)
-			{
-				base.PlatformArrange(rect);
-				return;
-			}
-
-			if (!controller.InitialPositionSet || controller.ArrangedSize == rect.Size.ToCGSize())
-			{
-				base.PlatformArrange(rect);
-				controller.ArrangedSize = PlatformView.Bounds.Size;
-				return;
-			}
-
-			// UIKit can report a different page while resizing its orthogonal scroller.
-			// Preserve the logical position until the new layout has been centered on it.
-			var wasResizing = controller.IsResizing;
-			controller.IsResizing = true;
-			try
-			{
-				base.PlatformArrange(rect);
-				controller.CollectionView.LayoutIfNeeded();
-				controller.RestorePosition();
-				controller.CollectionView.LayoutIfNeeded();
-			}
-			finally
-			{
-				controller.ArrangedSize = PlatformView.Bounds.Size;
-				controller.IsResizing = wasResizing;
-			}
-		}
-
 		protected override UICollectionViewLayout SelectLayout()
 		{
 			var weakItemsView = new WeakReference<CarouselView>(ItemsView);
