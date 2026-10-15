@@ -435,6 +435,12 @@ internal static class LayoutFactory2
 					return;
 				}
 
+				// UIKit may resize the native view before MAUI arranges it.
+				if (cv2Controller.IsResizing || cv2Controller.ArrangedSize != cv2Controller.CollectionView.Bounds.Size)
+				{
+					return;
+				}
+
 				// Calculate page index accounting for ItemSpacing
 				var itemSpacing = itemsView.ItemsLayout is LinearItemsLayout linearLayout ? linearLayout.ItemSpacing : 0;
 
@@ -501,11 +507,6 @@ internal static class LayoutFactory2
 							isHorizontal ? UICollectionViewScrollPosition.Left : UICollectionViewScrollPosition.Top,
 							false);
 					}
-				}
-
-				if (cv2Controller.IsRotating())
-				{
-					return;
 				}
 
 				//Update the CarouselView position

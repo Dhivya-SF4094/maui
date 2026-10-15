@@ -14,7 +14,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 {
 	public class CarouselViewController2 : ItemsViewController2<CarouselView>
 	{
-		bool _isRotating = false;
 		bool _isUpdating = false;
 		bool _isInternalCollectionUpdate = false;
 		int _section = 0;
@@ -22,8 +21,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 		int _gotoPosition = -1;
 		CarouselViewLoopManager _carouselViewLoopManager;
 		CancellationTokenSource _scrollDebounce;
-		[UnconditionalSuppressMessage("Memory", "MEM0002", Justification = "The orientation observer token is removed from NSNotificationCenter in TearDown and Dispose, so it does not root this controller.")]
-		NSObject _orientationObserver;
 
 		// Tracks the last position the controller synced with the CarouselView. This survives
 		// detach/re-attach (it is intentionally not reset in TearDown) so that when the view
@@ -79,14 +76,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			base.ViewDidLoad();
 		}
 
-		void DeviceOrientationChanged(NSNotification notification)
-		{
-			if (InitialPositionSet)
-			{
-				_isRotating = true;
-			}
-		}
-
 		public override void ViewWillLayoutSubviews()
 		{
 			base.ViewWillLayoutSubviews();
@@ -98,21 +87,21 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 		{
 			base.ViewDidLayoutSubviews();
 			await UpdateInitialPosition();
-
-			if (_isRotating)
-			{
-				BoundsSizeChanged();
-				_isRotating = false;
-			}
 		}
 
-		void BoundsSizeChanged()
+		internal void RestorePosition()
 		{
-			// Re-center the current item after bounds change to ensure proper positioning
-			// This is especially important during device rotation to maintain the correct scroll position
-			if (ItemsView is CarouselView carousel && carousel.Position >= 0)
+			if (ItemsView is not CarouselView carousel || carousel.Position < 0 || ItemsSource?.ItemCount is not > 0)
 			{
-				carousel.ScrollTo(carousel.Position, position: Microsoft.Maui.Controls.ScrollToPosition.Center, animate: false);
+				return;
+			}
+
+			var indexPath = GetScrollToIndexPath(carousel.Position);
+			if (LayoutFactory2.IsIndexPathValid(indexPath, CollectionView))
+			{
+				CollectionView.ScrollToItem(indexPath, IsHorizontal
+					? UICollectionViewScrollPosition.CenteredHorizontally
+					: UICollectionViewScrollPosition.CenteredVertically, false);
 			}
 		}
 
@@ -216,6 +205,8 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 		}
 
 		internal bool InitialPositionSet { get; private set; }
+		internal bool IsResizing { get; set; }
+		internal CGSize ArrangedSize { get; set; }
 
 		void TearDown(CarouselView carouselView)
 		{
@@ -228,16 +219,10 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			_scrollDebounce = null;
 
 			UnsubscribeCollectionItemsSourceChanged(ItemsSource);
-			// Remove the block-based observer using the stored token (RemoveObserver(this,...) does not remove block observers).
-			if (_orientationObserver is not null)
-			{
-				NSNotificationCenter.DefaultCenter.RemoveObserver(_orientationObserver);
-				_orientationObserver = null;
-			}
 			_carouselViewLoopManager?.Dispose();
 			_carouselViewLoopManager = null;
 			_isUpdating = false;
-			_isRotating = false;
+			IsResizing = false;
 			_isInternalCollectionUpdate = false;
 			// Don't let a pending scroll target survive re-attach.
 			_gotoPosition = -1;
@@ -256,10 +241,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			_oldViews = new List<View>();
 
 			SubscribeCollectionItemsSourceChanged(ItemsSource);
-
-			// Re-register on every attach for proper Setup/TearDown symmetry.
-			// ViewDidLoad is called only once, but TearDown removes the observer on every detach.
-			_orientationObserver = NSNotificationCenter.DefaultCenter.AddObserver(UIDevice.OrientationDidChangeNotification, DeviceOrientationChanged);
 		}
 
 		internal void UpdateIsScrolling(bool isScrolling)
@@ -472,11 +453,6 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 			return _isUpdating;
 		}
 
-		internal bool IsRotating()
-		{
-			return _isRotating;
-		}
-
 		internal void UpdateLoop()
 		{
 			if (!InitialPositionSet)
@@ -567,8 +543,8 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 
 		internal void SetPosition(int position)
 		{
-			// Suppress spurious calls from UIKit scroll callbacks during a collection batch update
-			if (_isInternalCollectionUpdate)
+			// Ignore transient native positions during collection updates and resizing.
+			if (_isInternalCollectionUpdate || IsResizing)
 			{
 				return;
 			}
@@ -924,11 +900,7 @@ namespace Microsoft.Maui.Controls.Handlers.Items2
 		{
 			if (disposing)
 			{
-				if (_orientationObserver is not null)
-				{
-					NSNotificationCenter.DefaultCenter.RemoveObserver(_orientationObserver);
-					_orientationObserver = null;
-				}
+				IsResizing = false;
 				_scrollDebounce?.Cancel();
 				_scrollDebounce?.Dispose();
 				_scrollDebounce = null;
