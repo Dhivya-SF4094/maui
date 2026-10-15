@@ -51,7 +51,7 @@ namespace Microsoft.Maui.Handlers
 		public override void PlatformArrange(Rect rect)
 		{
 			base.PlatformArrange(rect);
-			if (_previousSize.Width != rect.Width || _previousSize.Height != rect.Height)
+			if (_previousSize != rect.Size)
 			{
 				UpdateValue(nameof(IButtonStroke.CornerRadius));
 				_previousSize = rect.Size;
