@@ -89,6 +89,15 @@ namespace Microsoft.Maui.Handlers
 			handler.PlatformView?.UpdateStrokeColor(buttonStroke);
 		}
 
+		public override void PlatformArrange(Rect rect)
+		{
+			var previousSize = ContainerView?.Bounds.Size ?? PlatformView.Bounds.Size;
+			base.PlatformArrange(rect);
+			if (previousSize != (ContainerView?.Bounds.Size ?? PlatformView.Bounds.Size))
+			{
+				UpdateValue(nameof(IButtonStroke.CornerRadius));
+			}
+		}
 		public static void MapStrokeThickness(IButtonHandler handler, IButtonStroke buttonStroke)
 		{
 			handler.PlatformView?.UpdateStrokeThickness(buttonStroke);
@@ -96,7 +105,14 @@ namespace Microsoft.Maui.Handlers
 
 		public static void MapCornerRadius(IButtonHandler handler, IButtonStroke buttonStroke)
 		{
-			handler.PlatformView?.UpdateCornerRadius(buttonStroke);
+			if (handler.PlatformView is UIButton platformView && buttonStroke.CornerRadius >= 0)
+			{
+				// Arrange updates the container before UIKit lays out its UIButton child.
+				var bounds = handler.ContainerView is UIView container ? container.Bounds : platformView.Bounds;
+				platformView.Layer.CornerRadius = bounds.Width > 0 && bounds.Height > 0
+					? (float)Math.Min(buttonStroke.CornerRadius, Math.Min(bounds.Width, bounds.Height) / 2)
+					: buttonStroke.CornerRadius;
+			}
 		}
 
 		public static void MapText(IButtonHandler handler, IText button)

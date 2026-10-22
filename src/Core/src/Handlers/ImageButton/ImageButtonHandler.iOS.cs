@@ -11,8 +11,6 @@ namespace Microsoft.Maui.Handlers
 		public override bool NeedsContainer => true;
 
 		readonly ImageButtonProxy _proxy = new();
-		Size _previousSize;
-
 		protected override void SetupContainer()
 		{
 			base.SetupContainer();
@@ -50,11 +48,11 @@ namespace Microsoft.Maui.Handlers
 
 		public override void PlatformArrange(Rect rect)
 		{
+			var previousSize = ContainerView?.Bounds.Size ?? PlatformView.Bounds.Size;
 			base.PlatformArrange(rect);
-			if (_previousSize != rect.Size)
+			if (previousSize != (ContainerView?.Bounds.Size ?? PlatformView.Bounds.Size))
 			{
 				UpdateValue(nameof(IButtonStroke.CornerRadius));
-				_previousSize = rect.Size;
 			}
 		}
 
@@ -96,7 +94,14 @@ namespace Microsoft.Maui.Handlers
 
 		public static void MapCornerRadius(IImageButtonHandler handler, IButtonStroke buttonStroke)
 		{
-			handler.PlatformView?.UpdateCornerRadius(buttonStroke);
+			if (handler.PlatformView is UIButton platformView && buttonStroke.CornerRadius >= 0)
+			{
+				// Arrange updates the container before UIKit lays out its UIButton child.
+				var bounds = handler.ContainerView is UIView container ? container.Bounds : platformView.Bounds;
+				platformView.Layer.CornerRadius = bounds.Width > 0 && bounds.Height > 0
+					? (float)Math.Min(buttonStroke.CornerRadius, Math.Min(bounds.Width, bounds.Height) / 2)
+					: buttonStroke.CornerRadius;
+			}
 			handler.UpdateValue(nameof(IImageButton.Padding));
 		}
 

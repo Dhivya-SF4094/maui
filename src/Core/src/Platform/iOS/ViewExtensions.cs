@@ -871,9 +871,7 @@ namespace Microsoft.Maui.Platform
 				layer.BorderWidth = (float)stroke.StrokeThickness;
 
 			if (stroke.CornerRadius >= 0)
-			{
-				layer.CornerRadius = layer.GetEffectiveCornerRadius(stroke.CornerRadius);
-			}
+				layer.CornerRadius = stroke.CornerRadius;
 		}
 
 		internal static T? FindResponder<T>(this UIView view) where T : UIResponder
