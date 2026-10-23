@@ -94,14 +94,7 @@ namespace Microsoft.Maui.Handlers
 
 		public static void MapCornerRadius(IImageButtonHandler handler, IButtonStroke buttonStroke)
 		{
-			if (handler.PlatformView is UIButton platformView && buttonStroke.CornerRadius >= 0)
-			{
-				// Arrange updates the container before UIKit lays out its UIButton child.
-				var bounds = handler.ContainerView is UIView container ? container.Bounds : platformView.Bounds;
-				platformView.Layer.CornerRadius = bounds.Width > 0 && bounds.Height > 0
-					? (float)Math.Min(buttonStroke.CornerRadius, Math.Min(bounds.Width, bounds.Height) / 2)
-					: buttonStroke.CornerRadius;
-			}
+			handler.PlatformView?.UpdateCornerRadius(buttonStroke);
 			handler.UpdateValue(nameof(IImageButton.Padding));
 		}
 
