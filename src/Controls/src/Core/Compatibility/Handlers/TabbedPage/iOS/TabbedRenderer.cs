@@ -6,9 +6,11 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Foundation;
 using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Controls.Platform;
 using Microsoft.Maui.Graphics;
+using ObjCRuntime;
 using UIKit;
 using static Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific.Page;
 using PageUIStatusBarAnimation = Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific.UIStatusBarAnimation;
@@ -17,7 +19,7 @@ using TranslucencyMode = Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecif
 
 namespace Microsoft.Maui.Controls.Handlers.Compatibility
 {
-	public class TabbedRenderer : UITabBarController, IPlatformViewHandler
+	public class TabbedRenderer : UITabBarController, IPlatformViewHandler, IUINavigationControllerDelegate
 	{
 		bool _barBackgroundColorWasSet;
 		bool _barTextColorWasSet;
@@ -40,6 +42,7 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 		public static CommandMapper<TabbedPage, TabbedRenderer> CommandMapper = new CommandMapper<TabbedPage, TabbedRenderer>(TabbedViewHandler.ViewCommandMapper);
 
 		ViewHandlerDelegator<TabbedPage> _viewHandlerWrapper;
+		bool _updatingCurrentPageFromMoreNavigation;
 		Page Page => Element as Page;
 
 		[Microsoft.Maui.Controls.Internals.Preserve(Conditional = true)]
@@ -58,7 +61,10 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 				// If the selected view controller is the "More" navigation controller, do not update the current page
 				// because it is a special case where the user is navigating to a different set of tabs
 				if (value == MoreNavigationController)
+				{
+					MoreNavigationController.WeakDelegate = this;
 					return;
+				}
 
 				UpdateCurrentPage();
 			}
@@ -263,7 +269,8 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 
 				SetNeedsUpdateOfHomeIndicatorAutoHidden();
 				SetNeedsStatusBarAppearanceUpdate();
-				SelectedViewController = controller;
+				if (!_updatingCurrentPageFromMoreNavigation)
+					SelectedViewController = controller;
 			}
 			else if (e.PropertyName == nameof(TabbedPage.FlowDirection))
 				UpdateFlowDirection();
@@ -560,6 +567,38 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 				var index = (int)SelectedIndex;
 				tabbed.CurrentPage = index >= 0 && index < count ? tabbed.GetPageByIndex(index) : null;
 			}
+		}
+
+		void UpdateCurrentPage(UIViewController viewController)
+		{
+			if (viewController is null || Tabbed is not TabbedPage tabbed)
+				return;
+
+			foreach (Page page in tabbed.InternalChildren)
+			{
+				if (!ReferenceEquals(GetViewController(page), viewController))
+					continue;
+
+				_updatingCurrentPageFromMoreNavigation = true;
+				try
+				{
+					tabbed.CurrentPage = page;
+				}
+				finally
+				{
+					_updatingCurrentPageFromMoreNavigation = false;
+				}
+
+				return;
+			}
+		}
+
+		[Export("navigationController:didShowViewController:animated:")]
+		[Foundation.Preserve(AllMembers = true)]
+		internal void DidShowViewController(UINavigationController navigationController, [Transient] UIViewController viewController, bool animated)
+		{
+			if (ReferenceEquals(navigationController, MoreNavigationController))
+				UpdateCurrentPage(viewController);
 		}
 
 		async void SetTabBarItem(IPlatformViewHandler renderer)
