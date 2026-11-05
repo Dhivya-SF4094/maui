@@ -991,15 +991,24 @@ namespace Microsoft.Maui.Controls.Handlers.Items
 
 		void SetCurrentItemFromRenderer(object item)
 		{
+			var carousel = Carousel;
 			var wasUpdatingCurrentItem = _isUpdatingCurrentItem;
 			_isUpdatingCurrentItem = true;
 			try
 			{
-				Carousel.SetValueFromRenderer(CarouselView.CurrentItemProperty, item);
+				carousel.SetValueFromRenderer(CarouselView.CurrentItemProperty, item);
 			}
 			finally
 			{
 				_isUpdatingCurrentItem = wasUpdatingCurrentItem;
+			}
+
+			// BindableObject drains nested assignments before the setter returns.
+			// Replay an application selection after renderer synchronization finishes.
+			if (!wasUpdatingCurrentItem && ReferenceEquals(Carousel, carousel)
+				&& !Equals(carousel.CurrentItem, item))
+			{
+				((IMauiCarouselRecyclerView)this).UpdateFromCurrentItem();
 			}
 		}
 
