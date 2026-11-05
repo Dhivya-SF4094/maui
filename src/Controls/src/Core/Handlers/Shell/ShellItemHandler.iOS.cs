@@ -32,7 +32,7 @@ namespace Microsoft.Maui.Controls.Handlers
         readonly Dictionary<UITableViewCell, UIColor?> _defaultMoreTextLabelTextColors = new();
         ShellSection? _currentSection;
         Page? _displayedPage;
-        UIColor? _defaultContentBackgroundColor;
+        readonly ShellItemRenderer.ContentBackgroundState _contentBackgroundState = new();
         internal IShellSectionRenderer? CurrentRenderer { get; private set; }
 
         IShellItemController ShellItemController => (IShellItemController)VirtualView;
@@ -70,7 +70,7 @@ namespace Microsoft.Maui.Controls.Handlers
         protected override void ConnectHandler(UIView platformView)
         {
             base.ConnectHandler(platformView);
-            _defaultContentBackgroundColor = platformView.BackgroundColor;
+            _contentBackgroundState.DefaultBackgroundColor = platformView.BackgroundColor;
             _shellContext = VirtualView!.FindParentOfType<Shell>()?.Handler as IShellContext;
 
             _appearanceTracker = _shellContext?.CreateTabBarAppearanceTracker();
@@ -199,6 +199,7 @@ namespace Microsoft.Maui.Controls.Handlers
             }
 
             ShellItemController.ItemsCollectionChanged -= OnItemsCollectionChanged;
+            _contentBackgroundState.Reset();
         }
 
         #endregion
@@ -490,7 +491,7 @@ namespace Microsoft.Maui.Controls.Handlers
             e.PropertyName == VisualElement.BackgroundProperty.PropertyName ||
             e.PropertyName == VisualElement.OpacityProperty.PropertyName)
             {
-                ShellItemRenderer.UpdateContentBackground(PlatformView, _displayedPage, _defaultContentBackgroundColor);
+                ShellItemRenderer.UpdateContentBackground(PlatformView, _displayedPage, _contentBackgroundState);
             }
         }
 
@@ -631,7 +632,7 @@ namespace Microsoft.Maui.Controls.Handlers
                 UpdateLargeTitles();
                 UpdateNavBarHidden();
             }
-            ShellItemRenderer.UpdateContentBackground(PlatformView, _displayedPage, _defaultContentBackgroundColor);
+            ShellItemRenderer.UpdateContentBackground(PlatformView, _displayedPage, _contentBackgroundState);
         }
 
         #endregion
