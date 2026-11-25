@@ -22,7 +22,7 @@ namespace Microsoft.Maui.TestCases.Tests
 #elif MACUITEST
 	[TestFixture(TestDevice.Mac)]
 #elif WINTEST
-		[TestFixture(TestDevice.Windows)]
+	[TestFixture(TestDevice.Windows)]
 #endif
 	public abstract class UITest : UITestBase
 	{
@@ -94,7 +94,7 @@ namespace Microsoft.Maui.TestCases.Tests
 					config.SetProperty("Headless", bool.Parse(Environment.GetEnvironmentVariable("HEADLESS") ?? "false"));
 					break;
 				case TestDevice.iOS:
-					string udid = Environment.GetEnvironmentVariable("DEVICE_UDID") ?? "";
+					string udid = Environment.GetEnvironmentVariable("DEVICE_UDID") ?? "E99EEAA1-BDEE-4E9E-9041-B747C80CDA8D";
 					if (!string.IsNullOrEmpty(udid))
 					{
 						config.SetProperty("Udid", udid);

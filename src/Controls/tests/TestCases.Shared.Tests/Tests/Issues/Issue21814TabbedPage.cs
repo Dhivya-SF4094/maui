@@ -26,6 +26,27 @@ public class Issue21814TabbedPage : _IssuesUITest
 
 	public override string Issue => "Add better parameters for navigation args (TabbedPage)";
 
+#if TEST_FAILS_ON_WINDOWS && TEST_FAILS_ON_ANDROID && TEST_FAILS_ON_CATALYST // The native iOS More list is specific to iOS.
+	[Test]
+	[Category(UITestCategories.TabbedPage)]
+	public void SelectingMoreTabRaisesNavigatedToAndSelectsPage()
+	{
+		// Issue 16175: exercise UIKit's real More-list selection, not a programmatic push.
+		App.TapTab("Tab 1");
+		App.WaitForElement(Tab1Content);
+		App.WaitForElement("More");
+		App.Tap("More");
+		App.WaitForElement("Tab 6");
+		App.Tap("Tab 6");
+		App.WaitForElement("MoreTabContent");
+
+		Assert.That(App.WaitForTextEqualToElement("MoreTabNavigationStatus", "Navigated"), Is.True,
+			"OnNavigatedTo should be raised for the More child.");
+		Assert.That(App.WaitForTextEqualToElement("MoreTabSelectionStatus", "Selected"), Is.True,
+			"The More child should become TabbedPage.CurrentPage.");
+	}
+#endif
+
 	[Test, Order(1)]
 	[Category(UITestCategories.TabbedPage)]
 	public void InitialTabLoadShowsCorrectNavigationInfo()
