@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls.Maps;
@@ -12,6 +13,9 @@ using Xunit;
 using ACircle = Android.Gms.Maps.Model.Circle;
 using APolygon = Android.Gms.Maps.Model.Polygon;
 using APolyline = Android.Gms.Maps.Model.Polyline;
+using LatLng = Android.Gms.Maps.Model.LatLng;
+using PolygonOptions = Android.Gms.Maps.Model.PolygonOptions;
+using PolylineOptions = Android.Gms.Maps.Model.PolylineOptions;
 using static Microsoft.Maui.DeviceTests.AssertHelpers;
 
 namespace Microsoft.Maui.DeviceTests
@@ -19,6 +23,55 @@ namespace Microsoft.Maui.DeviceTests
 	[Category(TestCategory.Map)]
 	public class MapElementOptionsLifecycleTests : ControlsHandlerTestBase
 	{
+		[Theory]
+		[InlineData(false)]
+		[InlineData(true)]
+		public async Task GeopathUpdatesReplaceRetainedOptionsPoints(bool isPolygon)
+		{
+			IGeoPathMapElement element = isPolygon ? new Polygon() : new Polyline();
+			var geopath = element is Polygon polygon ? polygon.Geopath : ((Polyline)element).Geopath;
+			var handler = await CreateHandlerAsync<MapElementHandler>(element);
+
+			await InvokeOnMainThreadAsync(() =>
+			{
+				void AssertPoints(params Location[] expected)
+				{
+					IList<LatLng> points = handler.PlatformView switch
+					{
+						PolygonOptions options => options.Points,
+						PolylineOptions options => options.Points,
+						_ => throw new InvalidOperationException("Unexpected map element options.")
+					};
+
+					Assert.Equal(expected.Length, points.Count);
+					for (int i = 0; i < expected.Length; i++)
+					{
+						Assert.Equal(expected[i].Latitude, points[i].Latitude, 4);
+						Assert.Equal(expected[i].Longitude, points[i].Longitude, 4);
+					}
+				}
+
+				var first = new Location(47.6358, -122.1319);
+				var second = new Location(47.6378, -122.1299);
+				var third = new Location(47.6388, -122.1289);
+
+				AssertPoints(new Location(0, 0));
+				geopath.Add(first);
+				geopath.Add(second);
+				element.Add(third);
+				AssertPoints(first, second, third);
+
+				geopath.RemoveAt(0);
+				AssertPoints(second, third);
+				geopath.Clear();
+				AssertPoints(new Location(0, 0));
+				element.Add(first);
+				AssertPoints(first);
+
+				((IElementHandler)handler).DisconnectHandler();
+			});
+		}
+
 		[Fact]
 		public async Task PolylineHandlerIsNotRetainedAfterAdd()
 		{
@@ -79,6 +132,37 @@ namespace Microsoft.Maui.DeviceTests
 				timeout: 5000,
 				interval: 100,
 				message: "Timed out waiting for native polyline updates.");
+		}
+
+		[Fact]
+		public async Task ReaddingMutatedPolylineUsesCurrentGeopath()
+		{
+			var polyline = CreatePolyline();
+			var mapHandler = await AddMapElementAndWaitForNativeIdAsync(polyline);
+			var map = (Map)mapHandler.VirtualView;
+
+			await InvokeOnMainThreadAsync(() =>
+			{
+				map.MapElements.Remove(polyline);
+				polyline.Geopath.RemoveAt(0);
+				polyline.Geopath.Add(new Location(47.6408, -122.1279));
+				polyline.Add(new Location(47.6418, -122.1269));
+				map.MapElements.Add(polyline);
+			});
+
+			await AssertEventually(
+				() => InvokeOnMainThreadAsync(() =>
+				{
+					var points = mapHandler.GetPlatformPolyline(polyline)?.Points;
+					return points is not null &&
+						points.Count == polyline.Geopath.Count &&
+						points.Zip(polyline.Geopath, (native, location) =>
+							AreClose(native.Latitude, location.Latitude) &&
+							AreClose(native.Longitude, location.Longitude)).All(matches => matches);
+				}),
+				timeout: 5000,
+				interval: 100,
+				message: "The re-added polyline did not match its current geopath.");
 		}
 
 		[Fact]
