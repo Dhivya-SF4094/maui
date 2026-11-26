@@ -165,7 +165,7 @@ namespace Microsoft.Maui.Platform
 				// Skip listeners for views inside AppBarLayout/MauiScrollView, and for recycler item views
 				// unless SafeAreaEdges was explicitly set.
 				if (view is not MaterialToolbar &&
-					(parent is AppBarLayout ||
+					((parent is AppBarLayout && !HasLocalInsetRootBelow(view, parent)) ||
 						parent is MauiScrollView ||
 						(parent is IMauiRecyclerView && !isInsideRecyclerEmptyView && !HasExplicitSafeAreaEdges(view))))
 				{
@@ -176,6 +176,20 @@ namespace Microsoft.Maui.Platform
 			}
 
 			return true;
+		}
+
+		static bool HasLocalInsetRootBelow(AView view, object ancestor)
+		{
+			var parent = view.Parent;
+			while (parent is not null && parent != ancestor)
+			{
+				if (parent is AView parentView && FindRegisteredListener(parentView) is not null)
+					return true;
+
+				parent = parent.Parent;
+			}
+
+			return false;
 		}
 
 		static MauiWindowInsetListener? FindRegisteredListener(AView parentView)
