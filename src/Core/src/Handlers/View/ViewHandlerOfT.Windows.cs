@@ -3,6 +3,7 @@ using System;
 using Microsoft.Maui.Graphics;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 
 namespace Microsoft.Maui.Handlers
 {
@@ -44,6 +45,7 @@ namespace Microsoft.Maui.Handlers
 
 			ContainerView ??= new WrapperView();
 			((WrapperView)ContainerView).Child = PlatformView;
+			MoveTransformation(PlatformView, ContainerView);
 
 			if (contentHost is not null)
 			{
@@ -61,7 +63,9 @@ namespace Microsoft.Maui.Handlers
 
 		protected override void RemoveContainer()
 		{
-			if (PlatformView is null || ContainerView is null || PlatformView.Parent != ContainerView)
+			if (PlatformView is null || ContainerView is null ||
+				(PlatformView.Parent != ContainerView &&
+					(ContainerView is not WrapperView currentWrapper || !currentWrapper.CachedChildren.Contains(PlatformView))))
 			{
 				CleanupContainerView(ContainerView);
 				ContainerView = null;
@@ -87,6 +91,7 @@ namespace Microsoft.Maui.Handlers
 				oldParentChildren?.RemoveAt(oldIdx);
 			}
 
+			MoveTransformation(ContainerView, PlatformView);
 			CleanupContainerView(ContainerView);
 			ContainerView = null;
 
@@ -115,5 +120,25 @@ namespace Microsoft.Maui.Handlers
 
 		static ContentControl? GetDirectContentHost(FrameworkElement child, DependencyObject? parent) =>
 		 parent is ContentControl host && ReferenceEquals(host.Content, child) ? host : null;
+
+		static void MoveTransformation(FrameworkElement source, FrameworkElement destination)
+		{
+			// Transform mappers target the outermost view. Move their local values without copying style defaults.
+			var transform = source.ReadLocalValue(UIElement.RenderTransformProperty) as Transform;
+			var projection = source.ReadLocalValue(UIElement.ProjectionProperty) as Projection;
+			if (transform is null && projection is null)
+			{
+				return;
+			}
+
+			var origin = source.RenderTransformOrigin;
+			source.ClearValue(UIElement.RenderTransformProperty);
+			source.ClearValue(UIElement.ProjectionProperty);
+			source.ClearValue(UIElement.RenderTransformOriginProperty);
+
+			destination.RenderTransformOrigin = origin;
+			destination.RenderTransform = transform;
+			destination.Projection = projection;
+		}
 	}
 }

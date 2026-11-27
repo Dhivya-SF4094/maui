@@ -24,6 +24,7 @@ namespace Microsoft.Maui.DeviceTests
 		[InlineData(false, false)]
 		[InlineData(false, true)]
 		[InlineData(true, false)]
+		[InlineData(true, true)]
 		public async Task CollectionView2LabelStaysHostedWhenBackgroundChanges(bool useHeader, bool startsWithBackground)
 		{
 			SetupBuilderCollectionView2();
@@ -35,7 +36,7 @@ namespace Microsoft.Maui.DeviceTests
 			else
 				collectionView.ItemTemplate = new Controls.DataTemplate(CreateLabel);
 
-			await CreateHandlerAndAddToWindow<CollectionViewHandler2>(collectionView, async _ =>
+			await CreateHandlerAndAddToWindow<CollectionViewHandler2>(collectionView, async handler =>
 			{
 				Label GetLabel() => header ?? collectionView.LogicalChildrenInternal.OfType<Label>()
 					.FirstOrDefault(label => label.IsLoaded);
@@ -48,33 +49,91 @@ namespace Microsoft.Maui.DeviceTests
 				FrameworkElement hostedView = startsWithBackground
 					? Assert.IsType<WrapperView>(labelHandler.ContainerView)
 					: platformLabel;
-				var host = Assert.IsAssignableFrom<UI.Xaml.Controls.ContentControl>(hostedView.Parent);
-				Assert.Same(hostedView, host.Content);
+				FrameworkElement host = useHeader
+					? Assert.IsType<UI.Xaml.Controls.Grid>(UI.Xaml.Media.VisualTreeHelper.GetParent(hostedView))
+					: Assert.IsAssignableFrom<UI.Xaml.Controls.ContentControl>(hostedView.Parent);
+				AssertHostedView(hostedView);
+				AssertTranslation(hostedView, 10);
 
 				if (startsWithBackground)
+				{
 					await ClearBackground();
+					AssertTranslation(platformLabel, 10);
+					if (useHeader)
+					{
+						var itemsView = handler.PlatformView;
+						var oldHeader = itemsView.GetDescendantByName<UI.Xaml.Controls.ContentControl>("HeaderContentControl");
+						Assert.NotNull(oldHeader);
+						Assert.Same(host, oldHeader.Content);
+
+						var template = itemsView.Template;
+						itemsView.Template = null;
+						itemsView.Template = template;
+						itemsView.ApplyTemplate();
+
+						await AssertEventually(() =>
+							itemsView.GetDescendantByName<UI.Xaml.Controls.ContentControl>("HeaderContentControl") is { } newHeader &&
+							newHeader != oldHeader && ReferenceEquals(newHeader.Content, host) &&
+							platformLabel.IsLoaded && IsHosted(platformLabel));
+						Assert.Null(oldHeader.Content);
+						AssertHostedView(platformLabel);
+					}
+				}
 				else
 					Assert.Null(labelHandler.ContainerView);
 
 				label.BackgroundColor = Colors.Red;
 				var wrapper = Assert.IsType<WrapperView>(labelHandler.ContainerView);
-				Assert.Same(wrapper, host.Content);
 				// WinUI attaches the wrapper's visual tree on a later layout pass.
 				await AssertEventually(() => wrapper.IsLoaded && platformLabel.IsLoaded &&
 					UI.Xaml.Media.VisualTreeHelper.GetParent(platformLabel) == wrapper);
+				AssertHostedView(wrapper);
+				AssertTranslation(wrapper, 10);
+				Assert.False(platformLabel.RenderTransform is UI.Xaml.Media.CompositeTransform);
 
+				label.TranslationX = 20;
+				AssertTranslation(wrapper, 20);
+				Assert.False(platformLabel.RenderTransform is UI.Xaml.Media.CompositeTransform);
 				await ClearBackground();
+				AssertTranslation(platformLabel, 20);
+
+				static void AssertTranslation(FrameworkElement view, double translationX) =>
+					Assert.Equal(translationX, Assert.IsType<UI.Xaml.Media.CompositeTransform>(view.RenderTransform).TranslateX);
 
 				async Task ClearBackground()
 				{
 					label.BackgroundColor = null;
 					Assert.Null(labelHandler.ContainerView);
-					Assert.Same(platformLabel, host.Content);
-					await AssertEventually(() => platformLabel.IsLoaded && platformLabel.Parent == host);
+					await AssertEventually(() => platformLabel.IsLoaded && IsHosted(platformLabel));
+					AssertHostedView(platformLabel);
+				}
+
+				bool IsHosted(FrameworkElement view) => host is UI.Xaml.Controls.ContentControl contentHost
+					? ReferenceEquals(contentHost.Content, view) && view.Parent == contentHost
+					: UI.Xaml.Media.VisualTreeHelper.GetParent(view) == host;
+
+				void AssertHostedView(FrameworkElement view)
+				{
+					Assert.True(IsHosted(view));
+					if (useHeader)
+					{
+						Assert.Equal(new UI.Xaml.Thickness(8, 4, 12, 6), host.Margin);
+						Assert.Equal(UI.Xaml.HorizontalAlignment.Right, host.HorizontalAlignment);
+						Assert.Equal(UI.Xaml.VerticalAlignment.Center, host.VerticalAlignment);
+						Assert.Equal(new UI.Xaml.Thickness(0), view.Margin);
+					}
 				}
 			});
 
-			Label CreateLabel() => new Label { Text = "Label", BackgroundColor = startsWithBackground ? Colors.Blue : null };
+			Label CreateLabel() => new Label
+			{
+				Text = "Label",
+				TranslationX = 10,
+				BackgroundColor = startsWithBackground ? Colors.Blue : null,
+				Margin = useHeader ? new Microsoft.Maui.Thickness(8, 4, 12, 6) : default,
+				HorizontalOptions = useHeader ? LayoutOptions.End : LayoutOptions.Fill,
+				VerticalOptions = useHeader ? LayoutOptions.Center : LayoutOptions.Fill
+			};
 		}
 
 		[Theory]

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Maui.Controls.Handlers.Items;
 using Microsoft.Maui.Controls.Platform;
 using Microsoft.Maui.Graphics;
 using Microsoft.UI.Xaml;
@@ -11,6 +12,7 @@ using WApp = Microsoft.UI.Xaml.Application;
 using WAutomationProperties = Microsoft.UI.Xaml.Automation.AutomationProperties;
 using WBorder = Microsoft.UI.Xaml.Controls.Border;
 using WControlTemplate = Microsoft.UI.Xaml.Controls.ControlTemplate;
+using WGrid = Microsoft.UI.Xaml.Controls.Grid;
 using WRectangle = Microsoft.UI.Xaml.Shapes.Rectangle;
 using WSolidColorBrush = Microsoft.UI.Xaml.Media.SolidColorBrush;
 using WStackPanel = Microsoft.UI.Xaml.Controls.StackPanel;
@@ -182,35 +184,58 @@ internal partial class MauiItemsView : UI.Xaml.Controls.ItemsView, IEmptyView
 	/// <summary>Sets the empty view content and its MAUI view counterpart.</summary>
 	public void SetEmptyView(FrameworkElement emptyView, View mauiEmptyView)
 	{
-		_emptyView = emptyView;
+		_emptyView = UpdateSupplementaryContent(_emptyView, emptyView, mauiEmptyView);
 		_mauiEmptyView = mauiEmptyView;
 
 		if (_emptyViewContentControl is not null)
 		{
-			_emptyViewContentControl.Content = emptyView;
+			_emptyViewContentControl.Content = _emptyView;
 		}
 	}
 
 	/// <summary>Sets the header content.</summary>
-	internal void SetHeader(FrameworkElement header)
+	internal void SetHeader(FrameworkElement header, View? mauiHeader)
 	{
-		_header = header;
+		_header = UpdateSupplementaryContent(_header, header, mauiHeader);
 
 		if (_headerContentControl is not null)
 		{
-			_headerContentControl.Content = header;
+			_headerContentControl.Content = _header;
 		}
 	}
 
 	/// <summary>Sets the footer content.</summary>
-	internal void SetFooter(FrameworkElement footer)
+	internal void SetFooter(FrameworkElement footer, View? mauiFooter)
 	{
-		_footer = footer;
+		_footer = UpdateSupplementaryContent(_footer, footer, mauiFooter);
 
 		if (_footerContentControl is not null)
 		{
-			_footerContentControl.Content = footer;
+			_footerContentControl.Content = _footer;
 		}
+	}
+
+	static FrameworkElement? UpdateSupplementaryContent(FrameworkElement? previous, FrameworkElement? content, View? view)
+	{
+		// Keep layout properties on a stable host while the handler swaps its wrapper in or out.
+#pragma warning disable RS0030 // Native Grid does not expose a cached Children collection.
+		var host = previous as WGrid;
+		if (content is null || view is null)
+		{
+			host?.Children.Clear();
+			return content;
+		}
+
+		host ??= new WGrid();
+		var children = host.Children;
+		if (!children.Contains(content))
+		{
+			children.Clear();
+			children.Add(content);
+		}
+#pragma warning restore RS0030
+		ItemsViewExtensions.ApplyMauiLayoutProperties(view, host);
+		return host;
 	}
 
 	protected override void OnApplyTemplate()
@@ -225,9 +250,9 @@ internal partial class MauiItemsView : UI.Xaml.Controls.ItemsView, IEmptyView
 		// Override it again here so it stays null regardless of template application order.
 		ItemTransitionProvider = null;
 
-		_emptyViewContentControl = GetTemplateChild("EmptyViewContentControl") as ContentControl;
-		_headerContentControl = GetTemplateChild("HeaderContentControl") as ContentControl;
-		_footerContentControl = GetTemplateChild("FooterContentControl") as ContentControl;
+		UpdateSupplementaryTemplatePart(ref _emptyViewContentControl, "EmptyViewContentControl", _emptyView);
+		UpdateSupplementaryTemplatePart(ref _headerContentControl, "HeaderContentControl", _header);
+		UpdateSupplementaryTemplatePart(ref _footerContentControl, "FooterContentControl", _footer);
 		_containerPanel = GetTemplateChild("PART_ContainerStack") as WStackPanel;
 		_itemsRepeater = GetTemplateChild("PART_ItemsRepeater") as FrameworkElement;
 		_scrollViewer = GetTemplateChild("PART_ScrollViewer") as ScrollViewer;
@@ -274,6 +299,19 @@ internal partial class MauiItemsView : UI.Xaml.Controls.ItemsView, IEmptyView
 		// allocates a Storyboard + 2 DoubleAnimations per drag gesture; caching one instance
 		// avoids the repeated allocations.
 		InitInsertionFadeStoryboard();
+	}
+
+	void UpdateSupplementaryTemplatePart(ref ContentControl? previous, string name, FrameworkElement? content)
+	{
+		var current = GetTemplateChild(name) as ContentControl;
+		if (previous != current && previous is not null && content is not null &&
+			ReferenceEquals(previous.Content, content))
+		{
+			// Release the stable host before assigning it to the new template part.
+			previous.Content = null;
+		}
+
+		previous = current;
 	}
 
 	void ItemsRepeater_AutomationElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)

@@ -1221,12 +1221,6 @@ public abstract class ItemsViewHandler2<TItemsView> : ViewHandler<TItemsView, WI
 			_emptyViewDisplayed = false;
 		}
 
-		// Apply MAUI margin/layout options to the platform EmptyView element.
-		// The MAUI layout system does not handle these when the view is hosted
-		// outside a MAUI layout (i.e. inside a WinUI ContentControl), so we
-		// must transfer them manually — same as we do for Header and Footer.
-		ItemsViewExtensions.ApplyMauiLayoutProperties(_mauiEmptyView, _emptyView as Microsoft.UI.Xaml.FrameworkElement);
-
 		(PlatformView as IEmptyView)?.SetEmptyView(_emptyView, _mauiEmptyView);
 		UpdateEmptyViewVisibility();
 	}
@@ -1343,11 +1337,9 @@ public abstract class ItemsViewHandler2<TItemsView> : ViewHandler<TItemsView, WI
 			return;
 		}
 
-		ItemsViewExtensions.ApplyMauiLayoutProperties(_mauiHeader, _header);
-
 		if (PlatformView is MauiItemsView platformItemsView && _header is not null)
 		{
-			platformItemsView.SetHeader(_header);
+			platformItemsView.SetHeader(_header, _mauiHeader);
 			platformItemsView.HeaderVisibility = WVisibility.Visible;
 		}
 
@@ -1428,11 +1420,9 @@ public abstract class ItemsViewHandler2<TItemsView> : ViewHandler<TItemsView, WI
 			return;
 		}
 
-		ItemsViewExtensions.ApplyMauiLayoutProperties(_mauiFooter, _footer);
-
 		if (PlatformView is MauiItemsView platformItemsView && _footer is not null)
 		{
-			platformItemsView.SetFooter(_footer);
+			platformItemsView.SetFooter(_footer, _mauiFooter);
 			platformItemsView.FooterVisibility = WVisibility.Visible;
 		}
 
