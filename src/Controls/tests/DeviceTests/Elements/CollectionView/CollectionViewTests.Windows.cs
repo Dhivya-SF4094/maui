@@ -21,6 +21,63 @@ namespace Microsoft.Maui.DeviceTests
 	public partial class CollectionViewTests
 	{
 		[Theory]
+		[InlineData(false, false)]
+		[InlineData(false, true)]
+		[InlineData(true, false)]
+		public async Task CollectionView2LabelStaysHostedWhenBackgroundChanges(bool useHeader, bool startsWithBackground)
+		{
+			SetupBuilderCollectionView2();
+
+			var collectionView = new CollectionView { ItemsSource = new[] { "Item" } };
+			var header = useHeader ? CreateLabel() : null;
+			if (useHeader)
+				collectionView.Header = header;
+			else
+				collectionView.ItemTemplate = new Controls.DataTemplate(CreateLabel);
+
+			await CreateHandlerAndAddToWindow<CollectionViewHandler2>(collectionView, async _ =>
+			{
+				Label GetLabel() => header ?? collectionView.LogicalChildrenInternal.OfType<Label>()
+					.FirstOrDefault(label => label.IsLoaded);
+
+				await AssertEventually(() => GetLabel()?.Handler?.PlatformView is UI.Xaml.Controls.TextBlock { IsLoaded: true });
+
+				var label = Assert.IsType<Label>(GetLabel());
+				var labelHandler = Assert.IsType<LabelHandler>(label.Handler);
+				var platformLabel = labelHandler.PlatformView;
+				FrameworkElement hostedView = startsWithBackground
+					? Assert.IsType<WrapperView>(labelHandler.ContainerView)
+					: platformLabel;
+				var host = Assert.IsAssignableFrom<UI.Xaml.Controls.ContentControl>(hostedView.Parent);
+				Assert.Same(hostedView, host.Content);
+
+				if (startsWithBackground)
+					await ClearBackground();
+				else
+					Assert.Null(labelHandler.ContainerView);
+
+				label.BackgroundColor = Colors.Red;
+				var wrapper = Assert.IsType<WrapperView>(labelHandler.ContainerView);
+				Assert.Same(wrapper, host.Content);
+				// WinUI attaches the wrapper's visual tree on a later layout pass.
+				await AssertEventually(() => wrapper.IsLoaded && platformLabel.IsLoaded &&
+					UI.Xaml.Media.VisualTreeHelper.GetParent(platformLabel) == wrapper);
+
+				await ClearBackground();
+
+				async Task ClearBackground()
+				{
+					label.BackgroundColor = null;
+					Assert.Null(labelHandler.ContainerView);
+					Assert.Same(platformLabel, host.Content);
+					await AssertEventually(() => platformLabel.IsLoaded && platformLabel.Parent == host);
+				}
+			});
+
+			Label CreateLabel() => new Label { Text = "Label", BackgroundColor = startsWithBackground ? Colors.Blue : null };
+		}
+
+		[Theory]
 		[InlineData(false)]
 		[InlineData(true)]
 		public async Task LegacyGridLayoutReplacementUpdatesPanelAndSubscription(bool useItemTemplate)

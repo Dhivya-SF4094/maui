@@ -9,10 +9,10 @@ namespace Microsoft.Maui.Handlers
 	public abstract partial class ViewHandler<TVirtualView, TPlatformView> : IPlatformViewHandler
 	{
 		public override void PlatformArrange(Rect rect) =>
-			this.PlatformArrangeHandler(rect);
+		 this.PlatformArrangeHandler(rect);
 
 		public override Size GetDesiredSize(double widthConstraint, double heightConstraint) =>
-			this.GetDesiredSizeFromHandler(widthConstraint, heightConstraint);
+		 this.GetDesiredSizeFromHandler(widthConstraint, heightConstraint);
 
 		protected override void SetupContainer()
 		{
@@ -21,10 +21,18 @@ namespace Microsoft.Maui.Handlers
 				return;
 			}
 
+			var parent = PlatformView.Parent;
+			var contentHost = GetDirectContentHost(PlatformView, parent);
+			// WinUI requires the element to leave its content slot before it can move into the wrapper.
+			if (contentHost is not null)
+			{
+				contentHost.Content = null;
+			}
+
 #pragma warning disable RS0030 // Do not use banned APIs; Panel.Children is banned for performance reasons. MauiPanel might not be used everywhere though.
-			var oldParentChildren = PlatformView.Parent is MauiPanel mauiPanel
-				? mauiPanel.CachedChildren
-				: (PlatformView.Parent as Panel)?.Children;
+			var oldParentChildren = parent is MauiPanel mauiPanel
+			 ? mauiPanel.CachedChildren
+			 : (parent as Panel)?.Children;
 #pragma warning restore RS0030 // Do not use banned APIs
 
 			var oldIndex = oldParentChildren?.IndexOf(PlatformView);
@@ -37,7 +45,11 @@ namespace Microsoft.Maui.Handlers
 			ContainerView ??= new WrapperView();
 			((WrapperView)ContainerView).Child = PlatformView;
 
-			if (oldIndex is int idx && idx >= 0)
+			if (contentHost is not null)
+			{
+				contentHost.Content = ContainerView;
+			}
+			else if (oldIndex is int idx && idx >= 0)
 			{
 				oldParentChildren?.Insert(idx, ContainerView);
 			}
@@ -56,10 +68,17 @@ namespace Microsoft.Maui.Handlers
 				return;
 			}
 
+			var parent = ContainerView.Parent;
+			var contentHost = GetDirectContentHost(ContainerView, parent);
+			if (contentHost is not null)
+			{
+				contentHost.Content = null;
+			}
+
 #pragma warning disable RS0030 // Do not use banned APIs; Panel.Children is banned for performance reasons. MauiPanel might not be used everywhere though.
-			var oldParentChildren = ContainerView.Parent is MauiPanel mauiPanel
-				? mauiPanel.CachedChildren
-				: (ContainerView.Parent as Panel)?.Children;
+			var oldParentChildren = parent is MauiPanel mauiPanel
+			 ? mauiPanel.CachedChildren
+			 : (parent as Panel)?.Children;
 #pragma warning restore RS0030 // Do not use banned APIs
 
 			var oldIndex = oldParentChildren?.IndexOf(ContainerView);
@@ -71,7 +90,11 @@ namespace Microsoft.Maui.Handlers
 			CleanupContainerView(ContainerView);
 			ContainerView = null;
 
-			if (oldIndex is int idx && idx >= 0)
+			if (contentHost is not null)
+			{
+				contentHost.Content = PlatformView;
+			}
+			else if (oldIndex is int idx && idx >= 0)
 			{
 				oldParentChildren?.Insert(idx, PlatformView);
 			}
@@ -89,5 +112,8 @@ namespace Microsoft.Maui.Handlers
 				}
 			}
 		}
+
+		static ContentControl? GetDirectContentHost(FrameworkElement child, DependencyObject? parent) =>
+		 parent is ContentControl host && ReferenceEquals(host.Content, child) ? host : null;
 	}
 }
